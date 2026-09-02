@@ -1,12 +1,12 @@
 {
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
-  "scope": "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
-  "ranAt": "2026-09-02T16:08:25.328Z",
+  "scope": "hosted production build with Chromium native WebMCP dispatch; not model-selected",
+  "ranAt": "2026-09-02T17:22:25.057Z",
   "evidence": {
-    "gitSha": "8a228b884d4d954fe6c4af8599cc5667a6c3c8c8",
+    "gitSha": "d089bac8b3859c4f27df5e2984a6c05fab2a1f51",
     "workingTreeDirty": true,
-    "sourceSha256": "26609a30594cfedd1e77075a0d98c2542c3f5f930b5f44b68bb7caf5eb86977c",
+    "sourceSha256": "ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118",
     "buildSha256": "b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d",
     "node": "v26.4.0",
     "browserFlags": [
@@ -17,7 +17,7 @@
   },
   "browser": "Chrome/151.0.7922.137",
   "protocol": "1.3",
-  "url": "http://127.0.0.1:4664/",
+  "url": "https://androlay.github.io/withheld/",
   "passed": 19,
   "failed": 0,
   "checks": [
@@ -106,7 +106,7 @@
       "detail": "WebMCP.invokeTool: Tool not found"
     },
     {
-      "name": "nothing left the machine",
+      "name": "nothing left the expected origin",
       "passed": true,
       "detail": "4 requests, 0 off-site"
     },
