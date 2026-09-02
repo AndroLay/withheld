@@ -22,7 +22,7 @@ minute to do both.
 | --- | --- | --- | --- |
 | Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **staging verified** — [androlay.github.io/withheld](https://androlay.github.io/withheld/), HTTPS enforced, Pages source `gh-pages` | owner |
 | Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` now points to the staging URL and public repository; final form review remains | mine |
-| Public repository | source, assets and instructions "required for the project to be functional" | **verified** — [AndroLay/withheld](https://github.com/AndroLay/withheld), public, main commit `4700df7` | owner |
+| Public repository | source, assets and instructions "required for the project to be functional" | **verified** — [AndroLay/withheld](https://github.com/AndroLay/withheld), public, current `main` branch | owner |
 | Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | **verified** — public repository exposes MIT | both |
 | A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — `src/tools/webmcp.ts:613-727`, nine tools | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
@@ -37,7 +37,7 @@ The repository and staging host are now published by the owner. The remaining it
 outward-facing gates that still require the owner's account, identity, recording, or submission action.
 
 1. **A public repository — complete.** [AndroLay/withheld](https://github.com/AndroLay/withheld) is
-   public, MIT-licensed, and its `main` branch is at commit `4700df7`.
+   public, MIT-licensed, and its current `main` branch is available.
 2. **Staging — complete.** GitHub Pages serves the build at
    [androlay.github.io/withheld](https://androlay.github.io/withheld/) from `gh-pages`; HTTPS is
    enforced. Clean flagged Chrome smoke checks passed 44/44 browser and 19/19 native WebMCP checks.
@@ -67,9 +67,9 @@ outward-facing gates that still require the owner's account, identity, recording
   sense read aloud, and no person other than the author has read the wording.
 - **Node 22 verification.** CI is pinned to it; every local run was Node 26. It has not run in this
   environment, so this remains open rather than a compatibility claim.
-- **Blocked evidence is recorded.** `docs/evidence/` contains explicit blocked/not-run artifacts
-  for hosted browser, hosted WebMCP, natural-language replay, GATE-P2, manual accessibility, and
-  performance. These are not substitutes for the missing gates.
+- **Open evidence is recorded.** `docs/evidence/` contains verified hosted browser/WebMCP
+  artifacts plus explicit blocked/not-run artifacts for natural-language replay, GATE-P2, manual
+  accessibility, and performance. These are not substitutes for the missing gates.
 
 ## The order these have to happen in
 

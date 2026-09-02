@@ -303,6 +303,7 @@ tool.** Statements here about how the interface reads, as opposed to how it lays
 answers a call, remain statements about the source, checked by reading it and by test. See
 `docs/PROGRESS.md` for the ledger of what is verified and what is not, and
 `docs/evidence/browser-session.json`, `docs/evidence/native-registry.json`,
-`docs/evidence/webmcp-invocation.json`, and `docs/evidence/failure-recovery.json` for what the
-local browser reported. The hosted, model-selected, screen-reader, performance, and non-builder
-evidence files remain explicitly blocked or not-run.
+`docs/evidence/webmcp-invocation.json`, and `docs/evidence/failure-recovery.json` for the recorded
+runs. The hosted browser/native staging artifacts are also present under the corresponding
+`hosted-*.json` names. Model-selected, screen-reader, performance, and non-builder evidence remain
+explicitly blocked or not-run.

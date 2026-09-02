@@ -203,9 +203,10 @@ default `self` for `tools` is exactly what is wanted, so the page can register t
 embedded third party cannot inherit them — but the policy cannot be tightened further, and
 the reason it is correct is a default rather than a choice this repository made.
 
-WebMCP additionally requires a secure context. GitHub Pages serves HTTPS, so the intended
-host satisfies that — but no host exists yet: there is no remote and nothing has been
-published. This is a precondition that the plan meets, not a mitigation that is in place.
+WebMCP additionally requires a secure context. GitHub Pages serves HTTPS, and the current staging
+host is `https://androlay.github.io/withheld/`. Clean flagged Chrome 151 smoke checks observed the
+native registry and dispatch path there. This is staging evidence, not proof of availability for the
+entire judging period or of a model-selected session.
 
 ## Supply chain
 
@@ -226,8 +227,10 @@ namespace constants that any React DOM build contains (`2000/svg`, `1999/xlink`,
 `WebSocket`, `localStorage`, `sessionStorage` and `document.cookie` returns nothing, which is
 the same claim made from the other end.
 
-The deploy workflow starts at `permissions: contents: read` and grants `pages: write` and
-`id-token: write` only in the deploy job, so a compromised build step cannot publish.
+The public package deliberately contains no deployment workflow. The current staging bundle is a
+manually published legacy GitHub Pages artifact, so GitHub Actions permissions are not part of the
+runtime trust boundary. Re-run the documented build and publish procedure only from a reviewed
+checkout.
 
 ## Not verified
 
@@ -242,15 +245,16 @@ The deploy workflow starts at `permissions: contents: read` and grants `pages: w
   every claim about what a model would do is still a claim about the surface's shape.
 - No third-party security review, and no threat model reviewed by anyone but the author.
 - CI is pinned to Node 22 and has never run; local verification was on Node 26.
-- No hosted URL or hosted native-WebMCP run exists. The local 19-check dispatch and the
-  27-check failure/recovery journey are recorded under `docs/evidence/`, but neither is hosted
-  evidence or model-selected behaviour.
+- The hosted staging browser and native-WebMCP runs are recorded under `docs/evidence/` with
+  44/44 and 19/19 checks respectively. The 27-check failure/recovery journey remains local, and
+  none of these deterministic CDP runs is model-selected behaviour.
 - No independent screen-reader session, representative-device performance baseline, or GATE-P2
   non-builder session has been run; each remains explicitly marked in the evidence directory.
-- The page has been rendered in a browser and measured, but only for layout, policy, focus and
-  console output. Statements here about how the interface reads — that the release buttons are the
-  only path out, that points appear only in the teacher's column — remain statements about the
-  source, checked by reading it and by test, not judgements anyone has made by eye.
+- The page has been rendered in a browser and measured for layout, policy, focus, contrast, the
+  accessibility tree, and console/network output. Statements here about how the interface reads —
+  that the release buttons are the only path out, that points appear only in the teacher's column —
+  still remain statements about the source and automated checks, not judgements from a person or a
+  screen reader.
 
 ## Verified in a browser
 
@@ -265,5 +269,7 @@ The deploy workflow starts at `permissions: contents: read` and grants `pages: w
 
 ## Reporting
 
-Nothing is published yet, so there is no disclosure address. When a repository exists, this
-section gets one.
+The public repository is `https://github.com/AndroLay/withheld`. It contains no backend, credentials,
+student PII, or runtime data store. No private disclosure address is configured; report any issue
+through the repository owner before using the package with real data. This prototype is not a
+production student-record system.

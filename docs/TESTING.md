@@ -326,8 +326,8 @@ something a fixture had already decided. A check that passes for the wrong reaso
 check.
 
 **It is still not a model.** The script picked the tools, wrote the arguments and knew the revision to
-quote. `docs/PROGRESS.md` keeps the five classes of evidence apart, and the two empty rows — a model,
-and a hosted URL — stay empty.
+quote. `docs/PROGRESS.md` keeps the five classes of evidence apart: hosted staging browser/dispatch
+evidence is now recorded, while the model-selected row remains empty.
 
 ## The local failure/recovery journey
 

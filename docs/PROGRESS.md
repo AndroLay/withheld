@@ -158,7 +158,7 @@ rather than the current source.
 
 What that run established, and what nothing before it could:
 
-- **The layout holds, and it is the one the target image draws.** Three tracks at 1440px —
+- **The layout holds, and it is the one the visual brief describes.** Three tracks at 1440px —
   `322px 761px 357px`: the policy rail, the work, the agent's contract — and one track at 420px.
   The foot bar computes to `position: sticky`. Nothing spills sideways at either width: `scrollWidth`
   equals `clientWidth` at 1440 and at 420.
@@ -336,12 +336,13 @@ has a rule for every class the page uses and another asks whether the page reach
 sheet defines — one is an arithmetic guard standing behind a written excuse in that reverse sweep, and
 the other sixteen take one part of the page each.
 
-## Blocked on the owner
+## Owner-only gates
 
 Not started, and not mine to start:
 
-- **Publication and staging.** The public repository is `AndroLay/withheld` at main commit
-  `4700df7`; GitHub Pages serves the staging build from `gh-pages` commit `abd0c71`.
+- **The final outward-facing submission.** The public repository and HTTPS staging URL are
+  available, but the owner must still complete eligibility, record the video, and submit the
+  Devpost form.
 
 Settled since this file was first written:
 
@@ -372,10 +373,10 @@ Settled since this file was first written:
   The instrument now exists — `docs/GATE-P2.md` has the four questions, the protocol, the rules the
   observer has to follow, and an empty Result section — so what is left is twenty minutes and one
   person. The page opens in a browser now, so nothing technical is in the way.
-- The public repository is now published under `AndroLay/withheld`, with the source at main commit
-  `4700df7` and a Pages artifact at `gh-pages` commit `abd0c71`. The hosted-origin evidence harness
-  fix is being carried forward with the next source commit; model replay, GATE-P2, and the video
-  remain open.
+- The public repository is now published under `AndroLay/withheld`, with package/evidence on `main`
+  and the application at Pages commit `abd0c71`, built from application commit `d089bac`. The
+  hosted-origin evidence harness fix is included in that application snapshot;
+  model replay, GATE-P2, and the video remain open.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
   list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
   judge's instructions — with the staging URL and repository URL filled in. It remains a draft until
@@ -383,8 +384,6 @@ Settled since this file was first written:
 
 ## Note on scope
 
-The active submission scope is limited to this package and `submissions/flowline/`.
-`prototypes/decision-receipt-room/` and the older candidate documents under
-`docs/research/` are historical provenance, not additional submissions. See
-`docs/research/44-active-submission-scope.md` for the authoritative scope; old candidate
-names must not be reused in the public submission copy.
+The active scope of this standalone public repository is Withheld only. Older design references
+and candidate names are historical provenance, not additional submissions, and must not be reused
+in the public submission copy.

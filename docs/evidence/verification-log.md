@@ -32,8 +32,9 @@ the tested source/build hashes.
 
 ## Explicitly not run or not proven
 
-- Node 22 fresh-install verification and GitHub Actions CI: not proven. The repository workflow is
-  present, but the GitHub account's Actions job was blocked by an account billing lock.
+- Node 22 fresh-install verification and GitHub Actions CI: not proven. The public package does not
+  include a deployment workflow; the legacy Pages staging branch was published separately. A prior
+  workflow attempt in the source workspace was blocked by the GitHub account billing lock.
 - Natural-language model replay: no authorized client/model session was available. No scripted CDP
   invocation is represented as model behavior.
 - GATE-P2: no independent non-builder marker/workflow owner was available.

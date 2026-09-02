@@ -51,8 +51,10 @@ or a decision.
 
 ## Current staging
 
-The public `main` commit `4700df7` is deployed as a static GitHub Pages staging build from
-`gh-pages` commit `abd0c71`. Open [https://androlay.github.io/withheld/](https://androlay.github.io/withheld/)
+The public `main` branch contains the staged source, instructions, and bound evidence. The
+application bundle is deployed as a static GitHub Pages staging build from `gh-pages` commit
+`abd0c71` and was built from application commit `d089bac`. Open
+[https://androlay.github.io/withheld/](https://androlay.github.io/withheld/)
 in Chrome 149 or newer with WebMCP testing enabled. A clean flagged Chrome 151 smoke run against
 that URL passed 44/44 browser checks and 19/19 native WebMCP dispatch checks. Those runs used the
 browser harness, not a natural-language model; model replay, GATE-P2, and the final submission video

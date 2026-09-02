@@ -549,10 +549,10 @@ reasons specific to this submission, not out of taste:
 - **The form takes one live URL.** A judge who lands on a marketing page has to click again to reach
   the thing being judged, and every extra click is a place to lose them. The workspace *is* the
   argument, so the argument has to be on it.
-- **A hub already exists and is not mine.** The repository's deploy workflow copies
-  `.github/pages-index.html` to `site/index.html` and this package to `site/withheld/`. A second
-  landing page inside the package would be a third page nobody asked for, in a file owned by other
-  work.
+- **A hub existed in the original workspace and is not part of this package.** Its deploy workflow
+  copied `.github/pages-index.html` to `site/index.html` and this package to `site/withheld/`. The
+  standalone public snapshot intentionally contains no hub or deployment workflow. A second
+  landing page inside the package would be a third page nobody asked for.
 - **Two documents drift.** A separate page repeats the counts, the tool names and the claim, and the
   copy on it is not reachable by any test. Every figure in the band is derived from the session the
   page runs on: the answers it was given, the marks that exist, the holds `holdsFor()` computes, and

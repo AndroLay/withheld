@@ -343,8 +343,10 @@ This deterministic local CDP harness records one continuous journey in
 `docs/evidence/failure-recovery.json`: clean read, safe refusals, bounded proposal, stale and
 duplicate recovery, stage, human decline, reload, re-stage, human confirm, receipt, and final
 reread. The latest run is 27/27. It deliberately uses synthetic alias-only data, stores no answer
-bodies, point values, or pass boundaries, and is not a model replay or a persistence test. Hosted and model
-runs have separate blocked artifacts under `docs/evidence/`.
+bodies, point values, or pass boundaries, and is not a model replay or a persistence test.
+The hosted browser and dispatch runs are recorded separately in `hosted-browser-session.json` and
+`hosted-webmcp-invocation.json`. Reload intentionally demonstrates the documented fixture-only
+fallback to a new in-memory session.
 
 ## Checking for WebMCP
 
