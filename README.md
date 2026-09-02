@@ -49,6 +49,15 @@ page and deciding. Those are different kinds of unfinished, and the lists below 
 first is what has been checked by running it, the second is what would need a model, a person, a host,
 or a decision.
 
+## Current staging
+
+The public `main` commit `4700df7` is deployed as a static GitHub Pages staging build from
+`gh-pages` commit `abd0c71`. Open [https://androlay.github.io/withheld/](https://androlay.github.io/withheld/)
+in Chrome 149 or newer with WebMCP testing enabled. A clean flagged Chrome 151 smoke run against
+that URL passed 44/44 browser checks and 19/19 native WebMCP dispatch checks. Those runs used the
+browser harness, not a natural-language model; model replay, GATE-P2, and the final submission video
+remain open.
+
 Built and verified locally:
 
 - Page-owned mark arithmetic as a pure function.
@@ -162,7 +171,9 @@ Not built, and not claimed:
   release is staged; a staged release, by declining it; the history, because every write leaves a
   receipt; and any mark, by re-entering it. One cannot: a release a person has confirmed. That is a
   decision, not a gap — see `docs/DECISIONS.md` D-23.
-- No hosted URL, no video, and no validation by anyone other than the author.
+- The hosted staging URL is live and has passed clean Chrome smoke checks, but there is no video
+  and no validation by anyone other than the author. Staging is not a claim that E4 or the final
+  submission gates are complete.
 
 `SECURITY.md` carries the threat model: prompt injection through student answers, the
 absence of a release tool, the information boundary, and what a header-less static host

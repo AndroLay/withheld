@@ -566,8 +566,16 @@ async function main() {
   const requests = cdp.events
     .filter((event) => event.method === "Network.requestWillBeSent")
     .map((event) => event.params.request.url);
-  const offsite = requests.filter((request) => !request.startsWith("http://127.0.0.1:") && !request.startsWith("data:"));
-  check("nothing left the machine", offsite.length === 0, `${requests.length} requests, ${offsite.length} off-site`);
+  const expectedOrigin = new URL(url).origin;
+  const offsite = requests.filter((request) => {
+    if (request.startsWith("data:")) return false;
+    try {
+      return new URL(request).origin !== expectedOrigin;
+    } catch {
+      return true;
+    }
+  });
+  check("nothing left the expected origin", offsite.length === 0, `${requests.length} requests, ${offsite.length} off-site`);
 
   const errors = consoleErrors(cdp.events);
   const favicon = cdp.events.filter(
@@ -586,7 +594,9 @@ async function main() {
   const report = {
     status: failed.length === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
     evidenceClass: "VERIFIED_ARTIFACT",
-    scope: "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
+    scope: GIVEN_URL
+      ? "hosted production build with Chromium native WebMCP dispatch; not model-selected"
+      : "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
     ranAt: new Date().toISOString(),
     evidence,
     browser: version.product,
@@ -634,7 +644,9 @@ async function main() {
       {
         status: report.failed === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
         evidenceClass: "VERIFIED_ARTIFACT",
-        scope: "local loopback Chromium native WebMCP registry; not hosted and not model-selected",
+        scope: GIVEN_URL
+          ? "hosted Chromium native WebMCP registry; not model-selected"
+          : "local loopback Chromium native WebMCP registry; not hosted and not model-selected",
         ranAt: report.ranAt,
         evidence: report.evidence,
         browser: report.browser,
@@ -643,8 +655,10 @@ async function main() {
         toolCount: report.registry.length,
         tools: report.registry,
         notClaimed:
-          "This is a local native-registry observation from the flagged Chromium run. It does not " +
-          "prove a hosted URL, model-selected replay, or judge-client compatibility.",
+          (GIVEN_URL
+            ? "This is a hosted native-registry observation from the flagged Chromium run. It does not "
+            : "This is a local native-registry observation from the flagged Chromium run. It does not ") +
+          "prove a model-selected replay or judge-client compatibility.",
       },
       null,
       2,

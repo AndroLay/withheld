@@ -275,7 +275,7 @@ quote. See the next section for what that leaves open.
   | the browser's registry | the API exists, nine tools registered | both scripts | green |
   | dispatch through it | a call from outside reaches the handler, and the page moves | `pnpm webmcp` — 19 checks | green |
   | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
-  | a hosted URL | a stranger can open it | nothing | **absent** |
+  | a hosted URL | a stranger can open it | [androlay.github.io/withheld](https://androlay.github.io/withheld/) — HTTPS Pages staging, clean flagged Chrome 151 smoke 44/44 and native 19/19 | **verified for staging** |
 
   Anything that reads a green run as evidence of the last two rows is wrong, and this file exists to
   make that mistake hard.
@@ -286,9 +286,10 @@ quote. See the next section for what that leaves open.
   read it at all. Those are the gaps; the arithmetic does not close them.
 - CI is pinned to Node 22 and has never run. Every local run was on Node 26.4.0, so the floor in
   `package.json` is inferred from when `--experimental-strip-types` shipped rather than observed.
-- Hosted browser/dispatch, natural-language model replay, GATE-P2, manual screen-reader review,
-  and controlled performance baseline remain explicitly blocked or not-run; their runbooks are
-  stored under `docs/evidence/` rather than represented as passes.
+- Hosted browser/dispatch now has a clean flagged Chrome 151 staging smoke result: 44/44 browser
+  checks and 19/19 native WebMCP dispatch checks. Natural-language model replay, GATE-P2, manual
+  screen-reader review, and controlled performance baseline remain explicitly blocked or not-run;
+  their runbooks are stored under `docs/evidence/` rather than represented as passes.
 
 
 ## What exists, file by file
@@ -339,8 +340,8 @@ the other sixteen take one part of the page each.
 
 Not started, and not mine to start:
 
-- **Publication.** No git remote, no push, no GitHub Pages, no Devpost entry. The decision to
-  publish is reserved.
+- **Publication and staging.** The public repository is `AndroLay/withheld` at main commit
+  `4700df7`; GitHub Pages serves the staging build from `gh-pages` commit `abd0c71`.
 
 Settled since this file was first written:
 
@@ -361,7 +362,8 @@ Settled since this file was first written:
   stays an anchor — and the only frame that can honestly be compared against the mockup is
   `docs/evidence/browser-fold-1487.png`, because a full-page capture paints the sticky foot across the
   middle of the document.
-- No demo video, no hosted URL, no review by anyone other than the author.
+- No demo video and no review by anyone other than the author. The hosted staging URL is live
+  and has passed the smoke checks recorded above.
 - `GATE-P1` is closed the honest way rather than the strong way: no primary source on marking
   workload was read, so `README.md` now states in as many words that the size of the problem was
   not measured here. The gate allowed either; this is the weaker half of it.
@@ -370,17 +372,14 @@ Settled since this file was first written:
   The instrument now exists — `docs/GATE-P2.md` has the four questions, the protocol, the rules the
   observer has to follow, and an empty Result section — so what is left is twenty minutes and one
   person. The page opens in a browser now, so nothing technical is in the way.
-- Seven commits exist for this work: the first builds the package, the second records the browser
-  session and the layout fix it found, the third rebuilds the page to the first target images, the
-  fourth adds the invocation run and the submission paperwork, the fifth opens the page with a band that
-  states the claim, the sixth measures contrast and the accessibility tree and folds the contract
-  column on a phone, and the seventh redraws the page to the refined monochrome target. The current
-  reliability hardening remains in the working tree until it is reviewed and committed. None has
-  been pushed anywhere.
+- The public repository is now published under `AndroLay/withheld`, with the source at main commit
+  `4700df7` and a Pages artifact at `gh-pages` commit `abd0c71`. The hosted-origin evidence harness
+  fix is being carried forward with the next source commit; model replay, GATE-P2, and the video
+  remain open.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
   list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
-  judge's instructions — with the live URL and the repository URL still written as placeholders,
-  because neither exists, and with no sentence in it checked against a hosted page.
+  judge's instructions — with the staging URL and repository URL filled in. It remains a draft until
+  the owner completes final form review, model replay if available, and the video.
 
 ## Note on scope
 

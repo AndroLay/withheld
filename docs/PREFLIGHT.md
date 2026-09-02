@@ -20,26 +20,27 @@ minute to do both.
 
 | requirement | the rules' words | status | whose call |
 | --- | --- | --- | --- |
-| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **absent** | owner |
-| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` is complete for the local artifact but still has the live/repository placeholders | mine |
-| Public repository | source, assets and instructions "required for the project to be functional" | **absent** — no remote exists | owner |
-| Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | file present, detection unverifiable until a repository exists | both |
+| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **staging verified** — [androlay.github.io/withheld](https://androlay.github.io/withheld/), HTTPS enforced, Pages source `gh-pages` | owner |
+| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` now points to the staging URL and public repository; final form review remains | mine |
+| Public repository | source, assets and instructions "required for the project to be functional" | **verified** — [AndroLay/withheld](https://github.com/AndroLay/withheld), public, main commit `4700df7` | owner |
+| Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | **verified** — public repository exposes MIT | both |
 | A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — `src/tools/webmcp.ts:613-727`, nine tools | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
-| Free, unrestricted access through judging | no login needed; credentials required only if the site is private | the page needs no account and makes no network request; hosting is the open half | owner |
-| English | everything in English or translated | **partial** — submission-facing copy and target-image notes are English; the internal audit registers still contain Indonesian notes and should not be presented as submission copy | mine |
+| Free, unrestricted access through judging | no login needed; credentials required only if the site is private | staging needs no account and makes no network request; keep the URL live through judging | owner |
+| English | everything in English or translated | **present** — public source and submission-facing documentation are in English; internal audit notes and design references are excluded | mine |
 | New work, dated | new in the window, or an existing project meaningfully extended, "documented with dated evidence such as commit history" | done — every commit for this package is 2026-09-01 or later, and each touches only `submissions/withheld/` | done |
 | Eligibility and a Representative | tied to OpenAI's supported-countries list; a team or organisation names one authorised Representative | **unverified** — I have not checked the list, and the entrant is not me | owner |
 
-## Blocked on the owner, and only on the owner
+## External status
 
-Nothing below is started. Each is an outward-facing act, and the standing instruction in this
-workspace is that publication is the owner's decision, per instance, in their own words.
+The repository and staging host are now published by the owner. The remaining items below are the
+outward-facing gates that still require the owner's account, identity, recording, or submission action.
 
-1. **A public repository.** `gh repo create`, or a remote and a push. The local candidate history includes source commit `8a228b8` and evidence refresh `8b0a3ae`, both authored by `AndroLay`; no remote exists.
-2. **Hosting.** GitHub Pages, Cloudflare Pages, Netlify, Vercel — any static host. The artefact is
-   already subpath-safe: `vite.config.ts` sets `base: "./"` and `dist/index.html` emits
-   `./assets/…`, so a project-page URL works without a rebuild.
+1. **A public repository — complete.** [AndroLay/withheld](https://github.com/AndroLay/withheld) is
+   public, MIT-licensed, and its `main` branch is at commit `4700df7`.
+2. **Staging — complete.** GitHub Pages serves the build at
+   [androlay.github.io/withheld](https://androlay.github.io/withheld/) from `gh-pages`; HTTPS is
+   enforced. Clean flagged Chrome smoke checks passed 44/44 browser and 19/19 native WebMCP checks.
 3. **The video.** Three minutes, with a voice on it. Nobody but the owner can record it.
 4. **The Devpost form.** Registration, the four description points, the URLs, and the status reading
    `Submitted` — which is the only state that counts.
@@ -48,15 +49,12 @@ workspace is that publication is the owner's decision, per instance, in their ow
 
 ## Mine, and still undone
 
-- **The text description.** Drafted, not finished: `docs/SUBMISSION-TEXT.md` has all four points, the
-  judge's testing instructions and the list of things it must not claim, written against the page as
-  built here. What it does not have is a live URL, a repository URL, or a single sentence checked
-  against a hosted page. Both placeholders are marked, and step 5 below is when it stops being a
-  draft.
-- **The testing instructions** are updated for the local artifact: browser flags, the 44-check
-  session, the 19-check WebMCP dispatch, the 27-check failure/recovery journey, the concurrent-form
-  conflict, and the human release path. The artifacts explicitly say local/CDP, not hosted or model.
-  They still need one hosted-URL run before they can be called instructions for the final entry.
+- **The text description.** Drafted: `docs/SUBMISSION-TEXT.md` has all four points, judge instructions,
+  the staging URL, the public repository URL, and the list of claims it must not make. Final form review
+  remains the owner's responsibility.
+- **The testing instructions** cover the local artifact, and a clean flagged Chrome 151 smoke run against
+  the hosted URL passed 44/44 browser and 19/19 native WebMCP checks. The hosted run was CDP-selected,
+  not a natural-language model replay; model replay, GATE-P2, and manual accessibility review remain open.
 - **`GATE-P2`.** Ten minutes with one person who did not build the page, four written questions, and an
   honest record of what they said. The instrument is `docs/GATE-P2.md`; what it needs is a person.
   This is the weakest criterion in the whole entry — Potential Impact rests on a problem I have
@@ -80,20 +78,20 @@ The dependencies are real, not preferences:
 1. **`GATE-P2` first**, because it is the only item that can still change the page. If the person who
    reads it cannot say what the page is for, the description and the video would be built on a
    misunderstanding, and both are expensive to redo.
-2. **Publish the repository**, because the licence requirement is about a repository page and the video
-   will show a URL.
-3. **Host, then open the hosted URL in a clean browser** — ChatGPT's in-app browser or Chrome 149+ with
-   `chrome://flags/#enable-webmcp-testing`. A local run proves nothing about a host: the CSP travels in
-   a meta tag, `base: "./"` has never been served from a subpath, and `document.modelContext` requires
-   a secure context, which `127.0.0.1` grants and an `http://` host would not.
-4. **Re-run `node --run webmcp` against the hosted URL** with `--url`, so the invocation evidence is
-   about the thing judges will open rather than about `dist/` on this machine.
-5. **Write the description and the testing instructions** from what the hosted page did. The draft in
-   `docs/SUBMISSION-TEXT.md` is written to be corrected here, not pasted before here.
+2. **Publish the repository — complete.** The public repository and MIT licence are now visible at
+   [github.com/AndroLay/withheld](https://github.com/AndroLay/withheld).
+3. **Host and open the hosted URL — complete for staging.** The site is served over HTTPS at
+   [androlay.github.io/withheld](https://androlay.github.io/withheld/) from the `gh-pages` branch.
+4. **Run WebMCP against the hosted URL — complete for staging.** Clean flagged Chrome 151 passed
+   44/44 browser checks and 19/19 native WebMCP dispatch checks. These are CDP-selected runs, not
+   natural-language model replay.
+5. **Write the description and testing instructions.** The draft now contains the staging and
+   repository URLs; final form review and video recording remain.
 6. **Record the video** last, because it shows the URL and the flow, and both are settled by then.
 7. **Fill the form**, verify the status reads `Submitted`, and keep the host up until 2026-09-21.
 
-Steps 1 and 2 are independent of each other; everything after 3 depends on 3.
+The staging checks are complete; model replay, GATE-P2, accessibility review by a person, video, and
+submission remain dependent on external participants or the owner's account.
 
 ## What must not be said on the form
 

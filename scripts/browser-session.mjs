@@ -1081,9 +1081,9 @@ async function main() {
 
   const shots = { marked: await shoot(cdp, 1440, 900, "browser-1440-marked.png") };
 
-  // The same first screen at the mockup's own size, clipped to the viewport, so the redesign can be
-  // laid beside `docs/target-images/withheld-v3-monochrome-refined.png` without either image having to
-  // be scaled. Departures visible in that pair are listed in `docs/DECISIONS.md` D-27.
+  // The same first screen at 1487×1058, clipped to the viewport, records the initial fold without
+  // retaining a private design reference in the public evidence package. Deliberate departures are
+  // listed in `docs/DECISIONS.md` D-27.
   shots.fold = await shoot(cdp, 1487, 1058, "browser-fold-1487.png", false);
 
   // Staging is the one thing static markup cannot check: the focus move is an effect.
@@ -1144,7 +1144,7 @@ async function main() {
     }`,
   );
 
-  // The one thing the target images asked for that the page did not do until now: in one column the
+  // The one thing the visual brief asked for that the page did not do until now: in one column the
   // contract stops being a thousand words between the stack and the gate and becomes a panel. Both
   // halves are measured — that it arrives closed, and that pressing it produces the whole column —
   // because a disclosure that opens onto nothing is worse than no disclosure. The press is a real
@@ -1174,8 +1174,16 @@ async function main() {
   const requests = cdp.events
     .filter((event) => event.method === "Network.requestWillBeSent")
     .map((event) => event.params.request.url);
-  const offsite = requests.filter((request) => !request.startsWith("http://127.0.0.1:") && !request.startsWith("data:"));
-  check("nothing left the machine", offsite.length === 0, `${requests.length} requests, ${offsite.length} off-site`);
+  const expectedOrigin = new URL(url).origin;
+  const offsite = requests.filter((request) => {
+    if (request.startsWith("data:")) return false;
+    try {
+      return new URL(request).origin !== expectedOrigin;
+    } catch {
+      return true;
+    }
+  });
+  check("nothing left the expected origin", offsite.length === 0, `${requests.length} requests, ${offsite.length} off-site`);
 
   const enforcement = await cdp.evaluate(ENFORCEMENT);
   check("an inline script is blocked by the policy", enforcement.inlineScriptRan === false, `ran=${enforcement.inlineScriptRan}`);
@@ -1196,7 +1204,9 @@ async function main() {
   const report = {
     status: failed.length === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
     evidenceClass: "VERIFIED_ARTIFACT",
-    scope: "local production build in flagged Chromium; not hosted and not model-selected",
+    scope: GIVEN_URL
+      ? "hosted production build in flagged Chromium; not model-selected"
+      : "local production build in flagged Chromium; not hosted and not model-selected",
     ranAt: new Date().toISOString(),
     evidence,
     browser: version.product,

@@ -1,7 +1,8 @@
 # Submission text — draft, unsent
 
 What the Devpost fields need, written to be pasted. Every sentence is true of the page as built and
-verified on this machine; the two bracketed placeholders are the two facts that do not exist yet.
+verified locally and against the hosted staging smoke run. Model replay, human validation, and the
+final video remain open.
 Nothing here has been submitted, and submitting is the owner's decision.
 
 Written 2026-09-01 17:15 UTC, in the same clock every other document in this package uses. Before
@@ -100,7 +101,8 @@ build, browser flags, and screenshot hashes.
 
 ## Testing instructions for a judge
 
-Open **[LIVE URL]** in Chrome 149 or newer with `chrome://flags/#enable-webmcp-testing` enabled and
+Open **[the hosted staging URL](https://androlay.github.io/withheld/)** in Chrome 149 or newer with
+`chrome://flags/#enable-webmcp-testing` enabled and
 the browser relaunched, or in ChatGPT's in-app browser. Nothing to install, no account, no key.
 
 1. Read the band under the top bar first: one sentence — *the page owns the decision* — and the whole
@@ -125,7 +127,7 @@ the browser relaunched, or in ChatGPT's in-app browser. Nothing to install, no a
    can do; sending is the only way a mark leaves the page and no tool reaches it.
 7. To see the registrations: `(await document.modelContext.getTools()).length` → `9`.
 
-Source and full instructions: **[REPOSITORY URL]**.
+Source and full instructions: **[github.com/AndroLay/withheld](https://github.com/AndroLay/withheld)**.
 
 Known limits, so they are not discoveries: contrast is computed and the accessibility tree is read,
 but no screen reader has been run and no person other than the author has read the page; the phone

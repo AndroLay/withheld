@@ -55,7 +55,10 @@ export function evidenceMeta(
   packageRoot,
   { browserFlags = [], artifactPaths = [] } = {},
 ) {
-  const repoRoot = resolve(packageRoot, "../..");
+  const packagePath = resolve(packageRoot);
+  const detectedRepoRoot = commandOutput("git", ["rev-parse", "--show-toplevel"], packagePath);
+  const repoRoot = detectedRepoRoot ? resolve(detectedRepoRoot) : resolve(packagePath, "../..");
+  const statusPath = repoRoot === packagePath ? "." : "submissions/withheld";
   const sourceHash = treeHash(packageRoot, [
     "index.html",
     "vite.config.ts",
@@ -68,7 +71,7 @@ export function evidenceMeta(
     "scripts",
   ]);
   const buildHash = treeHash(packageRoot, ["dist"]);
-  const status = commandOutput("git", ["status", "--porcelain", "--", "submissions/withheld"], repoRoot);
+  const status = commandOutput("git", ["status", "--porcelain", "--", statusPath], repoRoot);
 
   return {
     gitSha: commandOutput("git", ["rev-parse", "HEAD"], repoRoot),

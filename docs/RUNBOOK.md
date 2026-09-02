@@ -83,7 +83,7 @@ reading of the work; below 62rem all three stack in source order — the stack, 
 the contract. The bar stays put at every width.
 
 The top bar's two controls are anchors, not buttons. They move you to `#audit-title` and to
-`#gate-title`; neither performs anything. The target image draws the second one as a filled button that
+`#gate-title`; neither performs anything. The visual brief draws the second one as a filled button that
 looks like the send control, and this page does not, for the reason recorded in `docs/DECISIONS.md` as
 D-21: one control sends a mark, and it is at the foot. `tests/render.test.mts` asserts the bar renders
 no `<button>` at all.
@@ -207,7 +207,7 @@ It checks what static markup cannot:
 
 - the grid, the pinned bar, and that nothing spills sideways at 1440px or at 420px — including that
   there are three tracks at 1440px and that they measure `322px 761px 357px`, which is the layout the
-  target images draw;
+  visual brief draws;
 - that the status band is still a band: above the columns rather than inside one, its four figures on a
   single row at 1440px, and under a height ceiling, since a band that grows tall pushes the work it
   introduces off the screen. It reads the four figures off the rendered page too, before and after the
