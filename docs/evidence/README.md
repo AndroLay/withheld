@@ -1,8 +1,8 @@
 # Withheld evidence package
 
 This directory records what was actually observed for the public staging snapshot. It does not
-claim E4 completion. The tested application source is commit `d089bac8b3859c4f27df5e2984a6c05fab2a1f51`
-(`Document Withheld staging status`), authored and committed as `AndroLay
+claim E4 completion. The tested application source is commit `53cc3cfe3d5ab64feb9d233054598015bf1c4ce8`
+(`Document Withheld staging surface`), authored and committed as `AndroLay
 <AndroLay@users.noreply.github.com>`.
 
 The source-tree SHA256 is `ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118` and

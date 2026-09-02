@@ -2,9 +2,9 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "hosted production build in flagged Chromium; not model-selected",
-  "ranAt": "2026-09-02T17:22:10.615Z",
+  "ranAt": "2026-09-02T18:28:40.290Z",
   "evidence": {
-    "gitSha": "d089bac8b3859c4f27df5e2984a6c05fab2a1f51",
+    "gitSha": "53cc3cfe3d5ab64feb9d233054598015bf1c4ce8",
     "workingTreeDirty": false,
     "sourceSha256": "ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118",
     "buildSha256": "b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d",
@@ -1599,10 +1599,10 @@
     "afterProbes": 2
   },
   "screenshots": {
-    "marked": "/tmp/withheld-public-polish.FPjeSh/docs/evidence/browser-1440-marked.png",
-    "fold": "/tmp/withheld-public-polish.FPjeSh/docs/evidence/browser-fold-1487.png",
-    "staged": "/tmp/withheld-public-polish.FPjeSh/docs/evidence/browser-1440-staged.png",
-    "narrow": "/tmp/withheld-public-polish.FPjeSh/docs/evidence/browser-420-staged.png"
+    "marked": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-1440-marked.png",
+    "fold": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-fold-1487.png",
+    "staged": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-1440-staged.png",
+    "narrow": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-420-staged.png"
   },
   "notClaimed": "This run reads the WebMCP registry; it does not let a model call a tool. No browser agent has driven these tools. Contrast here is arithmetic on what the cascade composed, not a judgement about whether the page reads well; the accessibility tree is what a screen reader would be handed, not a recording of one speaking. Wording has been read by nobody but the author."
 }

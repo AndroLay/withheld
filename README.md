@@ -201,11 +201,10 @@ The latest available verification is split by evidence class:
 | Controlled performance baseline | Not run | `UNKNOWN` |
 | E4 | **Not achieved** | External evidence and human gates remain open |
 
-The local checked-in evidence files are dated 2026-09-02 and are bound to a local snapshot. Hosted
-evidence for the public staging snapshot is maintained separately in the public release package.
-The browser/CDP artifacts predate the current uncommitted README and harness state, so they are
-candidate evidence rather than proof of this working tree; regenerate them after the final source
-freeze. Do not combine local/CDP, hosted, model, and human-validation evidence into one claim.
+The evidence reports are bound to the tested application commit and source/build hashes recorded
+inside them. The browser/CDP artifacts are deterministic observations, not model replay; regenerate
+them whenever source or harness behavior changes. Do not combine local/CDP, hosted, model, and
+human-validation evidence into one claim.
 
 ## Scope and limitations
 
