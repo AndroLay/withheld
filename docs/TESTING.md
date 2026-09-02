@@ -1,0 +1,309 @@
+# Testing
+
+110 tests, all passing, without a browser. `pnpm test` runs them through the Node test runner with
+`--experimental-strip-types`. A separate program, `pnpm browser`, covers what only a browser can
+answer; it is described at the foot of this file.
+
+```
+tests/marks.test.mts            6   arithmetic and rubric redaction
+tests/agent-boundary.test.mts   9   the fail-closed guard
+tests/session.test.mts         21   authority: holds, refusals, release
+tests/views.test.mts           12   paired projections, and the policy comparison
+tests/webmcp.test.mts          20   the nine tools, registration, and the page's copy of both
+tests/boundary-inference.test.mts  6   GATE-W1: what the agent could derive
+tests/styles.test.mts           8   the stylesheet, the policy and the breakpoint that shaped it
+tests/contrast.test.mts         7   the palette, by arithmetic, including that it is grey
+tests/render.test.mts          21   every part of the page, rendered to static markup
+```
+
+## What each file is for
+
+**`marks.test.mts`** — the arithmetic is a pure function, so it is tested as one. A rubric line
+id that does not exist earns nothing. A line claimed twice is paid once. `redactRubricForAgent`
+output carries no point value and no boundary.
+
+**`agent-boundary.test.mts`** — the guard, tested against synthetic payloads. A number at an
+unlisted path is caught; a page-owned number spelled into a string is caught by the canary; the
+guard throws rather than returning a flag, so there is no way to ignore it by accident.
+
+**`session.test.mts`** — the largest file, because authority is where the design lives. It pins
+the exact expected hold list for the worked example, checks monotonicity across all three care
+settings, asserts quarantine beats marking, and asserts that no refusal message contains a
+digit.
+
+**`views.test.mts`** — that the agent-facing projection of each view is missing what it must be
+missing: no total, no boundary, no distance, no pass/fail split, and no near-boundary hold. It
+also covers the two projections the page keeps for itself — the release outcome, and the policy
+comparison, where raising the care setting may never hold fewer answers than the setting below it
+and asking the question may not change the session it was asked about.
+
+**`webmcp.test.mts`** — the surface itself: exactly nine tools in a stable order, the read/write
+split, the annotations, Chrome's description and name budgets, argument validation, and
+registration behaviour including StrictMode, teardown, re-install and partial failure. Four of the
+twenty are about the panel that shows all this to a reader with no agent: that `toolSurfaceFacts()`
+lists the same nine the registration does, that building the surface reads no session at all, that
+each payload the page prints is `deepEqual` to what the matching tool returns, and that those
+printed payloads pass the same two boundary checks. A panel that drifted from the tools would be a
+drawing of the boundary rather than the boundary, and it would drift silently.
+
+**`boundary-inference.test.mts`** — the other files ask whether a tool result *contains* a
+page-owned number. This one asks whether an agent could *derive* one, or the fact the redactions
+exist to hide: which answer sits on the grade cliff. It covers the four channels that carry no
+number at all — a receipt naming a set the page chose, two answers on opposite sides of the
+boundary, a repeated probe, and an ordering. It exists because it found a real leak: the release
+receipt used to hand back every releasable answer id, which is the held set by subtraction.
+`docs/GATE-W1.md` is the record, including the two channels these tests do not close.
+
+**`styles.test.mts`** — the stylesheet, treated as a contract rather than as decoration. Under
+`style-src 'self'` a proportional bar cannot be sized with `style={{ width }}`, so `gaugeStop()`
+quantises the ratio to a 5% grid and the sheet supplies the width. A missing rule is silent and it
+lies: the bar renders at zero and reads as a student who scored nothing. The test walks every total
+from 0 to 200 against six different rubric ceilings, collects every stop the helper can emit, and
+asserts all twenty-one `bars__fill--N` rules exist — then asks the same of the two figures the audit
+actually draws, the credited row and the pass-mark row, which ride identical rails so that the pair
+can be compared by eye, and neither of which may ask for more rail than there is. Then the class
+families no one types by hand (row and avatar and state tones, gap badges, flow steps, agent-status
+dots), that the sheet references no remote asset, and that all three hold-wording tables still cover
+the same reasons with a three-link chain that ends on a person. One test reads
+`vite.config.ts` as text and holds the hosted policy to the shape the rest of the file assumes: all
+nine directives present, and no `'unsafe-inline'` anywhere. Blocking an inline width is only a design
+constraint while the policy that blocks it stays where it is, and widening it is the cheapest way out
+of the constraint. Another holds the breakpoint: `useOneColumn()` exports the media query it
+listens to as a string, and the test asserts the sheet switches `.app__cols` to more than one track at
+that same width. Two copies of a breakpoint drift silently, and the failure would be a contract column
+folded away on a desktop, or a phone with a third column off the side of the screen.
+
+**`contrast.test.mts`** — the palette, settled by arithmetic before any browser is involved. WCAG
+2.1's relative luminance, 4.5:1 for body text and 3:1 for shapes that carry meaning: every ink on
+every ground the sheet declares, the same sweep in reverse for the agent's column, the label on a
+control that cannot be pressed — WCAG exempts it and this page declines the exemption — the two
+filled buttons that commit something, the audit's two bars against their rail, and the focus ring
+against every surface the keyboard can reach. Two of the seven are about the palette rather than any
+pair in it: that no token is more than ten steps off grey, so nothing on this page is said in a
+channel some readers cannot receive, and that no rule outside `:root` names a colour of its own,
+which is what makes the other five sweeps exhaustive rather than illustrative. What arithmetic cannot
+settle is composition — which pair actually meets which pixel after the cascade — so the browser
+session measures that separately. This file guards the palette; the probe guards the page.
+
+**`render.test.mts`** — every component, rendered to static markup, twenty-three renders in all. It
+exists because these renders used to be a script run by hand and deleted afterwards, which made the
+strongest claims in `docs/PROGRESS.md` rest on the weakest evidence: true on the day, unenforced
+after it. Vite is the loader, because Node's type stripping erases types and cannot transform JSX;
+the server runs in middleware mode and never listens on a port. Every count it asserts is derived
+from the fixtures and the domain rather than typed in — three rows on the first page and "of 14" in
+the foot because the queue pages three at a time through fourteen answers, sixteen checkboxes because
+those three rows and the answer open above them each carry the rubric's four lines, five audit entries
+because `holdsFor` returns five — so changing a fixture moves the expectation with the page. It also
+sweeps the stylesheet in both directions: every class the page asks for must have a rule, and every
+rule the sheet defines must be reached by one of the twenty-three renders. The reverse direction is
+the reason six of those renders exist.
+
+## The four tests worth reading first
+
+**The boundary sweep.** Twelve tool calls in sequence — read, mark the stack, then read again so
+the later results are computed from real marks and real holds — asserting after every one that
+neither `forbiddenNumericPaths` nor `forbiddenNumbersInText` fires anywhere on the surface.
+Adding a numeric field to any tool result fails here rather than shipping.
+
+**The release receipt.** No answer id from the stack may appear anywhere in a `request_release`
+result. The agent named nothing in that call, so any id in the reply is a set the page chose, and
+the set it would choose is the releasable one — which is the held set inverted. This is the test
+that caught the one leak the numeric guard could not see, because an id is not a number.
+
+**The source-text test.** It reads `src/tools/webmcp.ts` as a string and asserts the file never
+contains `confirmRelease`, and that no tool name matches `confirm|release_now|send_to_student`.
+An assertion about a file's text is a blunt instrument, and it is the right one: the claim being
+defended is about absence, and absence cannot be tested by calling something.
+
+**The release attempt.** Mark the whole stack, then request a release four times in a row, then
+assert `releasedAnswerIds` is still empty and the request is still sitting on the page.
+
+## What these tests cannot tell you
+
+This section matters more than the one above it.
+
+**They do not prove an agent behaves.** The tests call `tool.execute(args)` directly. That
+establishes the *shape* of the surface — what it accepts, what it returns, what it refuses. It
+says nothing about what a real browser agent does when it reads an injected answer, because no
+agent has ever driven these tools. Every claim in this repository about agent behaviour is a
+claim about the surface, not a recording.
+
+**They render, and not in a browser.** Those are two claims and the second one is the limit.
+`render.test.mts` builds twenty-three renders on every run: the top bar (no button at all, two
+anchors — the audit and the gate — and the revision read off the session), the band in both of its
+states (four figures, each the session's own: answers, marked, held, staged; no button, no anchor and
+no `h1`, and the live region already in the markup before it has text; then the same band with the
+worked example applied, the figures moved and the region saying how many are held back for you), the
+left rail in three states (four
+flow steps with
+exactly one marked current, four steps naming the act they are, three care rows, none disabled at the standard
+setting, and every setting below the current one locked once the care setting has been raised), the
+queue in five states (it pages the class rather than printing it — fewer rows than there are answers,
+and a foot whose "1–n of fourteen" agrees with the rows above it; exactly one answer open in full; a
+mark form in every row and one more in the open card, with all four rubric lines tickable on each; and
+no proportional bar anywhere, because the audit owns the only bar on the page), the contract column in five
+states (ten tool rows for nine tools and
+one that does not exist, six reads and three writes counted from the registrations, five "never
+crosses" rows, one disclosure per projection each holding a
+`<pre>` of pretty-printed JSON, the held-versus-named line when there is a gap — with nothing
+marked, no such line and the empty state explaining that `explain_mark` has nothing to project yet;
+with an agent connected, the live status line no run has ever reached; with no WebMCP in the browser
+at all; and folded into a `<details>` panel for one column, where the same heading becomes the
+summary),
+the policy comparison twice (three columns, exactly one badged as selected, five measure rows), the audit
+rail (five entries for five holds, one open, five causal chains, a credited rail and a pass-mark rail
+for each of the four held answers that have a mark, sixteen rubric-line cells of which ten are dashes
+and none is a zero),
+the action bar idle, staged and with the stack scrolled out from under it (one disabled control when
+idle and none once a release is staged, and the sentence saying no tool can press it either way), and
+`App` whole — one column grid, one of each region, three slabs below the fold, one band above the
+columns and the page's only `h1` still in the queue. None throws, none emits a
+single inline `style` attribute, and every class name the twenty-three renders ask for has a rule in the
+sheet. Every number they display comes from a domain function that is tested.
+
+The sweep runs the other way too, and that direction is why six of the twenty-three renders exist. Every
+class the sheet defines must be reached by some render, so a rule for a state the page can no longer
+reach fails the suite instead of sitting in the file looking like a feature. The first run found fourteen
+such
+classes. Twelve were live states nothing rendered — a sent answer, a locked care row, a browser with
+no WebMCP, a scrolled-away action bar — and they are rendered now. Three names are excused in writing
+today: the
+quantised bar stops, proved reachable by `styles.test.mts` instead; `notice`, `App`'s transient message,
+which is set by a handler and gone by the next action, so no static render holds it; and `delta--on`, an
+answer landing
+exactly on the pass mark, which this rubric's four point values cannot sum to. That last excuse is
+itself a test: it builds all sixteen subset totals and asserts the boundary is not among them, so
+changing a single point value turns the excuse back into a failure.
+
+What that still cannot cover: layout, keyboard order, focus behaviour, responsive width, and what a
+screen reader says. Contrast is half-covered — `contrast.test.mts` settles the palette by arithmetic,
+but which pair lands on which pixel needs the cascade. `renderToStaticMarkup` runs no effect either,
+so the tool registration in
+`useMarkingSession` and the focus move in `App` are outside it, and so is `useOneColumn()`, which asks
+the browser its width and therefore returns the wide shape here by construction. Everything, in other
+words, that
+only a browser can answer — which is what `pnpm browser` is for, and it is a separate program from
+this suite, described at the foot of this file.
+
+**They do not prove the CSP is enforced.** They cannot; that needs a browser. What is verified here
+is that the policy still has the shape the code depends on (a test), that the tag is present in
+`dist/index.html` before any script tag (checked by hand on each build), and that the build contains
+nothing the policy would block (a test, from the other end: no render emits an inline style).
+Enforcement itself is now observed, but by the browser session rather than by any test below.
+
+**The tests are not typechecked.** `tsconfig.node.json` includes only `vite.config.ts`, and
+`@types/node` is not installed, so a `node:test` import error in an editor's diagnostics is
+expected noise rather than a problem. `--experimental-strip-types` also forbids enums,
+namespaces and parameter properties, which is why none appear in `src/`.
+
+## Running them
+
+```sh
+pnpm test           # all 110
+pnpm typecheck      # tsc -b, exit 0 expected
+pnpm build          # typecheck then production bundle
+pnpm browser        # after a build: the 37 browser checks
+pnpm webmcp         # after a build: the 17 invocation checks
+```
+
+**Which Node this has actually run on: 26.4.0, and only that.** Every figure in this file was
+produced there. `package.json` asks for `>=22.6.0`, and that floor is reasoning rather than a
+measurement: 22.6 is the release where `--experimental-strip-types` appeared, and the suite cannot
+start without it. Node 22 is not installed on the machine this was built on, so nobody has watched
+the suite pass on the version the engines field names — and CI, which is pinned to Node 22, has
+never run either. If the floor matters to you, run it there before believing it.
+
+## The browser checks
+
+`pnpm test` and `pnpm browser` are two different instruments and the split is deliberate. The suite
+above is pure and fast and runs anywhere; the browser session needs a build, a server and a Chromium
+binary, so it is not wired into `pnpm test` and a machine without a browser is not a failing machine.
+
+`scripts/browser-session.mjs` serves `dist/` with `vite preview`, launches a headless Chromium with a
+throwaway profile, and drives it over the DevTools Protocol using Node's global `WebSocket` — no
+driver dependency, because adding one would rewrite a workspace lockfile that belongs to other work.
+It runs 37 checks and exits non-zero if any fails. Last run 2026-09-01, Chrome/151.0.7922.137:
+**37 passed, 0 failed**, recorded in `docs/evidence/browser-session.json` with four screenshots.
+
+The checks worth naming, because each one answers something no test above can:
+
+- **the CSP is enforced** — an inline `<script>` injected into the live page did not run, an
+  injected `style` attribute did not apply, and the browser logged exactly those two violations
+  while the page raised none;
+- **the three columns exist and are the widths the target draws** — 322px of policy, 761px of work,
+  357px of contract at 1440px, and one track at 420px;
+- **the status band stays a band** — above the columns rather than inside one, 74px tall at 1440px with
+  its four figures on a single row, and no control in it. A static render has no widths, so nothing else
+  could tell a band from four stacked boxes. Its figures are read out of the rendered page too, and
+  twice: `14/0/0/0` on arrival and `14/13/5/0` after the worked example, because a counter is only worth
+  printing if it survives to the screen and then moves;
+- **no bar renders at zero width by accident** — a blocked inline width would have collapsed every
+  proportional bar, which reads as a student who scored nothing, so the check reads the quantised
+  stop out of each class name and requires width only where the stop is above zero. Eight fills are
+  measured, in four distinct widths, across eight rails;
+- **focus lands on the bar's heading** and not on its send button when a release is staged — an
+  effect, and therefore outside `renderToStaticMarkup` entirely;
+- **no paragraph is crushed into a narrow column** — narrowest 200px of 42 measured. This check exists
+  because the first run found four paragraphs auto-placing into a 26px grid track, and it measures
+  *visible* text only: a screen-reader-only span inside a figure once pushed a 60px number past the
+  filter and reported it as crushed prose;
+- **every text pair on the page clears its contrast threshold** — 423 pairs walked, each text node
+  measured against the background it actually resolves to after the cascade, with the threshold picked
+  from the computed size and weight. The thinnest three sit at 4.8:1 against a 4.5 requirement. This
+  check found ten real failures on its first run, all at 1.43:1: a rubric-line mark drawn in a tone
+  that had only ever been used against white. `contrast.test.mts` now guards the palette by
+  arithmetic, so the sheet and its own account of itself cannot drift;
+- **what the accessibility tree hands over** — 1001 nodes, 32 named regions and controls, **none
+  unnamed**, 18 headings in document order at levels 1/2/3 with no level skipped, and the landmarks the
+  page means to expose: one `banner`, one `main`, three `complementary`, one live `status`. There is
+  deliberately no `contentinfo`: the foot is a note about the work, sits inside `main`, and HTML-AAM does
+  not expose it as a landmark. Reading order comes from `document.querySelectorAll` rather than from the
+  tree, because `Accessibility.getFullAXTree` does not report it;
+- **the contract column folds on a phone and not on a desktop** — no `<details>` in the contract at
+  1440px; at 420px a panel that arrives closed, 110px tall with **0 of its 10 tool rows visible**,
+  2538px with all ten visible when the summary is pressed, and closed again when pressed a second
+  time. A closed `<details>` skips paint but keeps layout, so every row still reports a box: the check
+  asks `checkVisibility()` and keeps both figures in the evidence to record why;
+- layout and overflow at 1440px and 420px, tab order, no off-site request, a clean console, and
+  whether `document.modelContext` exists on this build.
+
+**The screenshots, and the one that is not full-page.** Three are captured beyond the viewport, so they
+carry the audit and the comparison below the fold. `browser-fold-1487.png` is not: it is the first screen
+at the mockup's own 1487×1058, clipped, so it can be laid beside
+`docs/target-images/withheld-v3-monochrome-refined.png` without either image being scaled. A full-page
+capture of a page with a sticky foot paints that foot across the middle of the document, and comparing
+that against a mockup would be comparing an artefact. `docs/DECISIONS.md` D-27 lists what the pair still
+differs on.
+
+**It reads the WebMCP registry; it is not an agent.** A green run says nine tools are registered
+natively. It says nothing about a model choosing one and calling it, and no such thing has happened
+in this repository.
+
+**It reads the accessibility tree; it is not a screen reader.** A green run says every named thing has
+a name and the headings descend in order. It says nothing about what NVDA or VoiceOver actually
+announces, or whether the announcement makes sense, and no assistive technology has been run against
+this page. The same distinction applies to the phone layout: 420px in a headless Chromium is a width,
+not a hand.
+
+## The invocation run
+
+`node --run webmcp` (`scripts/webmcp-invoke.mjs`) is the third layer, below the tests and beside the
+session: **17 checks**, all green on 2026-09-01 against Chrome/151, recorded in
+`docs/evidence/webmcp-invocation.json`.
+
+The tests call `tool.execute` directly, which is a function call. This script does not: it uses
+Chromium's `WebMCP` DevTools domain, so the browser dispatches each tool by name into the frame that
+registered it and hands back what the handler returned. Everything the unit tests assert about the
+boundary is re-asserted there, on the path a real caller would take, and two things are checked that no
+test can reach — that the **rendered page** moves when a write lands (care setting, revision, held
+count), and that `confirm_release` cannot be dispatched at all, because the browser answers *Tool not
+found*.
+
+The prompt-injection check is deliberately ordered: it runs against an unmarked stack, before the
+worked example is clicked, so the quarantine is the page's answer to a hostile tool call rather than
+something a fixture had already decided. A check that passes for the wrong reason is worse than no
+check.
+
+**It is still not a model.** The script picked the tools, wrote the arguments and knew the revision to
+quote. `docs/PROGRESS.md` keeps the five classes of evidence apart, and the two empty rows — a model,
+and a hosted URL — stay empty.

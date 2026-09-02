@@ -1,0 +1,44 @@
+# Withheld — documentation
+
+Nine documents, each answering a different question, and one directory of evidence.
+
+| document | the question it answers |
+| --- | --- |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | how it is built, and why the seams are where they are |
+| [DECISIONS.md](DECISIONS.md) | why it is built that way, one numbered decision at a time |
+| [TESTING.md](TESTING.md) | what the 110 tests and the 37 browser checks prove — and what they do not |
+| [GATE-W1.md](GATE-W1.md) | whether an agent could derive the points or the pass boundary |
+| [GATE-P2.md](GATE-P2.md) | whether the problem is real to anyone but the author. Not run |
+| [RUNBOOK.md](RUNBOOK.md) | how to run it, and what to look at once it is running |
+| [PROGRESS.md](PROGRESS.md) | what is verified, what is not, and what is waiting on a decision |
+| [PREFLIGHT.md](PREFLIGHT.md) | what the hackathon requires, what is present, and who each gap belongs to |
+| [SUBMISSION-TEXT.md](SUBMISSION-TEXT.md) | the four points and the judge's instructions, drafted and unsent |
+| [`evidence/`](evidence/) | what the browser actually reported, as JSON and four screenshots |
+
+Two more sit one directory up: [`../README.md`](../README.md) for the pitch and the honest status
+list, and [`../SECURITY.md`](../SECURITY.md) for the threat model — prompt injection through a
+student answer, the absence of a release tool, the information boundary, and what a header-less
+static host cannot enforce.
+
+## If you only read one paragraph
+
+An agent may read a stack of exam answers, recognise which canonical rubric ideas each answer
+expresses, and report them back by id. The page computes every total itself, decides which answers
+a person must look at, and tells the agent neither. There is no tool that sends a mark to a
+student — releasing is a click, made by a person, in the page. That absence is the design.
+
+Start with [ARCHITECTURE.md](ARCHITECTURE.md) if you want to know how, and
+[DECISIONS.md](DECISIONS.md) if you want to argue with it.
+
+## Reading order for a reviewer
+
+1. `../README.md` — the problem and the mechanic.
+2. `ARCHITECTURE.md` — the layers and the two boundaries that matter.
+3. `../SECURITY.md` — the four threats, and what a static host cannot do.
+4. `GATE-W1.md` — the leak this gate found, and the two channels it leaves open.
+5. `TESTING.md` — starting from "What these tests cannot tell you".
+6. `PROGRESS.md` — before believing anything is working.
+
+The last two are not for a reviewer. `PREFLIGHT.md` is the hackathon's own requirement list with an
+owner against each gap, and `SUBMISSION-TEXT.md` is the copy for the form — a draft, unsent, with the
+live URL still a placeholder.
