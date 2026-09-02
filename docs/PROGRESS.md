@@ -374,7 +374,7 @@ Settled since this file was first written:
   observer has to follow, and an empty Result section — so what is left is twenty minutes and one
   person. The page opens in a browser now, so nothing technical is in the way.
 - The public repository is now published under `AndroLay/withheld`, with package/evidence on `main`
-  and the application at Pages commit `abd0c71`, built from application commit `d089bac`. The
+  and the application at Pages commit `abd0c71`, built from application commit `53cc3cf`. The
   hosted-origin evidence harness fix is included in that application snapshot;
   model replay, GATE-P2, and the video remain open.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement

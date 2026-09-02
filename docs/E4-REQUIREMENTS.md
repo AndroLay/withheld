@@ -46,13 +46,13 @@ three minutes. See the [Official Rules](https://webmcp.devpost.com/rules).
 | Registration | hosted artifact records nine tools under Chrome 151 WebMCP flags | hosted native registry PASS |
 | External dispatch | hosted artifact records 19 checks, including read/write, unknown rubric-line, stale, duplicate, injection, and no-confirm paths | hosted CDP dispatch PASS |
 | Browser UI | hosted artifact records 44 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | hosted browser PASS |
-| Stored artifacts | hosted browser/native reports, local recovery report, blocked runbooks, and screenshots exist | staging artifacts PASS; application commit `d089bac` and hashes are recorded; no final manifest |
+| Stored artifacts | hosted browser/native reports, local recovery report, blocked runbooks, and screenshots exist | staging artifacts PASS; application commit `53cc3cf` and hashes are recorded; no final manifest |
 | Model-selected replay | no model has chosen a tool or composed arguments in the repository evidence | UNKNOWN |
 | Hosted URL | GitHub Pages staging URL is reachable over HTTPS and passed clean flagged Chrome smoke checks | VERIFIED for staging; retention through judging is open |
 | GATE-P2 | instrument exists, but no non-builder session/result is recorded | NOT RUN |
 | Node/CI | stored evidence is Node 26; Node 22/CI has not run | open |
 | Current fresh test run | 125/125 assertions across 9 files, typecheck, build, 44 browser checks, 19 native dispatch checks, and 27 recovery checks pass on writable Node 26.4.0 | local PASS; Node 22/CI open |
-| Provenance | public standalone `main` contains the staged package; hosted app evidence is bound to application commit `d089bac` and the tested build hash | staging verified; final freeze open |
+| Provenance | public standalone `main` contains the staged package; hosted app evidence is bound to application commit `53cc3cf` and the tested build hash | staging verified; final freeze open |
 
 ### 2.2 Current classification
 
@@ -62,7 +62,7 @@ the page, expose the native registry, and move the page safely when an external 
 dispatches tools. They explicitly do not prove that a model found the page, selected
 among nine tools, or composed valid arguments.
 
-The hosted browser and native reports are bound to application commit `d089bac`, source hash
+The hosted browser and native reports are bound to application commit `53cc3cf`, source hash
 `ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118`, build hash
 `b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d`, and
 `https://androlay.github.io/withheld/`. The public evidence package is now on the public `main`
