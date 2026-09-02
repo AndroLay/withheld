@@ -8,8 +8,8 @@ import { Icon } from "./Icon.tsx";
  * and the one control no tool can reach.
  *
  * It is pinned to the bottom because it is the point of the whole page. Withheld registers nine tools
- * and none of them reaches either button — there is no `confirm_release`, and the padlock on the right
- * is not a disabled state waiting for a permission, it is the absence of a tool.
+ * and none of them reaches either button — release confirmation remains a human page action, and the
+ * padlock on the right is not a disabled state waiting for a permission from the agent.
  *
  * Both slots are always on screen, including the locked one, because a control that appears only once
  * it is usable cannot make a promise about what an agent is unable to do.
@@ -40,6 +40,7 @@ export function ActionBar({
   onDecline: () => void;
 }) {
   const staged = session.releaseRequest !== null;
+  const stagedCount = session.releaseRequest?.answerIds.length ?? 0;
 
   return (
     <div className={staged ? "bar bar--waiting" : "bar"}>
@@ -68,7 +69,8 @@ export function ActionBar({
         {stackMoved ? (
           <p className="bar__moved">
             The stack changed after the request was made, so the page has re-decided what is safe to
-            send. The count above is the current one, not the requested one.
+            send. The request was for <span className="num">{stagedCount}</span>; the count above is
+            the current one, not the requested one.
           </p>
         ) : null}
 

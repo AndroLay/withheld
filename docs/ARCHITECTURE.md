@@ -41,7 +41,7 @@ src/App.tsx                   the shell: a bar, a band, three columns and the ga
 ```
 
 `src/domain/` knows nothing about tools. `src/tools/` knows nothing about React. That is what makes
-89 of the 110 tests possible without React entering the process at all — and the other twenty-one render
+103 of the 125 tests possible without React entering the process at all — and the other twenty-two render
 every component to static markup, with no DOM anywhere. It is also why the domain can be re-read as a
 plain state machine by anyone auditing the claims in `SECURITY.md`.
 
@@ -53,7 +53,7 @@ change what an idea is worth. An id that is not in the rubric earns nothing; an 
 twice is paid once. Both are tested.
 
 **`session.ts` is the only writer.** Every mutation is a function
-`(session, …args, expectedRevision) → Commit | Refusal`. There is no setter, no mutable
+`(session, …args, expectedRevision, operationId?) → Commit | Refusal`. There is no setter, no mutable
 object, and no path that changes state without producing a receipt. A caller working from a
 stale read is refused rather than allowed to overwrite a decision it never saw.
 
@@ -80,7 +80,7 @@ boundary" below.
 | `fingerprints` | last accepted set of line ids per answer, sorted and joined |
 | `quarantined` | answers that addressed the marker. never marked |
 | `unstable` | answers marked twice, differently |
-| `receipts` | one per accepted write, identified by string |
+| `receipts` | one per accepted state-changing action, identified by string and exact revision |
 | `releaseRequest` | a request to release. holds no power of its own |
 | `releasedAnswerIds` | what has actually gone to students |
 
@@ -101,6 +101,7 @@ that has already moved.
 latest: useRef(session)     ← the truth for reads
 apply(next)                 ← the single mutator: writes the ref, then setState
 port = { read: () => latest.current, write: apply }
+readLatest()                ← manual handlers read the same ref before committing
 ```
 
 Every tool reads through `port.read()` and writes through `port.write()`. The React state
@@ -108,18 +109,29 @@ exists only so the page re-renders; it is never the thing a tool reads. That is 
 reason `SessionPort` exists as a type: the tool layer is handed two functions and never learns
 that React is involved.
 
+The manual form keeps the same revision discipline. Its checkboxes are controlled by React,
+and the form records the revision and answer it opened. If a tool or another form changes the
+session first, the open form enters an explicit conflict state, disables saving, and asks the
+teacher to reload the current mark. On submit it passes its opened revision to `readLatest()` and
+the same pure revision guard, so a submit that races React's next render is refused as stale rather
+than applying a render-closure snapshot. A stale draft is never silently submitted against a newer
+session.
+
 ## The write path, identical for both callers
 
 1. Read the current `revision` (`describe_stack` for an agent; the render for the teacher).
 2. Build a finding: an answer id and the rubric line ids recognised in it.
-3. Call `proposeMarks(session, findings, expectedRevision)`.
+3. Call `proposeMarks(session, findings, expectedRevision, operationId)` for an agent write. The
+   manual page path omits the optional key because it has no transport retry boundary.
 4. The session checks: is the revision current, do the answers exist, has anything already
    been released? Any failure refuses **the whole batch** — partial acceptance would leave the
    caller guessing which half landed.
 5. Quarantine is checked before marking. An answer that addresses the marker is escalated and
    any mark it had is deleted. The injection costs the attacker their mark rather than earning
    them one.
-6. The page computes the total itself, writes a receipt, and bumps the revision.
+6. The page computes the total itself, writes a receipt (including the opaque operation id for an
+   agent write), and bumps the revision. Reusing an accepted operation id is refused before any
+   revision or state change.
 7. Holds are recomputed from scratch on the next read.
 
 The teacher's rubric ticks enter at step 2 and follow the same path, refusals included. There
@@ -158,8 +170,12 @@ It is **fail-closed in two directions**:
 - **By path.** A number may appear only at a path in `AGENT_SAFE_NUMERIC_PATHS` — eight
   entries, all counts and the revision. A new numeric field in a tool result fails the test
   suite rather than shipping.
-- **By text.** `forbiddenNumbersInText` scans strings for page-owned numbers rendered as prose,
-  so a total cannot escape by being spelled out in a sentence.
+- **By text.** `forbiddenNumbersInText` scans generated strings for the page's live point values
+  and pass boundary, so arithmetic cannot escape by being spelled out in a sentence. The one
+  deliberate exception is `read_answer.answer.body`: that is raw student content the agent must
+  read, and it is explicitly labelled untrusted rather than treated as page-generated prose. If
+  a generated field does contain an owned value, the tool wrapper fails closed and returns only a
+  generic recovery envelope.
 
 The guard runs on the payload, not on the transport envelope. The envelope nests the payload
 one level down, which would shift every allowlisted path and make the allowlist harder to read
@@ -215,7 +231,9 @@ recomputes what is releasable at the moment of the click, so a hold raised betwe
 and the confirmation still wins.
 
 There is no `confirm_release` tool and there is not meant to be. That absence is the one design
-decision in Withheld that is a refusal to build something.
+decision in Withheld that is a refusal to build something. Both the confirm and decline clicks are
+still state-changing actions: they write a receipt with an exact revision and appear in the
+teacher's timeline, but those human-only receipts are never exposed as a tool capability.
 
 ## Refusals are results, not exceptions
 
@@ -228,16 +246,20 @@ can act on:
 | `unknown-answer` | an answer id that is not in the stack |
 | `already-released` | the answer has gone to a student; marking is closed |
 | `emphasis-cannot-be-lowered` | any attempt to make the page less careful |
+| `no-change` | the requested emphasis is already active |
+| `duplicate-operation` | an accepted operation id is submitted again |
+| `release-already-staged` | a second release request arrives before the first is confirmed or declined |
 | `nothing-to-release` | a release was staged with nothing releasable |
 | `invalid-argument` | arguments failed the checks in the tool layer |
+| `internal-error` | an unexpected tool-side failure is converted to a generic retry envelope |
 
 **No refusal message contains a digit**, and a test enforces it. A refusal is a channel out of
 the page like any other, and "you are 3 points short" would be a leak wearing an error's
 clothes.
 
-Arguments are validated in code, not trusted from the schema. The JSON schemas are loose and
-forgiving because they are a hint to a model; the checks in `readAnswerId`, `readFindings`,
-`readExpectedRevision` and `readEmphasis` are strict and **refuse rather than coerce**, because
+Arguments are validated in code, not trusted from the schema. The JSON schemas are closed and
+bounded, and the checks in `readAnswerId`, `readFindings`,
+`readExpectedRevision`, `readOperationId` and `readEmphasis` are strict and **refuse rather than coerce**, because
 a coerced argument is a decision made on the model's behalf.
 
 ## Registration against the browser
@@ -253,6 +275,12 @@ React StrictMode's deliberate double mount safe: a module-level
 two of every tool with no way to tell them apart. The abort is re-checked *inside* the
 registration loop rather than once at the top, so a teardown part-way through reports what
 actually landed rather than claiming the whole set either way.
+
+If a registration provider refuses any tool, the installer aborts the partial set and returns the
+failed names plus a retry callback. `AgentPanel` reports that the surface is incomplete without
+printing provider error detail and exposes `Retry registration`, including when zero tools landed;
+the render suite covers that first-tool failure state. This keeps a browser/provider failure
+actionable without presenting a partial registry as a complete capability surface.
 
 ## What this architecture does not do
 
@@ -274,5 +302,7 @@ own `WebMCP` domain, with the page moving in response. **What no run shows is a 
 tool.** Statements here about how the interface reads, as opposed to how it lays out or how it
 answers a call, remain statements about the source, checked by reading it and by test. See
 `docs/PROGRESS.md` for the ledger of what is verified and what is not, and
-`docs/evidence/browser-session.json` and `docs/evidence/webmcp-invocation.json` for what the browser
-reported.
+`docs/evidence/browser-session.json`, `docs/evidence/native-registry.json`,
+`docs/evidence/webmcp-invocation.json`, and `docs/evidence/failure-recovery.json` for what the
+local browser reported. The hosted, model-selected, screen-reader, performance, and non-builder
+evidence files remain explicitly blocked or not-run.

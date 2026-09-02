@@ -80,6 +80,7 @@ export function forbiddenNumericPaths(
 export function assertAgentSafe<T>(
   payload: T,
   allowed: readonly string[] = AGENT_SAFE_NUMERIC_PATHS,
+  options: AgentBoundaryOptions = {},
 ): T {
   const leaks = forbiddenNumericPaths(payload, allowed);
   if (leaks.length > 0) {
@@ -88,20 +89,79 @@ export function assertAgentSafe<T>(
         "Either remove the number or add its path to AGENT_SAFE_NUMERIC_PATHS with a reason.",
     );
   }
+
+  if (options.forbiddenNumbers !== undefined) {
+    const textLeaks = forbiddenNumbersInText(
+      payload,
+      options.forbiddenNumbers,
+      options.ignoredTextPaths,
+    );
+    if (textLeaks.length > 0) {
+      // Do not put the leaked values in this error. The guarded tool wrapper turns this into a
+      // generic recovery envelope, and the secret must not become part of that path either.
+      throw new Error("tool result would leak page-owned arithmetic as text");
+    }
+  }
+
   return payload;
+}
+
+export type AgentBoundaryOptions = {
+  /** Page-owned numeric values to reject when they appear inside generated prose. */
+  forbiddenNumbers?: Iterable<number>;
+  /** Explicitly untrusted text paths, such as the student's answer body. */
+  ignoredTextPaths?: readonly string[];
+};
+
+function textValues(
+  value: unknown,
+  base: string,
+  ignored: ReadonlySet<string>,
+  values: string[],
+): void {
+  if (typeof value === "string") {
+    if (!ignored.has(base)) values.push(value);
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    const prefix = `${base}[]`;
+    for (const item of value) textValues(item, prefix, ignored, values);
+    return;
+  }
+
+  if (value !== null && typeof value === "object") {
+    for (const [key, child] of Object.entries(value)) {
+      // JSON serialisation exposes object keys too. Include them in the canary so a generated id
+      // or dynamically named field cannot smuggle a page-owned value around the value walker.
+      values.push(key);
+      textValues(child, base ? `${base}.${key}` : key, ignored, values);
+    }
+  }
+}
+
+function escapedForRegExp(value: number): string {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
  * Canary for the demo fixtures, which use deliberately distinctive point values. Catches
- * a secret that escaped as text — inside a message, an id, or a reason string — where the
- * structural check cannot see it because it is not a number any more.
+ * a secret that escaped as text — inside generated prose, an id, or a reason string — where the
+ * structural check cannot see it because it is not a number any more. Explicitly untrusted paths
+ * are skipped: a student's answer is content the agent must read, not page arithmetic.
  */
-export function forbiddenNumbersInText(payload: unknown, forbidden: Iterable<number>): number[] {
-  const wire = JSON.stringify(payload) ?? "";
+export function forbiddenNumbersInText(
+  payload: unknown,
+  forbidden: Iterable<number>,
+  ignoredTextPaths: readonly string[] = [],
+): number[] {
+  const values: string[] = [];
+  textValues(payload, "", new Set(ignoredTextPaths), values);
   const hits: number[] = [];
 
   for (const secret of forbidden) {
-    if (new RegExp(`(?<!\\d)${secret}(?!\\d)`).test(wire)) hits.push(secret);
+    const pattern = new RegExp(`(?<!\\d)${escapedForRegExp(secret)}(?!\\d)`);
+    if (values.some((value) => pattern.test(value))) hits.push(secret);
   }
 
   return hits;

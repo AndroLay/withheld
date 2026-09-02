@@ -1,9 +1,24 @@
 {
-  "ranAt": "2026-09-01T22:40:14.561Z",
+  "status": "VERIFIED_RUN",
+  "evidenceClass": "VERIFIED_ARTIFACT",
+  "scope": "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
+  "ranAt": "2026-09-02T16:08:25.328Z",
+  "evidence": {
+    "gitSha": "8a228b884d4d954fe6c4af8599cc5667a6c3c8c8",
+    "workingTreeDirty": true,
+    "sourceSha256": "26609a30594cfedd1e77075a0d98c2542c3f5f930b5f44b68bb7caf5eb86977c",
+    "buildSha256": "b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d",
+    "node": "v26.4.0",
+    "browserFlags": [
+      "--enable-experimental-web-platform-features",
+      "--enable-features=WebMCPTesting"
+    ],
+    "artifactSha256": {}
+  },
   "browser": "Chrome/151.0.7922.137",
   "protocol": "1.3",
-  "url": "http://127.0.0.1:4185/",
-  "passed": 17,
+  "url": "http://127.0.0.1:4664/",
+  "passed": 19,
   "failed": 0,
   "checks": [
     {
@@ -37,6 +52,11 @@
       "detail": "7 keys, none of them points"
     },
     {
+      "name": "an unknown rubric line is refused before arithmetic and leaves the page unchanged",
+      "passed": true,
+      "detail": "invalid-argument · revision 1"
+    },
+    {
       "name": "an injection that arrives as a tool call is quarantined and credited with nothing",
       "passed": true,
       "detail": "4 lines claimed · ans-11 is quarantined · 0 marked"
@@ -61,7 +81,12 @@
       "detail": "emphasis standard→cautious, revision 3→4, held 5→6"
     },
     {
-      "name": "the same write replayed at a spent revision is refused, and the page does not move again",
+      "name": "an accepted write replayed with the current revision is refused as a duplicate, and the page does not move again",
+      "passed": true,
+      "detail": "duplicate-operation · still cautious at revision 4"
+    },
+    {
+      "name": "a different write from an old read is still refused as stale",
       "passed": true,
       "detail": "stale-revision · still cautious at revision 4"
     },
@@ -76,7 +101,7 @@
       "detail": "staged=true, send disabled=false, focus on #gate-title"
     },
     {
-      "name": "the browser cannot invoke the tool that was never built",
+      "name": "the browser cannot invoke the human-only release action",
       "passed": true,
       "detail": "WebMCP.invokeTool: Tool not found"
     },
@@ -270,6 +295,16 @@
         "label"
       ]
     },
+    "unknown_rubric_line": {
+      "status": "Completed",
+      "text": "{\"revision\":1,\"refused\":true,\"code\":\"invalid-argument\",\"message\":\"the arguments did not match what this tool accepts\"}",
+      "payload": {
+        "revision": 1,
+        "refused": true,
+        "code": "invalid-argument",
+        "message": "the arguments did not match what this tool accepts"
+      }
+    },
     "propose_marks": {
       "status": "Completed",
       "text": "{\"revision\":2,\"receipt\":{\"id\":\"rcp-2\",\"action\":\"propose_marks\",\"answerIds\":[\"ans-11\"]},\"heldCount\":1,\"releasableCount\":0}",
@@ -331,12 +366,12 @@
     },
     "set_marking_emphasis (replayed)": {
       "status": "Completed",
-      "text": "{\"revision\":4,\"refused\":true,\"code\":\"stale-revision\",\"message\":\"the stack moved on since you read it; read it again and retry\"}",
+      "text": "{\"revision\":4,\"refused\":true,\"code\":\"duplicate-operation\",\"message\":\"that operation id was already accepted; read the stack and do not apply it again\"}",
       "payload": {
         "revision": 4,
         "refused": true,
-        "code": "stale-revision",
-        "message": "the stack moved on since you read it; read it again and retry"
+        "code": "duplicate-operation",
+        "message": "that operation id was already accepted; read the stack and do not apply it again"
       }
     },
     "request_release": {
@@ -354,7 +389,8 @@
         "awaitingHuman": true
       }
     },
-    "confirm_release": {
+    "unavailable_confirmation": {
+      "attemptedTool": "confirm_release",
       "status": "not dispatched",
       "error": "WebMCP.invokeTool: Tool not found"
     }
@@ -386,9 +422,7 @@
         "set_marking_emphasis",
         "request_release"
       ],
-      "printedAbsent": [
-        "confirm_release"
-      ]
+      "humanOnly": "Only a person can send it."
     },
     "marked": {
       "emphasis": "standard",
@@ -416,9 +450,7 @@
         "set_marking_emphasis",
         "request_release"
       ],
-      "printedAbsent": [
-        "confirm_release"
-      ]
+      "humanOnly": "Only a person can send it."
     },
     "moved": {
       "emphasis": "cautious",
@@ -446,9 +478,7 @@
         "set_marking_emphasis",
         "request_release"
       ],
-      "printedAbsent": [
-        "confirm_release"
-      ]
+      "humanOnly": "Only a person can send it."
     },
     "unmoved": {
       "emphasis": "cautious",
@@ -476,9 +506,7 @@
         "set_marking_emphasis",
         "request_release"
       ],
-      "printedAbsent": [
-        "confirm_release"
-      ]
+      "humanOnly": "Only a person can send it."
     },
     "gate": {
       "emphasis": "cautious",
@@ -506,9 +534,7 @@
         "set_marking_emphasis",
         "request_release"
       ],
-      "printedAbsent": [
-        "confirm_release"
-      ]
+      "humanOnly": "Only a person can send it."
     }
   },
   "requests": {

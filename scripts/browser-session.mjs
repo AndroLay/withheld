@@ -35,8 +35,8 @@
  * `--url` points at a server that is already running instead of starting one. `--browser` names a
  * binary. `--port` sets the debugging port. `--keep` leaves the browser running at the end.
  *
- * Exit status is the result: 0 only if every check below passed. Written 2026-09-01 and, at the time
- * of writing, never run — the machine it was written on had exhausted its swap.
+ * Exit status is the result: 0 only if every check below passed. The latest run is written to the
+ * evidence JSON together with the source/build hashes and browser flags used for that run.
  */
 
 import { spawn } from "node:child_process";
@@ -44,6 +44,8 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { evidenceMeta } from "./evidence-meta.mjs";
 
 const PACKAGE = fileURLToPath(new URL("..", import.meta.url));
 const EVIDENCE = join(PACKAGE, "docs", "evidence");
@@ -272,6 +274,8 @@ async function connect() {
 /** Shared in-page helpers. Prepended to the probes that need them. */
 const HELPERS = `
   const count = (selector) => document.querySelectorAll(selector).length;
+  const names = (selector) =>
+    [...document.querySelectorAll(selector)].map((node) => node.textContent.trim());
   const describe = (node) =>
     node === null
       ? null
@@ -401,9 +405,14 @@ const SNAPSHOT = `
       spillers,
     },
     staged: count(".bar--waiting") === 1,
+    focusWho: document.querySelector(".focus__who")?.textContent?.trim() ?? null,
     headings,
     prose: { count: prose.length, narrowest: prose[0] ?? null },
     sendDisabled: send === null ? null : send.disabled,
+    timelineActions: names(".tl__what"),
+    timelineRevisions: names(".tl__rev").map((value) => Number(value.match(/\\d+/)?.[0] ?? -1)),
+    focusConflict: document.querySelector(".focus .tick__conflict") !== null,
+    focusSaveDisabled: document.querySelector(".focus .tick__foot button[type=submit]")?.disabled ?? null,
     active: describe(document.activeElement),
   };
 `;
@@ -411,7 +420,7 @@ const SNAPSHOT = `
 /**
  * The contract column at phone width, pressed.
  *
- * What is measured is whether a reader can see the ten tool rows, and that turns out not to be a
+ * What is measured is whether a reader can see the nine registered tool rows, and that turns out not to be a
  * question about height. A closed `<details>` hides its contents with `content-visibility: hidden`,
  * which skips paint while leaving the subtree its layout, so every row inside a shut panel still
  * reports a box of its own — the first version of this probe read those boxes and concluded the panel
@@ -814,7 +823,204 @@ async function main() {
     `figures read ${(marked.band?.figures ?? []).join("/")}`,
   );
   check("five accounts are in the audit rail", marked.auditEntries === 5, `${marked.auditEntries} entries`);
-  check("the agent panel lists ten tools", marked.toolRows === 10, `${marked.toolRows} rows`);
+  check("the agent panel lists nine registered tools", marked.toolRows === 9, `${marked.toolRows} rows`);
+
+  // Two manual forms share the same session. Reset the drafts left stale by the worked-example
+  // write, then submit a different row while the focused answer is open. The second form is a
+  // controlled simulation of another caller moving the revision; the focused form must show a
+  // visible conflict and disable its save rather than overwrite the newer state.
+  const resetForms = await cdp.evaluate(`
+    const reloads = [...document.querySelectorAll(".tick__conflict .btn")];
+    reloads.forEach((button) => button.click());
+    return reloads.length;
+  `);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const resetState = await cdp.evaluate(SNAPSHOT);
+  check(
+    "manual drafts can be reset before a concurrent edit",
+    resetForms > 0 && resetState.focusConflict === false,
+    `${resetForms} drafts reset, focused conflict=${resetState.focusConflict}`,
+  );
+
+  const otherInput = await cdp.evaluate(`
+    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const details = form?.closest("details");
+    const summary = details?.querySelector(":scope > summary");
+    const box = form?.querySelector("input[type=checkbox]");
+    if (!box || !details || !summary) return { ok: false };
+    if (!details.open) summary.click();
+    return { ok: true, before: box.checked, disabled: box.disabled, opened: details.open };
+  `);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const otherInputPosition = await cdp.evaluate(`
+    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const box = form?.querySelector("input[type=checkbox]");
+    if (!box) return { ok: false };
+    box.scrollIntoView({ block: "center", inline: "center" });
+    const rect = box.getBoundingClientRect();
+    return { ok: true, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  `);
+  let otherFormPrepared = { ...otherInput, after: otherInput.before };
+  if (otherInput.ok && otherInputPosition.ok) {
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x: otherInputPosition.x,
+      y: otherInputPosition.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: otherInputPosition.x,
+      y: otherInputPosition.y,
+      button: "left",
+      clickCount: 1,
+    });
+    otherFormPrepared = await cdp.evaluate(`
+      const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+      const box = form?.querySelector("input[type=checkbox]");
+      return { ...${JSON.stringify(otherInput)}, ...${JSON.stringify(otherInputPosition)}, after: box?.checked ?? null };
+    `);
+  }
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const otherFormReady = await cdp.evaluate(`
+    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const box = form?.querySelector("input[type=checkbox]");
+    return { checked: box?.checked ?? null, disabled: box?.disabled ?? null };
+  `);
+  const otherSave = await cdp.evaluate(`
+    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const save = form?.querySelector("button[type=submit]");
+    if (!save) return { ok: false };
+    save.scrollIntoView({ block: "center", inline: "center" });
+    const before = document.querySelector(".top__rev .num")?.textContent ?? null;
+    const rect = save.getBoundingClientRect();
+    return { ok: true, before, disabled: save.disabled, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  `);
+  let otherFormSubmitted = { ...otherSave, nativeSubmit: false, after: null, notice: null };
+  if (otherSave.ok) {
+    await cdp.evaluate(`
+      const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
+      if (form) form.addEventListener("submit", () => { window.__withheldNativeSubmit = true; }, { once: true });
+      window.__withheldNativeSubmit = false;
+      return true;
+    `);
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x: otherSave.x,
+      y: otherSave.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: otherSave.x,
+      y: otherSave.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    otherFormSubmitted = await cdp.evaluate(`
+      return {
+        ...${JSON.stringify(otherSave)},
+        nativeSubmit: window.__withheldNativeSubmit === true,
+        after: document.querySelector(".top__rev .num")?.textContent ?? null,
+        notice: document.querySelector(".notice")?.textContent ?? null,
+        counts: [...document.querySelectorAll(".count__num")].map((node) => node.textContent?.trim() ?? null),
+        focus: document.querySelector(".focus__who")?.textContent?.trim() ?? null,
+      };
+    `);
+  }
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const conflictState = await cdp.evaluate(SNAPSHOT);
+  check(
+    "a concurrent manual write blocks a stale focused draft",
+    otherFormPrepared.ok === true && otherFormPrepared.after !== otherFormPrepared.before && otherFormSubmitted.ok === true && otherFormSubmitted.nativeSubmit === true && otherFormSubmitted.after !== otherFormSubmitted.before && otherFormSubmitted.focus === "Theo" && conflictState.focusConflict === true && conflictState.focusSaveDisabled === true,
+    `prepared=${JSON.stringify(otherFormPrepared)}, ready=${JSON.stringify(otherFormReady)}, submitted=${JSON.stringify(otherFormSubmitted)}, conflict=${conflictState.focusConflict}, save disabled=${conflictState.focusSaveDisabled}`,
+  );
+
+  const reloadedFocused = await cdp.evaluate(`
+    const reload = document.querySelector(".focus .tick__conflict .btn");
+    if (!reload) return false;
+    reload.click();
+    return true;
+  `);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const recovered = await cdp.evaluate(SNAPSHOT);
+  check(
+    "the focused form recovers only after reloading current state",
+    reloadedFocused === true && recovered.focusConflict === false && recovered.focusSaveDisabled === false,
+    `reload=${reloadedFocused}, conflict=${recovered.focusConflict}, save disabled=${recovered.focusSaveDisabled}`,
+  );
+
+  // A successful save by the focused teacher form advances that form's own opened revision. It
+  // must not report its own commit as a conflict; only another caller's later revision should do so.
+  const ownInput = await cdp.evaluate(`
+    const details = document.querySelector(".focus .byhand");
+    const summary = details?.querySelector(":scope > summary");
+    const form = details?.querySelector(".tick");
+    const box = form?.querySelector("input[type=checkbox]");
+    if (!details || !summary || !box) return { ok: false };
+    if (!details.open) summary.click();
+    return { ok: true, before: box.checked, disabled: box.disabled };
+  `);
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const ownInputPosition = await cdp.evaluate(`
+    const box = document.querySelector(".focus .tick input[type=checkbox]");
+    if (!box) return { ok: false };
+    box.scrollIntoView({ block: "center", inline: "center" });
+    const rect = box.getBoundingClientRect();
+    return { ok: true, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  `);
+  if (ownInput.ok && ownInputPosition.ok) {
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x: ownInputPosition.x,
+      y: ownInputPosition.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: ownInputPosition.x,
+      y: ownInputPosition.y,
+      button: "left",
+      clickCount: 1,
+    });
+  }
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const ownSave = await cdp.evaluate(`
+    const form = document.querySelector(".focus .tick");
+    const save = form?.querySelector("button[type=submit]");
+    if (!save) return { ok: false };
+    save.scrollIntoView({ block: "center", inline: "center" });
+    const before = document.querySelector(".top__rev .num")?.textContent ?? null;
+    const rect = save.getBoundingClientRect();
+    return { ok: true, before, disabled: save.disabled, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  `);
+  if (ownSave.ok) {
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mousePressed",
+      x: ownSave.x,
+      y: ownSave.y,
+      button: "left",
+      clickCount: 1,
+    });
+    await cdp.command("Input.dispatchMouseEvent", {
+      type: "mouseReleased",
+      x: ownSave.x,
+      y: ownSave.y,
+      button: "left",
+      clickCount: 1,
+    });
+  }
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const ownSaved = await cdp.evaluate(SNAPSHOT);
+  check(
+    "a successful manual save does not conflict with its own form",
+    ownInput.ok === true && ownInput.disabled === false && ownInputPosition.ok === true && ownSave.ok === true && ownSave.disabled === false && ownSaved.revision !== ownSave.before && ownSaved.focusConflict === false && ownSaved.focusSaveDisabled === false,
+    `input=${JSON.stringify(ownInput)}, save=${JSON.stringify(ownSave)}, revision=${ownSaved.revision}, conflict=${ownSaved.focusConflict}`,
+  );
 
   // Beside the work it is a region, not a panel. Asserted here as well as at 420px because "it folds
   // on a phone" and "it does not fold anywhere else" are two claims, and the second is the one a
@@ -889,6 +1095,34 @@ async function main() {
   check("send unlocks only once a release is staged", staged.sendDisabled === false, `disabled=${staged.sendDisabled}`);
   shots.staged = await shoot(cdp, 1440, 900, "browser-1440-staged.png");
 
+  // Exercise both human decisions through the real DOM controls. Declining must leave every mark
+  // on the page and record an event; a second stage followed by confirmation must record the final
+  // release at the exact revision shown by its receipt-backed timeline.
+  await cdp.evaluate("document.querySelector('.bar__mid .btn').click(); return true;");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const declined = await cdp.evaluate(SNAPSHOT);
+  check(
+    "declining a staged release clears it and records the human decision",
+    declined.staged === false && declined.timelineActions.some((action) => /declined by human/i.test(action)),
+    `staged=${declined.staged}, ${declined.timelineActions.at(-1) ?? "no timeline event"}`,
+  );
+
+  await cdp.evaluate("document.querySelector('.bar__mid .btn').click(); return true;");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const stagedAgain = await cdp.evaluate(SNAPSHOT);
+  check("a declined release can be staged again", stagedAgain.staged === true, `staged=${stagedAgain.staged}`);
+
+  await cdp.evaluate("document.querySelector('.btn--send').click(); return true;");
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const confirmed = await cdp.evaluate(SNAPSHOT);
+  check(
+    "confirming through the human control records the final release",
+    confirmed.staged === false &&
+      confirmed.timelineActions.some((action) => /confirmed by human/i.test(action)) &&
+      confirmed.timelineRevisions.at(-1) === Number(confirmed.revision),
+    `staged=${confirmed.staged}, revision=${confirmed.revision}, last timeline revision=${confirmed.timelineRevisions.at(-1)}`,
+  );
+
   const order = await tabOrder(cdp, 14);
   const reachable = order.filter((node) => node !== null && node.tag !== "body").length;
   check("the keyboard reaches the page", reachable >= 10, `${reachable} of 14 tab stops focused something`);
@@ -955,15 +1189,23 @@ async function main() {
   if (modelContext.tools) console.log(`registered: ${modelContext.tools.join(", ")}`);
 
   const failed = checks.filter((entry) => !entry.passed);
+  const evidence = evidenceMeta(PACKAGE, {
+    browserFlags: ["--enable-experimental-web-platform-features", "--enable-features=WebMCPTesting"],
+    artifactPaths: Object.values(shots),
+  });
   const report = {
+    status: failed.length === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
+    evidenceClass: "VERIFIED_ARTIFACT",
+    scope: "local production build in flagged Chromium; not hosted and not model-selected",
     ranAt: new Date().toISOString(),
+    evidence,
     browser: version.product,
     protocol: version.protocolVersion,
     url,
     passed: checks.length - failed.length,
     failed: failed.length,
     checks,
-    snapshots: { fresh, marked, staged, narrow: narrowGrid },
+    snapshots: { fresh, marked, staged, declined, stagedAgain, confirmed, narrow: narrowGrid },
     contrast,
     fold,
     accessibility: {

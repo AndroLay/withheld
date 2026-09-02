@@ -1,0 +1,2039 @@
+{
+  "status": "VERIFIED_RUN",
+  "evidenceClass": "VERIFIED_ARTIFACT",
+  "scope": "local production build with deterministic CDP client; not hosted and not model-selected",
+  "ranAt": "2026-09-02T16:08:48.115Z",
+  "evidence": {
+    "gitSha": "8a228b884d4d954fe6c4af8599cc5667a6c3c8c8",
+    "workingTreeDirty": true,
+    "sourceSha256": "26609a30594cfedd1e77075a0d98c2542c3f5f930b5f44b68bb7caf5eb86977c",
+    "buildSha256": "b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d",
+    "node": "v26.4.0",
+    "browserFlags": [
+      "--enable-experimental-web-platform-features",
+      "--enable-features=WebMCPTesting"
+    ],
+    "artifactSha256": {}
+  },
+  "browser": "Chrome/151.0.7922.137",
+  "protocol": "1.3",
+  "url": "http://127.0.0.1:4665/",
+  "registeredTools": [
+    {
+      "name": "describe_stack",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "explain_mark",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "list_held_answers",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "preview_unattended_outcome",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "propose_marks",
+      "hasInputSchema": true,
+      "annotations": null
+    },
+    {
+      "name": "read_answer",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": true
+      }
+    },
+    {
+      "name": "read_rubric",
+      "hasInputSchema": true,
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      }
+    },
+    {
+      "name": "request_release",
+      "hasInputSchema": true,
+      "annotations": null
+    },
+    {
+      "name": "set_marking_emphasis",
+      "hasInputSchema": true,
+      "annotations": null
+    }
+  ],
+  "checks": [
+    {
+      "name": "clean local load exposes exactly nine native tools",
+      "passed": true,
+      "detail": "9 tools"
+    },
+    {
+      "name": "the page starts at a clean revision with no marked or staged work",
+      "passed": true,
+      "detail": "{\"revision\":1,\"figures\":[14,0,0,0],\"staged\":false,\"sendDisabled\":true,\"timelineActions\":[\"the page opened\"],\"timelineRevisions\":[0]}"
+    },
+    {
+      "name": "the client reads the stack revision before any write",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":1,\"answerCount\":14,\"markedCount\":0,\"heldCount\":0,\"releasableCount\":0,\"releasedCount\":0,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "the client reads the redacted rubric",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "the client reads one synthetic answer as untrusted content",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "requesting release before any mark is a safe wrong-phase refusal",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"nothing-to-release\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "an extra key is rejected by the runtime contract",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"invalid-argument\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "an unknown answer id is rejected without a state change",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"unknown-answer\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "an unknown rubric line id is rejected before arithmetic",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"invalid-argument\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "duplicate answer findings are rejected as one malformed batch",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"invalid-argument\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "an oversized finding batch is refused before the reducer",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"invalid-argument\",\"revision\":1,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "a valid bounded proposal changes the shared page state",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":2,\"answerCount\":null,\"markedCount\":null,\"heldCount\":5,\"releasableCount\":9,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":\"propose_marks\",\"echoedAnswerCount\":14},\"revision\":\"1→2\"}"
+    },
+    {
+      "name": "the client reads the resulting holds before retrying",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":2,\"answerCount\":null,\"markedCount\":null,\"heldCount\":5,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"2→2\"}"
+    },
+    {
+      "name": "a stricter page setting advances the revision",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":3,\"answerCount\":null,\"markedCount\":null,\"heldCount\":6,\"releasableCount\":8,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":\"set_marking_emphasis\",\"echoedAnswerCount\":0},\"revision\":\"2→3\"}"
+    },
+    {
+      "name": "the old proposal is refused as stale and does not overwrite the page",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"stale-revision\",\"revision\":3,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"3→3\"}"
+    },
+    {
+      "name": "replaying an accepted operation id is refused at the current revision",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"duplicate-operation\",\"revision\":3,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"3→3\"}"
+    },
+    {
+      "name": "the client rereads the current revision after refusal",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":3,\"answerCount\":14,\"markedCount\":13,\"heldCount\":6,\"releasableCount\":8,\"releasedCount\":0,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"3→3\"}"
+    },
+    {
+      "name": "a new proposal with the current revision recovers safely",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":4,\"answerCount\":null,\"markedCount\":null,\"heldCount\":7,\"releasableCount\":7,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":\"propose_marks\",\"echoedAnswerCount\":1},\"revision\":\"3→4\"}"
+    },
+    {
+      "name": "the agent can stage a release but receives no answer ids",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":5,\"answerCount\":null,\"markedCount\":null,\"heldCount\":7,\"releasableCount\":7,\"releasedCount\":null,\"awaitingHuman\":true,\"receiptAction\":\"request_release\",\"echoedAnswerCount\":0},\"revision\":\"4→5\"}"
+    },
+    {
+      "name": "a second pending release request is refused without replacing the first",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":true,\"code\":\"release-already-staged\",\"revision\":5,\"answerCount\":null,\"markedCount\":null,\"heldCount\":null,\"releasableCount\":null,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"5→5\"}"
+    },
+    {
+      "name": "a human decline clears the stage and records a page receipt",
+      "passed": true,
+      "detail": "{\"revision\":\"5→6\",\"timeline\":\"release declined by human\"}"
+    },
+    {
+      "name": "reload returns the ordinary fallback to a clean synthetic session",
+      "passed": true,
+      "detail": "{\"before\":{\"revision\":6,\"figures\":[14,13,7,0],\"staged\":false,\"sendDisabled\":true,\"timelineActions\":[\"the page opened\",\"marks proposed · 14 answers\",\"care setting raised\",\"marks proposed · 1 answers\",\"release staged · 7 answers\",\"release declined by human\"],\"timelineRevisions\":[0,2,3,4,5,6]},\"after\":{\"revision\":1,\"figures\":[14,0,0,0],\"staged\":false,\"sendDisabled\":true,\"timelineActions\":[\"the page opened\"],\"timelineRevisions\":[0]},\"persistence\":\"not in scope\"}"
+    },
+    {
+      "name": "after reload the client rereads the new session before restaging",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":1,\"answerCount\":14,\"markedCount\":0,\"heldCount\":0,\"releasableCount\":0,\"releasedCount\":0,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"1→1\"}"
+    },
+    {
+      "name": "the recovered session accepts a fresh bounded proposal",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":2,\"answerCount\":null,\"markedCount\":null,\"heldCount\":0,\"releasableCount\":1,\"releasedCount\":null,\"awaitingHuman\":false,\"receiptAction\":\"propose_marks\",\"echoedAnswerCount\":1},\"revision\":\"1→2\"}"
+    },
+    {
+      "name": "the recovered session stages release again",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":3,\"answerCount\":null,\"markedCount\":null,\"heldCount\":0,\"releasableCount\":1,\"releasedCount\":null,\"awaitingHuman\":true,\"receiptAction\":\"request_release\",\"echoedAnswerCount\":0},\"revision\":\"2→3\"}"
+    },
+    {
+      "name": "a human confirm is the only final release action and leaves a receipt",
+      "passed": true,
+      "detail": "{\"revision\":\"3→4\",\"timeline\":\"release confirmed by human · 1 answers\"}"
+    },
+    {
+      "name": "the final reread shows the confirmed release as settled",
+      "passed": true,
+      "detail": "{\"result\":{\"status\":\"Completed\",\"refused\":false,\"code\":null,\"revision\":4,\"answerCount\":14,\"markedCount\":1,\"heldCount\":0,\"releasableCount\":0,\"releasedCount\":1,\"awaitingHuman\":false,\"receiptAction\":null,\"echoedAnswerCount\":0},\"revision\":\"4→4\"}"
+    }
+  ],
+  "passed": 27,
+  "failed": 0,
+  "trace": [
+    {
+      "step": "the client reads the stack revision before any write",
+      "actor": "deterministic-local-client",
+      "tool": "describe_stack",
+      "input": {},
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 1,
+        "answerCount": 14,
+        "markedCount": 0,
+        "heldCount": 0,
+        "releasableCount": 0,
+        "releasedCount": 0,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "the client reads the redacted rubric",
+      "actor": "deterministic-local-client",
+      "tool": "read_rubric",
+      "input": {},
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "the client reads one synthetic answer as untrusted content",
+      "actor": "deterministic-local-client",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-01"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "requesting release before any mark is a safe wrong-phase refusal",
+      "actor": "deterministic-local-client",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 1,
+        "operationId": "recovery-wrong-phase"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "nothing-to-release",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "an extra key is rejected by the runtime contract",
+      "actor": "deterministic-local-client",
+      "tool": "describe_stack",
+      "input": {
+        "unexpected": true
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "invalid-argument",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "an unknown answer id is rejected without a state change",
+      "actor": "deterministic-local-client",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-not-on-stack"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "unknown-answer",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "an unknown rubric line id is rejected before arithmetic",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "rubric-not-present"
+            ]
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "recovery-unknown-rubric"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "invalid-argument",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "duplicate answer findings are rejected as one malformed batch",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-01",
+            "foundLineIds": []
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "recovery-duplicate-answer"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "invalid-argument",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "an oversized finding batch is refused before the reducer",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-15",
+            "foundLineIds": []
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "recovery-oversized"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "invalid-argument",
+        "revision": 1,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "a valid bounded proposal changes the shared page state",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": [
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": [
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": [
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": [
+              "l-conductor"
+            ]
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": [
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "recovery-proposal-v1"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 2,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": "propose_marks",
+        "echoedAnswerCount": 14
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 2,
+        "figures": [
+          14,
+          13,
+          5,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "step": "the client reads the resulting holds before retrying",
+      "actor": "deterministic-local-client",
+      "tool": "list_held_answers",
+      "input": {},
+      "revisionBefore": 2,
+      "revisionAfter": 2,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 2,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 5,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 2,
+        "figures": [
+          14,
+          13,
+          5,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      },
+      "pageAfter": {
+        "revision": 2,
+        "figures": [
+          14,
+          13,
+          5,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "step": "a stricter page setting advances the revision",
+      "actor": "deterministic-local-client",
+      "tool": "set_marking_emphasis",
+      "input": {
+        "emphasis": "cautious",
+        "expectedRevision": 2,
+        "operationId": "recovery-care"
+      },
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 3,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 6,
+        "releasableCount": 8,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": "set_marking_emphasis",
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 2,
+        "figures": [
+          14,
+          13,
+          5,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      },
+      "pageAfter": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "step": "the old proposal is refused as stale and does not overwrite the page",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 2,
+        "operationId": "recovery-stale-proposal"
+      },
+      "revisionBefore": 3,
+      "revisionAfter": 3,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "stale-revision",
+        "revision": 3,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      },
+      "pageAfter": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "step": "replaying an accepted operation id is refused at the current revision",
+      "actor": "deterministic-local-client",
+      "tool": "set_marking_emphasis",
+      "input": {
+        "emphasis": "cautious",
+        "expectedRevision": 3,
+        "operationId": "recovery-care"
+      },
+      "revisionBefore": 3,
+      "revisionAfter": 3,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "duplicate-operation",
+        "revision": 3,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      },
+      "pageAfter": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "step": "the client rereads the current revision after refusal",
+      "actor": "deterministic-local-client",
+      "tool": "describe_stack",
+      "input": {},
+      "revisionBefore": 3,
+      "revisionAfter": 3,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 3,
+        "answerCount": 14,
+        "markedCount": 13,
+        "heldCount": 6,
+        "releasableCount": 8,
+        "releasedCount": 0,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      },
+      "pageAfter": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "step": "a new proposal with the current revision recovers safely",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          }
+        ],
+        "expectedRevision": 3,
+        "operationId": "recovery-proposal-v2"
+      },
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 4,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 7,
+        "releasableCount": 7,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": "propose_marks",
+        "echoedAnswerCount": 1
+      },
+      "pageBefore": {
+        "revision": 3,
+        "figures": [
+          14,
+          13,
+          6,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      },
+      "pageAfter": {
+        "revision": 4,
+        "figures": [
+          14,
+          13,
+          7,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "step": "the agent can stage a release but receives no answer ids",
+      "actor": "deterministic-local-client",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 4,
+        "operationId": "recovery-stage-v1"
+      },
+      "revisionBefore": 4,
+      "revisionAfter": 5,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 5,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 7,
+        "releasableCount": 7,
+        "releasedCount": null,
+        "awaitingHuman": true,
+        "receiptAction": "request_release",
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 4,
+        "figures": [
+          14,
+          13,
+          7,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4
+        ]
+      },
+      "pageAfter": {
+        "revision": 5,
+        "figures": [
+          14,
+          13,
+          7,
+          7
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "step": "a second pending release request is refused without replacing the first",
+      "actor": "deterministic-local-client",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 5,
+        "operationId": "recovery-stage-duplicate"
+      },
+      "revisionBefore": 5,
+      "revisionAfter": 5,
+      "result": {
+        "status": "Completed",
+        "refused": true,
+        "code": "release-already-staged",
+        "revision": 5,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": null,
+        "releasableCount": null,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 5,
+        "figures": [
+          14,
+          13,
+          7,
+          7
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "pageAfter": {
+        "revision": 5,
+        "figures": [
+          14,
+          13,
+          7,
+          7
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      }
+    },
+    {
+      "step": "human declines the staged release",
+      "actor": "human-ui",
+      "tool": null,
+      "input": null,
+      "revisionBefore": 5,
+      "revisionAfter": 6,
+      "result": {
+        "action": "human_release_declined",
+        "released": false
+      },
+      "pageBefore": {
+        "revision": 5,
+        "figures": [
+          14,
+          13,
+          7,
+          7
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5
+        ]
+      },
+      "pageAfter": {
+        "revision": 6,
+        "figures": [
+          14,
+          13,
+          7,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers",
+          "release declined by human"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "step": "reload and recover",
+      "actor": "browser-lifecycle",
+      "tool": null,
+      "input": {
+        "ignoreCache": true
+      },
+      "revisionBefore": 6,
+      "revisionAfter": 1,
+      "result": {
+        "resetToCleanSession": true,
+        "persistence": "not in scope"
+      },
+      "pageBefore": {
+        "revision": 6,
+        "figures": [
+          14,
+          13,
+          7,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 14 answers",
+          "care setting raised",
+          "marks proposed · 1 answers",
+          "release staged · 7 answers",
+          "release declined by human"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "after reload the client rereads the new session before restaging",
+      "actor": "deterministic-local-client",
+      "tool": "describe_stack",
+      "input": {},
+      "revisionBefore": 1,
+      "revisionAfter": 1,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 1,
+        "answerCount": 14,
+        "markedCount": 0,
+        "heldCount": 0,
+        "releasableCount": 0,
+        "releasedCount": 0,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      }
+    },
+    {
+      "step": "the recovered session accepts a fresh bounded proposal",
+      "actor": "deterministic-local-client",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "recovery-final-proposal"
+      },
+      "revisionBefore": 1,
+      "revisionAfter": 2,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 2,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 0,
+        "releasableCount": 1,
+        "releasedCount": null,
+        "awaitingHuman": false,
+        "receiptAction": "propose_marks",
+        "echoedAnswerCount": 1
+      },
+      "pageBefore": {
+        "revision": 1,
+        "figures": [
+          14,
+          0,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened"
+        ],
+        "timelineRevisions": [
+          0
+        ]
+      },
+      "pageAfter": {
+        "revision": 2,
+        "figures": [
+          14,
+          1,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      }
+    },
+    {
+      "step": "the recovered session stages release again",
+      "actor": "deterministic-local-client",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 2,
+        "operationId": "recovery-stage-v2"
+      },
+      "revisionBefore": 2,
+      "revisionAfter": 3,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 3,
+        "answerCount": null,
+        "markedCount": null,
+        "heldCount": 0,
+        "releasableCount": 1,
+        "releasedCount": null,
+        "awaitingHuman": true,
+        "receiptAction": "request_release",
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 2,
+        "figures": [
+          14,
+          1,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2
+        ]
+      },
+      "pageAfter": {
+        "revision": 3,
+        "figures": [
+          14,
+          1,
+          0,
+          1
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers",
+          "release staged · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "step": "human confirms the staged release",
+      "actor": "human-ui",
+      "tool": null,
+      "input": null,
+      "revisionBefore": 3,
+      "revisionAfter": 4,
+      "result": {
+        "action": "human_release_confirmed",
+        "released": true
+      },
+      "pageBefore": {
+        "revision": 3,
+        "figures": [
+          14,
+          1,
+          0,
+          1
+        ],
+        "staged": true,
+        "sendDisabled": false,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers",
+          "release staged · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3
+        ]
+      },
+      "pageAfter": {
+        "revision": 4,
+        "figures": [
+          14,
+          1,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers",
+          "release staged · 1 answers",
+          "release confirmed by human · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "step": "the final reread shows the confirmed release as settled",
+      "actor": "deterministic-local-client",
+      "tool": "describe_stack",
+      "input": {},
+      "revisionBefore": 4,
+      "revisionAfter": 4,
+      "result": {
+        "status": "Completed",
+        "refused": false,
+        "code": null,
+        "revision": 4,
+        "answerCount": 14,
+        "markedCount": 1,
+        "heldCount": 0,
+        "releasableCount": 0,
+        "releasedCount": 1,
+        "awaitingHuman": false,
+        "receiptAction": null,
+        "echoedAnswerCount": 0
+      },
+      "pageBefore": {
+        "revision": 4,
+        "figures": [
+          14,
+          1,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers",
+          "release staged · 1 answers",
+          "release confirmed by human · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4
+        ]
+      },
+      "pageAfter": {
+        "revision": 4,
+        "figures": [
+          14,
+          1,
+          0,
+          0
+        ],
+        "staged": false,
+        "sendDisabled": true,
+        "timelineActions": [
+          "the page opened",
+          "marks proposed · 1 answers",
+          "release staged · 1 answers",
+          "release confirmed by human · 1 answers"
+        ],
+        "timelineRevisions": [
+          0,
+          2,
+          3,
+          4
+        ]
+      }
+    }
+  ],
+  "final": {
+    "state": {
+      "revision": 4,
+      "figures": [
+        14,
+        1,
+        0,
+        0
+      ],
+      "staged": false,
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 1 answers",
+        "release staged · 1 answers",
+        "release confirmed by human · 1 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4
+      ]
+    },
+    "describeStack": {
+      "status": "Completed",
+      "refused": false,
+      "code": null,
+      "revision": 4,
+      "answerCount": 14,
+      "markedCount": 1,
+      "heldCount": 0,
+      "releasableCount": 0,
+      "releasedCount": 1,
+      "awaitingHuman": false,
+      "receiptAction": null,
+      "echoedAnswerCount": 0
+    },
+    "noModel": true,
+    "noHostedUrl": true,
+    "humanActionsUsedPageUi": true
+  },
+  "notClaimed": [
+    "This is not a natural-language model replay.",
+    "This is not hosted evidence; the URL is loopback-only.",
+    "Reload intentionally starts a new in-memory synthetic session because persistence is outside scope.",
+    "No answer body, rubric point value, pass boundary, credential, or personal data is stored in this artifact.",
+    "Unexpected tool exception is covered by the source/contract test; this browser journey does not force a transport exception."
+  ]
+}

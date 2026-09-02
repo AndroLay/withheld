@@ -45,6 +45,11 @@ part an answer cannot talk its way around.
 What is still not verified is whether a real agent, reading a real injected answer, behaves
 differently from the tool surface driven directly in tests. Nobody here has watched one.
 
+The detector normalises Unicode and zero-width spacing and covers direct role-play,
+full-credit, generous-scoring, and Indonesian marker-directed variants. This remains a router,
+not a general prompt-injection solution: a missed pattern cannot award points because the rubric
+and arithmetic remain page-owned, but it may fail to quarantine the answer.
+
 ## Threat 2 — an agent that awards its own marks
 
 Not possible by construction, as above. `computeMark` in `src/domain/marks.ts` is the only
@@ -57,6 +62,11 @@ There is deliberately no `confirm_release` tool, and there will not be one. Rele
 human action in the page's own UI. An agent cannot invoke it, cannot approve on the
 teacher's behalf, and cannot be talked into it by an injected instruction, because the
 capability is absent from the tool surface rather than guarded within it.
+
+The human confirm and decline transitions are nevertheless auditable: each accepted click
+produces a receipt with the exact resulting revision and action, and the UI timeline renders
+those events. They are page state, not agent payload, so this does not create a new agent
+capability.
 
 This is the one design decision in Withheld that is a refusal to build something.
 
@@ -72,15 +82,19 @@ rather than returning a flag, so a leaking result is unreachable on every code p
 including error paths. Adding a numeric field anywhere new fails the test suite until
 someone justifies it in the allowlist's doc comment.
 
-A second check, `forbiddenNumbersInText`, scans the serialised result for the fixtures'
-deliberately distinctive point values, catching a secret that escaped as prose inside a
-message or an id where the structural check cannot see it.
+A second check, `forbiddenNumbersInText`, scans generated strings for the session's live
+page-owned point values and pass boundary, catching a secret that escaped as prose inside a
+message or an id where the structural check cannot see it. `read_answer.answer.body` is the
+explicit exception: student text is raw, untrusted content that must remain readable even if
+it contains a number matching a fixture value. All other generated tool payloads use the canary
+at runtime through `reply()`; a hit is converted to a generic `internal-error` recovery result
+without echoing the leaked value.
 
 Channels that must stay under those two checks as the tool surface is built: mark
 explanations, refusal messages, any unattended-outcome preview, the ordering of held
 answers, and receipts.
 
-Built and tested: `tests/agent-boundary.test.mts`, 9 tests on the guard itself, and every
+Built and tested: `tests/agent-boundary.test.mts`, 10 tests on the guard itself, and every
 one of those channels now runs through it. `reply()` in `src/tools/webmcp.ts` is the only
 constructor of a tool result, it calls `assertAgentSafe` on the payload, and `replyRefused`
 delegates to it — so refusals are guarded on the same path as successes rather than around
@@ -91,6 +105,15 @@ every one that neither check fires anywhere on the surface.
 What is *not* covered by that: a channel added outside `reply()`. The guard is only
 unavoidable while `reply()` stays the single exit, which is a property of the current source
 rather than something the type system enforces.
+
+Tool schemas are closed with `additionalProperties: false` and bounded for ids, findings, and
+line-id arrays. The runtime repeats those checks before arithmetic, rejects duplicate entries,
+and refuses oversized input before the reducer runs. Every agent write also requires a bounded,
+opaque `operationId`; once accepted, that key is single-use across all write tools, so a retry is
+refused as `duplicate-operation` without another revision or receipt. The key is stored only in
+the in-memory session receipt and is therefore session-local, not a substitute for durable
+idempotency. Duplicate emphasis and duplicate pending release requests are refusals rather than
+revision-consuming no-ops.
 
 There is now a second reader of those same projections: the page prints four of them, as JSON, for a
 teacher — see `src/ui/AgentPanel.tsx`. It is not a channel out of the page. It calls the same builders
@@ -190,9 +213,10 @@ Two runtime dependencies, `react` and `react-dom`, both pinned to `19.2.8` exact
 than to a range. They pull in one transitive package, `scheduler`, which React owns; five dev
 dependencies (`typescript`, `vite`, `@vitejs/plugin-react` and the two React type packages)
 build the thing and ship nothing. The workspace lockfile resolves 119 packages in total for
-every package in the repository — and to be exact about a word that matters here, the
-lockfile in the working tree carries this package's entry while **the committed lockfile does
-not yet**, because nothing under `submissions/` has been committed at all.
+every package in the repository. This package now also carries a standalone `pnpm-lock.yaml`
+and records `packageManager: pnpm@11.14.0`, so a standalone publication has an explicit
+package-manager contract. The root workspace lockfile remains shared with other work; a clean
+publication must commit the standalone lockfile and package changes together.
 
 No third-party script, font, stylesheet, or analytics tag is loaded. Verified by scanning the
 build output for URLs: there are five external strings in the bundle and none of them is a
@@ -210,13 +234,19 @@ The deploy workflow starts at `permissions: contents: read` and grants `pages: w
 - **No model has chosen a tool here.** The tools *have* been invoked, by a DevTools Protocol client
   through Chromium's own `WebMCP` domain — the path an agent's host uses — and the refusals in this
   document have been observed on that path rather than only in a test: an injection arriving as a tool
-  call is quarantined with nothing marked, a write replayed at a spent revision is refused
-  `stale-revision`, a staged release carries no answer id, and `confirm_release` cannot be dispatched
+  call is quarantined with nothing marked, an accepted write replayed with its operation id is refused
+  `duplicate-operation`, a different write replayed from a spent revision is refused `stale-revision`,
+  a staged release carries no answer id, and `confirm_release` cannot be dispatched
   because the browser has never heard of it. See `docs/evidence/webmcp-invocation.json`. What remains
   unobserved is a *model* finding this page, choosing among nine tools, and composing input for one;
   every claim about what a model would do is still a claim about the surface's shape.
 - No third-party security review, and no threat model reviewed by anyone but the author.
 - CI is pinned to Node 22 and has never run; local verification was on Node 26.
+- No hosted URL or hosted native-WebMCP run exists. The local 19-check dispatch and the
+  27-check failure/recovery journey are recorded under `docs/evidence/`, but neither is hosted
+  evidence or model-selected behaviour.
+- No independent screen-reader session, representative-device performance baseline, or GATE-P2
+  non-builder session has been run; each remains explicitly marked in the evidence directory.
 - The page has been rendered in a browser and measured, but only for layout, policy, focus and
   console output. Statements here about how the interface reads — that the release buttons are the
   only path out, that points appear only in the teacher's column — remain statements about the
@@ -237,5 +267,3 @@ The deploy workflow starts at `permissions: contents: read` and grants `pages: w
 
 Nothing is published yet, so there is no disclosure address. When a repository exists, this
 section gets one.
-
-\n

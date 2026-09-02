@@ -265,9 +265,3 @@ export function comparePolicies(session: Session): PolicyProjection[] {
     };
   });
 }
-
-
-
-
-
-\n

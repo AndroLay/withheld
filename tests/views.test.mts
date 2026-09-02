@@ -179,6 +179,3 @@ test("the policy comparison changes nothing about the session it is asked about"
   assert.equal(JSON.stringify(session), before);
   assert.equal(session.emphasis, "standard");
 });
-
-
-\n

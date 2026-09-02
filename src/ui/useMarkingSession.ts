@@ -27,12 +27,23 @@ export function useMarkingSession() {
     setSession(next);
   }, []);
 
+  // Event handlers can run before React has committed the render caused by an external WebMCP
+  // write. Expose the same ref-backed read used by the tool port so a manual form can validate its
+  // revision against the latest session, not against a stale render closure.
+  const readLatest = useCallback(() => latest.current, []);
+
   const port = useMemo<SessionPort>(
     () => ({ read: () => latest.current, write: apply }),
     [apply],
   );
 
   const [installation, setInstallation] = useState<Installation | null>(null);
+
+  const retryInstallation = useCallback(() => {
+    const retry = installation?.retry;
+    if (!retry) return;
+    void retry().then(setInstallation);
+  }, [installation]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -48,5 +59,5 @@ export function useMarkingSession() {
     };
   }, [port]);
 
-  return { session, apply, installation, demoFindings: DEMO_FINDINGS };
+  return { session, apply, readLatest, installation, retryInstallation, demoFindings: DEMO_FINDINGS };
 }

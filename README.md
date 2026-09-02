@@ -1,7 +1,9 @@
 # Withheld
 
-**Your agent marks the whole stack. The page keeps the points and the pass boundary to
-itself, and hands back only the few answers a human must decide.**
+[E4 requirements and release gates](./docs/E4-REQUIREMENTS.md)
+
+**Your agent can propose recognition for the whole stack. The page keeps the points and the pass
+boundary to itself, and hands back only the few answers a human must decide.**
 
 ## The problem
 
@@ -71,19 +73,19 @@ Built and verified locally:
   Across the foot, the two human-only release controls. Nothing on it requires an agent to be present —
   every tool has a control beside it that does the same thing by hand, which is a fact about the source
   and not a report of using it.
-- **The agent's own view, printed on the page.** The whole third column: all nine tool names with the
-  read/write split, the absent `confirm_release` shown as absent, the five things no result can carry,
-  the four redacted payloads verbatim as JSON, and a foot that names the one action with no tool and
-  points at it rather than repeating it. It is built from the tool registrations and the tools' own
-  payload builders rather than from a copy, and five tests hold the two together, so the boundary can
-  be read against the totals beside it instead of taken on trust. This is also what makes the page
-  mean anything with no agent connected, which is every run so far.
+- **The agent's own view, printed on the page.** The whole third column: the nine real tool names with
+  the read/write split, the five things no result can carry, the four redacted payloads verbatim as
+  JSON, and a foot that points at the human-only release gate without presenting an unavailable
+  operation as a tool. It is built from the tool registrations and the tools' own payload builders
+  rather than from a copy, and five tests hold the two together, so the boundary can be read against
+  the totals beside it instead of taken on trust. This is also what makes the page mean anything with
+  no agent connected, which is every run so far.
 - A Content-Security-Policy injected into the production build only. Nine directives, none of
   them wider than the page uses; a test holds the policy to that shape, because widening
   `style-src` is the cheapest way to break every proportional bar on the page. The tag is present
   in the built `dist/index.html`, and the browser has been observed **enforcing** it — see the
   browser session below.
-- **Every part of the page rendered to static markup, by test.** Twenty-three renders on every run — the
+- **Every part of the page rendered to static markup, by test.** Twenty-two renders on every run — the
   top bar, the band in both states, three rail states, the stack in five (marked from the worked example,
   after a send, with an answer already sent, with a ready answer open, and with nothing in the view), the
   contract column in five (nothing marked, marked, no agent in this browser, an agent connected, and
@@ -91,11 +93,14 @@ Built and verified locally:
   scrolled away, and `App` whole. None throws, none emits an inline `style`, and every class name any of
   them asks for has a rule in the stylesheet. The counts they assert are derived from the fixtures rather
   than typed in. The sweep runs backwards too: every class the sheet defines must be reached by one of the
-  twenty-three renders, so dead CSS fails the suite rather than sitting there looking like a feature.
-- 110 tests pass under the Node test runner. Typecheck and build are clean.
+  twenty-two renders, so dead CSS fails the suite rather than sitting there looking like a feature.
+- 125 tests pass under the Node test runner. Typecheck and build are clean. The tool contract is
+  closed and bounded at both schema and runtime; every agent write carries a single-use operation
+  id, duplicate/no-op writes refuse without advancing the revision, and unexpected tool failures
+  return a generic recovery envelope.
 - **The page has been opened in a browser and measured.** `pnpm browser` serves `dist/`, launches
-  an isolated headless Chromium, and drives it over the DevTools Protocol: **37 checks, 37 passed,
-  0 failed** on 2026-09-01 against Chrome/151, recorded in `docs/evidence/browser-session.json`
+  an isolated headless Chromium, and drives it over the DevTools Protocol: **44 checks, 44 passed,
+  0 failed** on 2026-09-02 against Chrome/151, recorded in `docs/evidence/browser-session.json`
   with four screenshots. It establishes the things static markup cannot — the three columns lay out
   at 1440px (322px of policy, 761px of work, 357px of contract), the band stays a band above
   them with its four figures on one row and no control in it, the four figures read `14/0/0/0` before the
@@ -108,34 +113,37 @@ Built and verified locally:
   auto-placing into a 26px grid column. On a flagged Chromium build `document.modelContext` exists
   and all nine tools register natively. **The session reads that registry; it is not an agent.**
 - **Contrast is measured, not asserted.** The same session walks every visible text node the page renders
-  and computes the ratio against the background it actually resolves to: **423 pairs, none below its
+  and computes the ratio against the background it actually resolves to: **443 pairs, none below its
   WCAG AA threshold**, the thinnest at 4.8:1 against a 4.5 requirement. It found ten real
   failures at 1.43:1 on first run — a rubric-line mark drawn in a tone that had only ever been used
   on white — and the palette is now guarded by arithmetic in `tests/contrast.test.mts` so the page
   and its own claim cannot drift apart.
-- **What a screen reader is handed, read out of the accessibility tree.** 1001 nodes, 32 named
+- **What a screen reader is handed, read out of the accessibility tree.** 43 named
   regions and controls, **none unnamed**, 18 headings in document order at levels 1, 2 and 3 with no
   level skipped, and the landmarks the page means to expose: one `banner`, one `main`, three
   `complementary`, one live `status`. There is deliberately no `contentinfo` — the foot is a note about
   the work and sits inside `main`, which HTML-AAM does not expose as a landmark. **This is the tree, not a
   screen reader: no assistive technology has been run against this page.**
 - **The contract column folds on a phone.** Below 62rem the third column becomes a `<details>` panel
-  that arrives closed, measured in the browser at both widths: absent at 1440px, and at 420px 110px
-  tall shut with **0 of its 10 tool rows visible**, 2538px and all ten visible when pressed, closed
-  again when pressed a second time. A closed `<details>` still reports layout boxes, so the check
-  asks `checkVisibility()` rather than trusting heights.
+  that arrives closed, measured in the browser at both widths: absent at 1440px, and at 420px with
+  **0 of its 9 tool rows visible** until pressed. A closed `<details>` still reports layout boxes, so
+  the check asks `checkVisibility()` rather than trusting heights.
 - **The tools have been invoked through the browser's own registry, and the page moved.**
   `pnpm webmcp` drives Chromium's `WebMCP` DevTools domain — the path an agent's host uses:
-  `WebMCP.invokeTool` dispatches a tool by name into the frame that registered it. **17 checks, 17
-  passed, 0 failed** on 2026-09-01 against Chrome/151, recorded in
+  `WebMCP.invokeTool` dispatches a tool by name into the frame that registered it. **19 checks, 19
+  passed, 0 failed** on 2026-09-02 against Chrome/151, recorded in
   `docs/evidence/webmcp-invocation.json`. A write from outside the page moves the rendered page — the
-  care setting, the revision, and the held count from 5 to 6 — and the same write replayed at the
-  revision it spent is refused `stale-revision` with the page staying put. The prompt injection
+  care setting, the revision, and the held count from 5 to 6 — and the same accepted write replayed
+  with the current revision and operation id is refused `duplicate-operation` with the page staying
+  put. A different write from the old revision is refused `stale-revision`. The prompt injection
   arrives as a tool call, claiming all four rubric lines for the answer that asks for full marks, and
   is quarantined with nothing marked. A release staged by a tool comes back `awaitingHuman` with no
-  answer id in it, unlocks the human control, and puts focus on the bar's heading. And
-  `confirm_release` fails with *Tool not found*: the absence at the centre of this design is measured
-  by the browser rather than asserted by the page. **The script composed every call; no model did.**
+  answer id in it, unlocks the human control, and puts focus on the bar's heading. The browser session
+  also exercises decline, re-stage, and human confirm, with each decision visible in the receipt-backed
+  timeline. And
+  An unknown rubric-line id is refused before arithmetic, and `confirm_release` fails with *Tool not
+  found*: the absence at the centre of this design is measured by the browser rather than asserted by
+  the page. **The script composed every call; no model did.**
 
 Not built, and not claimed:
 
@@ -166,7 +174,7 @@ cannot enforce.
 Nine tools, one function each. Six read-only: `describe_stack`, `read_rubric`,
 `read_answer` (answer bodies always carry `untrustedContentHint`), `list_held_answers`,
 `explain_mark`, `preview_unattended_outcome`. Three writes, each returning a receipt and
-each gated on `expectedRevision`: `propose_marks`, `set_marking_emphasis`,
+each gated on `expectedRevision` and a single-use `operationId`: `propose_marks`, `set_marking_emphasis`,
 `request_release`.
 
 There is deliberately **no `confirm_release` tool**. Releasing marks to students is a
@@ -183,16 +191,19 @@ equivalent.
 
 This package is one workspace member, so every command below runs from its own directory.
 The repository root has no `dev` script.
+For a standalone copy, keep this directory's `package.json` and `pnpm-lock.yaml` together; the
+root lockfile remains the monorepo's shared lockfile.
 
 ```sh
 cd submissions/withheld
 pnpm install    # or `pnpm install` once at the repository root
 pnpm dev        # http://127.0.0.1:4174
 pnpm preview    # serves dist/ — the only way to exercise the CSP
-pnpm test       # 110 tests: arithmetic, authority, boundary, tools, sheet, palette, renders
+pnpm test       # 125 tests: arithmetic, authority, boundary, tools, sheet, palette, renders
 pnpm build      # typecheck, then production bundle
-pnpm browser    # after a build: 37 checks against dist/ in a headless Chromium
-pnpm webmcp     # after a build: 17 checks, invoking the tools through the browser's registry
+pnpm browser    # after a build: 44 checks against dist/ in a headless Chromium
+pnpm webmcp     # after a build: 19 checks, invoking the tools through the browser's registry
+node --experimental-strip-types scripts/failure-recovery.mjs  # after a build: 27 local recovery checks
 ```
 
 From the repository root, `pnpm --filter withheld dev` does the same thing without changing
@@ -215,16 +226,10 @@ derive, which found a real leak and records two channels it leaves open; and
 out and **has not been run**. `docs/evidence/` holds what the browser session recorded, screenshots
 included. `SECURITY.md` carries the threat model.
 
-The visual the page was built to is kept separately in
-[docs/target-images](docs/target-images/README.md), with the reference it departs from and the one
-frame that can honestly be compared against it. It is a drawing, not evidence of a hosted or
-native-agent run. The current target is monochrome, and the page departs from it in eleven recorded
-places — the band's figures are the live session rather than the drawing's invented ones, the tool list
-carries ten rows rather than seven, and the mockup's second release control in the top bar is an anchor
-here, because exactly one control on this page releases a mark. All eleven are in
-`docs/DECISIONS.md` as D-27; the three departures from the colour target that preceded it are D-21,
-which also records the one item of the brief that was outstanding until the contract column learned to
-fold.
+The public package keeps the implementation, rationale, and reproducible evidence; private design
+references and internal audit notes are intentionally not part of this repository. The current
+monochrome interface and its deliberate departures from the original brief are explained in
+`docs/DECISIONS.md` D-21 and D-27.
 
 ## License
 

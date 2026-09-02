@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1",
+  "project": "withheld",
+  "status": "UNKNOWN",
+  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "artifactState": "blocked",
+  "hostedUrl": null,
+  "reason": "No authorized public HTTPS deployment exists in this task. A local CDP/WebMCP run cannot stand in for hosted evidence.",
+  "requiredEnvironment": [
+    "Public HTTPS URL",
+    "Clean browser profile",
+    "Chrome 149+ with the WebMCP flag enabled"
+  ],
+  "rerun": {
+    "command": "pnpm build && node scripts/webmcp-invoke.mjs --preview-port <port> --port <cdp-port>",
+    "requiredChanges": [
+      "Point the harness at the public HTTPS URL.",
+      "Capture document.modelContext, all nine tools, schemas, annotations, raw payloads, and DOM state.",
+      "Bind the artifact to the final commit and hosted build hashes."
+    ]
+  },
+  "notClaimed": [
+    "No hosted native WebMCP pass",
+    "No model-selected replay",
+    "No final release manifest"
+  ]
+}

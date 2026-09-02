@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { type Answer, type HoldReason, type Session, policyFor } from "../domain/session.ts";
 import { explainMark } from "../domain/views.ts";
@@ -52,8 +52,9 @@ function stateOf(session: Session, answerId: string, heldReason: HoldReason | nu
  * Marking by hand. The teacher ticks the same rubric ideas an agent would name, and the page does the
  * same arithmetic on them — the only difference is who read the answer.
  *
- * The ticks live in the form rather than in React state on purpose: the page reads them once, on
- * submit, so there is no half-entered mark sitting in state waiting to be committed by something else.
+ * The ticks live in form-local React state so the visible draft follows the controlled inputs. The
+ * opened revision lives beside that draft; a successful save advances it, while another caller's
+ * revision change turns the form into an explicit conflict instead of silently overwriting it.
  */
 function MarkForm({
   session,
@@ -62,17 +63,48 @@ function MarkForm({
 }: {
   session: Session;
   answerId: string;
-  onSave: (foundLineIds: string[]) => void;
+  onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
 }) {
   const awarded = new Set(session.marks[answerId]?.awardedLineIds ?? []);
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(awarded));
+  const openedAnswer = useRef(answerId);
+  const openedRevision = useRef(session.revision);
+  const [conflict, setConflict] = useState(false);
+
+  // A card can stay mounted while a tool call replaces the session underneath it. Reset only when
+  // the teacher opens a different answer; a revision change for the same answer is a conflict and
+  // must not silently overwrite either caller's work.
+  useEffect(() => {
+    if (openedAnswer.current !== answerId) {
+      openedAnswer.current = answerId;
+      openedRevision.current = session.revision;
+      setSelected(new Set(session.marks[answerId]?.awardedLineIds ?? []));
+      setConflict(false);
+    }
+  }, [answerId, session]);
+
+  useEffect(() => {
+    if (session.revision !== openedRevision.current) setConflict(true);
+  }, [session.revision]);
+
+  function reloadCurrentMark() {
+    openedRevision.current = session.revision;
+    setSelected(new Set(session.marks[answerId]?.awardedLineIds ?? []));
+    setConflict(false);
+  }
 
   return (
     <form
       className="tick"
       onSubmit={(event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        onSave(data.getAll("line").map(String));
+        if (conflict || session.revision !== openedRevision.current) {
+          setConflict(true);
+          return;
+        }
+        const expectedRevision = openedRevision.current;
+        const saved = onSave([...selected], expectedRevision);
+        if (saved === true) openedRevision.current = expectedRevision + 1;
       }}
     >
       <fieldset className="tick__set">
@@ -84,15 +116,32 @@ function MarkForm({
               type="checkbox"
               name="line"
               value={line.id}
-              defaultChecked={awarded.has(line.id)}
+              checked={selected.has(line.id)}
+              disabled={conflict}
+              onChange={(event) =>
+                setSelected((previous) => {
+                  const next = new Set(previous);
+                  if (event.target.checked) next.add(line.id);
+                  else next.delete(line.id);
+                  return next;
+                })
+              }
             />
             <span className="tick__label">{line.label}</span>
             <span className="tick__points num">{line.points}</span>
           </label>
         ))}
       </fieldset>
+      {conflict ? (
+        <div className="tick__conflict" role="alert">
+          <p>This answer changed while you were marking. Saving is blocked until you reload it.</p>
+          <button type="button" className="btn btn--quiet" onClick={reloadCurrentMark}>
+            Reload current mark
+          </button>
+        </div>
+      ) : null}
       <div className="tick__foot">
-        <button type="submit" className="btn btn--go">
+        <button type="submit" className="btn btn--go" disabled={conflict}>
           Save this mark
         </button>
         <span className="tick__note">
@@ -168,7 +217,7 @@ function Focus({
   heldReason: HoldReason | null;
   max: number;
   band: number;
-  onSave: (foundLineIds: string[]) => void;
+  onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
 }) {
   const state = stateOf(session, answer.id, heldReason);
   const explanation = explainMark(session, answer.id);
@@ -384,7 +433,7 @@ function Row({
   heldReason: HoldReason | null;
   max: number;
   focused: boolean;
-  onSave: (foundLineIds: string[]) => void;
+  onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
 }) {
   const state = stateOf(session, answer.id, heldReason);
   const mark = session.marks[answer.id];
@@ -450,7 +499,7 @@ export function Stack({
 }: {
   session: Session;
   heldReason: Map<string, HoldReason>;
-  onSave: (answerId: string, foundLineIds: string[]) => void;
+  onSave: (answerId: string, foundLineIds: string[], expectedRevision: number) => boolean | void;
   onMark: () => void;
 }) {
   const [view, setView] = useState<View>("all");
@@ -570,7 +619,7 @@ export function Stack({
           heldReason={heldReason.get(focus.id) ?? null}
           max={max}
           band={band}
-          onSave={(foundLineIds) => onSave(focus.id, foundLineIds)}
+          onSave={(foundLineIds, expectedRevision) => onSave(focus.id, foundLineIds, expectedRevision)}
         />
       )}
 
@@ -584,7 +633,7 @@ export function Stack({
             heldReason={heldReason.get(answer.id) ?? null}
             max={max}
             focused={focus !== null && answer.id === focus.id}
-            onSave={(foundLineIds) => onSave(answer.id, foundLineIds)}
+            onSave={(foundLineIds, expectedRevision) => onSave(answer.id, foundLineIds, expectedRevision)}
           />
         ))}
       </ul>
@@ -625,5 +674,3 @@ export function Stack({
     </section>
   );
 }
-
-\n

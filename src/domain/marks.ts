@@ -70,9 +70,18 @@ export function redactRubricForAgent(rubric: Rubric): AgentRubric {
  */
 export function computeMark(rubric: Rubric, finding: AgentFinding): Mark {
   const byId = new Map(rubric.lines.map((line) => [line.id, line]));
-  const awarded = finding.foundLineIds
-    .filter((id, index, all) => all.indexOf(id) === index)
-    .filter((id) => byId.has(id));
+  const requested = new Set<string>();
+
+  // This input comes from the agent boundary. Keep the defensive de-duplication here as well,
+  // but do it in linear time so a malformed or hostile list cannot turn marking into a quadratic
+  // scan before the transport validator gets a chance to reject it.
+  for (const id of finding.foundLineIds) requested.add(id);
+
+  // Emit rubric order rather than caller order. Replaying the same finding with a different
+  // array order is therefore a true no-op, not a new receipt whose only difference is presentation.
+  const awarded = rubric.lines
+    .map((line) => line.id)
+    .filter((id) => requested.has(id) && byId.has(id));
 
   let total = 0;
   for (const id of awarded) {

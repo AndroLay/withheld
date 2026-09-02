@@ -2,9 +2,8 @@
  * Withheld — the WebMCP tool surface.
  *
  * Nine tools, one job each. Six read, three write, and none of them can release a mark to a
- * student: there is no `confirm_release` here and there is not meant to be. The teacher's
- * confirmation lives in the page's own UI, and `tests/webmcp.test.mts` asserts that this
- * file never so much as names the function that performs it.
+ * student. The teacher's confirmation lives in the page's own UI, and `tests/webmcp.test.mts`
+ * asserts that this file never so much as names the function that performs it.
  *
  * Three rules hold everywhere below.
  *
@@ -14,12 +13,11 @@
  * the transport envelope, because the envelope nests the payload one level down and would
  * shift every allowlisted path.
  *
- * Arguments are validated in code, not trusted from the schema. The schemas below are
- * deliberately loose and forgiving — they are a hint to a model — while the checks in
- * `readAnswerId` and friends are strict and refuse rather than coerce.
+ * Arguments are validated in code as well as in the schema. The schema is the model-facing
+ * contract; the runtime checks are the enforcement point and refuse rather than coerce.
  *
- * Every write is gated on `expectedRevision`, so an agent working from a stale read is
- * refused with a reason instead of overwriting a human's decision.
+ * Every write is gated on `expectedRevision` and a single-use `operationId`, so an agent working
+ * from a stale read is refused and a retry of an accepted operation cannot create a second receipt.
  */
 
 import { redactRubricForAgent, type AgentFinding } from "../domain/marks.ts";
@@ -66,12 +64,55 @@ export type ModelContextLike = {
   registerTool: (tool: ToolRegistration, options?: { signal?: AbortSignal }) => unknown;
 };
 
+const MAX_ID_LENGTH = 64;
+const MAX_FINDINGS = 128;
+const MAX_FOUND_LINE_IDS = 64;
+
+const ID_SCHEMA = {
+  type: "string",
+  minLength: 1,
+  maxLength: MAX_ID_LENGTH,
+} as const;
+
+const OPERATION_ID_SCHEMA = {
+  ...ID_SCHEMA,
+  description: "A unique opaque key for this write; reusing it is refused without another commit.",
+} as const;
+
+const LINE_IDS_SCHEMA = {
+  type: "array",
+  minItems: 0,
+  maxItems: MAX_FOUND_LINE_IDS,
+  items: ID_SCHEMA,
+} as const;
+
+const FINDING_SCHEMA = {
+  type: "object",
+  properties: {
+    answerId: ID_SCHEMA,
+    foundLineIds: LINE_IDS_SCHEMA,
+  },
+  required: ["answerId", "foundLineIds"],
+  additionalProperties: false,
+} as const;
+
 /**
  * Wrap a payload for the wire. `assertAgentSafe` runs here and only here, so there is no
  * path from a tool body to the agent that skips it — including the refusal path below.
  */
-function reply(payload: Record<string, unknown>): ToolResult {
-  const safe = assertAgentSafe(payload);
+function pageOwnedNumbers(session: Session): number[] {
+  return [...session.rubric.lines.map((line) => line.points), session.rubric.passBoundary];
+}
+
+function reply(
+  session: Session,
+  payload: Record<string, unknown>,
+  ignoredTextPaths: readonly string[] = [],
+): ToolResult {
+  const safe = assertAgentSafe(payload, undefined, {
+    forbiddenNumbers: pageOwnedNumbers(session),
+    ignoredTextPaths,
+  });
   return {
     content: [{ type: "text", text: JSON.stringify(safe) }],
     structuredContent: safe,
@@ -80,7 +121,7 @@ function reply(payload: Record<string, unknown>): ToolResult {
 
 /** A refusal is a normal result, not an exception: the agent gets a code it can act on. */
 function replyRefused(session: Session, refused: Refusal): ToolResult {
-  return reply({
+  return reply(session, {
     revision: session.revision,
     refused: true,
     code: refused.code,
@@ -88,45 +129,90 @@ function replyRefused(session: Session, refused: Refusal): ToolResult {
   });
 }
 
-// Argument checks. Loose schema, strict code: everything below refuses rather than coerces,
-// because a coerced argument is a decision made on the model's behalf.
+// Argument checks. The schema is closed and bounded, and the runtime repeats those checks:
+// everything below refuses rather than coerces, because a coerced argument is a decision made
+// on the model's behalf.
 
 function asRecord(value: unknown): Record<string, unknown> {
-  return value !== null && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasOnlyKeys(value: unknown, allowed: readonly string[]): value is Record<string, unknown> {
+  if (!isRecord(value)) return false;
+  const keys = new Set(allowed);
+  return Object.keys(value).every((key) => keys.has(key));
+}
+
+function readIdentifier(value: unknown): string | null {
+  if (typeof value !== "string" || value.length === 0 || value.length > MAX_ID_LENGTH) return null;
+  if (/[\u0000-\u001f\u007f]/.test(value)) return null;
+  return value;
 }
 
 function readAnswerId(input: Record<string, unknown>): string | null {
-  const value = input["answerId"];
-  return typeof value === "string" && value.length > 0 ? value : null;
+  return readIdentifier(input["answerId"]);
+}
+
+function readOperationId(input: Record<string, unknown>): string | null {
+  return readIdentifier(input["operationId"]);
 }
 
 function readExpectedRevision(input: Record<string, unknown>): number | null {
   const value = input["expectedRevision"];
-  return typeof value === "number" && Number.isInteger(value) && value > 0 ? value : null;
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : null;
 }
 
 function readEmphasis(input: Record<string, unknown>): Emphasis | null {
   const value = input["emphasis"];
-  return EMPHASIS_ORDER.includes(value as Emphasis) ? (value as Emphasis) : null;
+  return typeof value === "string" && EMPHASIS_ORDER.includes(value as Emphasis)
+    ? (value as Emphasis)
+    : null;
 }
 
 /** Findings must be exactly `{ answerId, foundLineIds }`. Anything else is refused whole. */
-function readFindings(input: Record<string, unknown>): AgentFinding[] | null {
+function readFindings(input: Record<string, unknown>, session: Session): AgentFinding[] | null {
   const raw = input["findings"];
-  if (!Array.isArray(raw) || raw.length === 0) return null;
+  if (
+    !Array.isArray(raw) ||
+    raw.length === 0 ||
+    raw.length > MAX_FINDINGS ||
+    raw.length > session.answers.length
+  ) {
+    return null;
+  }
 
   const findings: AgentFinding[] = [];
+  const answerIds = new Set<string>();
+  const rubricLineIds = new Set(session.rubric.lines.map((line) => line.id));
 
   for (const entry of raw) {
+    if (!hasOnlyKeys(entry, ["answerId", "foundLineIds"])) return null;
     const record = asRecord(entry);
     const answerId = readAnswerId(record);
     const lineIds = record["foundLineIds"];
 
     if (answerId === null) return null;
-    if (!Array.isArray(lineIds)) return null;
-    if (!lineIds.every((id) => typeof id === "string")) return null;
+    if (answerIds.has(answerId)) return null;
+    answerIds.add(answerId);
+    if (
+      !Array.isArray(lineIds) ||
+      lineIds.length > MAX_FOUND_LINE_IDS ||
+      lineIds.length > session.rubric.lines.length
+    ) {
+      return null;
+    }
 
-    findings.push({ answerId, foundLineIds: lineIds as string[] });
+    const foundLineIds = lineIds.map(readIdentifier);
+    if (foundLineIds.some((id) => id === null || !rubricLineIds.has(id))) return null;
+    if (new Set(foundLineIds).size !== foundLineIds.length) return null;
+
+    findings.push({ answerId, foundLineIds: foundLineIds as string[] });
   }
 
   return findings;
@@ -166,6 +252,22 @@ function stackPayload(session: Session): Record<string, unknown> {
     })),
   };
 }
+
+const NO_ARGS = { type: "object", properties: {}, additionalProperties: false } as const;
+
+const ANSWER_ID_ARG = {
+  type: "object",
+  properties: { answerId: { ...ID_SCHEMA, description: "An id from describe_stack." } },
+  required: ["answerId"],
+  additionalProperties: false,
+} as const;
+
+const REVISION_ARG = {
+  type: "integer",
+  minimum: 1,
+  maximum: Number.MAX_SAFE_INTEGER,
+  description: "The revision you last read. The write is refused if the stack has moved on.",
+} as const;
 
 // The four projections below are lifted out of their tool bodies so the page can render the
 // same objects the agent would receive. `agentFacingPayloads` at the foot of this file is the
@@ -225,19 +327,6 @@ function committedPayload(
   };
 }
 
-const NO_ARGS = { type: "object", properties: {}, additionalProperties: false } as const;
-
-const ANSWER_ID_ARG = {
-  type: "object",
-  properties: { answerId: { type: "string", description: "An id from describe_stack." } },
-  required: ["answerId"],
-} as const;
-
-const REVISION_ARG = {
-  type: "integer",
-  description: "The revision you last read. The write is refused if the stack has moved on.",
-} as const;
-
 /** The six tools that only read. None of them can change a mark or release anything. */
 function readTools(port: SessionPort): ToolRegistration[] {
   return [
@@ -249,7 +338,11 @@ function readTools(port: SessionPort): ToolRegistration[] {
         "It never returns a mark, a point value, or the pass boundary.",
       inputSchema: NO_ARGS,
       annotations: { readOnlyHint: true },
-      execute: async () => reply(stackPayload(port.read())),
+      execute: async (input) => {
+        const session = port.read();
+        if (!hasOnlyKeys(input, [])) return replyRefused(session, refusal("invalid-argument"));
+        return reply(session, stackPayload(session));
+      },
     },
     {
       name: "read_rubric",
@@ -259,7 +352,11 @@ function readTools(port: SessionPort): ToolRegistration[] {
         "itself. Report only these ids; an id that is not here earns nothing.",
       inputSchema: NO_ARGS,
       annotations: { readOnlyHint: true },
-      execute: async () => reply(rubricPayload(port.read())),
+      execute: async (input) => {
+        const session = port.read();
+        if (!hasOnlyKeys(input, [])) return replyRefused(session, refusal("invalid-argument"));
+        return reply(session, rubricPayload(session));
+      },
     },
     {
       name: "read_answer",
@@ -272,21 +369,28 @@ function readTools(port: SessionPort): ToolRegistration[] {
       annotations: { readOnlyHint: true, untrustedContentHint: true },
       execute: async (input) => {
         const session = port.read();
+        if (!hasOnlyKeys(input, ["answerId"])) {
+          return replyRefused(session, refusal("invalid-argument"));
+        }
         const answerId = readAnswerId(input);
         if (answerId === null) return replyRefused(session, refusal("invalid-argument"));
 
         const answer = session.answers.find((candidate) => candidate.id === answerId);
         if (!answer) return replyRefused(session, refusal("unknown-answer"));
 
-        return reply({
-          revision: session.revision,
-          answer: {
-            id: answer.id,
-            studentAlias: answer.studentAlias,
-            body: answer.body,
-            state: stateOf(session, answer.id),
+        return reply(
+          session,
+          {
+            revision: session.revision,
+            answer: {
+              id: answer.id,
+              studentAlias: answer.studentAlias,
+              body: answer.body,
+              state: stateOf(session, answer.id),
+            },
           },
-        });
+          ["answer.body"],
+        );
       },
     },
     {
@@ -297,7 +401,11 @@ function readTools(port: SessionPort): ToolRegistration[] {
         "will not name to you. That gap is deliberate, not an error to retry.",
       inputSchema: NO_ARGS,
       annotations: { readOnlyHint: true },
-      execute: async () => reply(heldPayload(port.read())),
+      execute: async (input) => {
+        const session = port.read();
+        if (!hasOnlyKeys(input, [])) return replyRefused(session, refusal("invalid-argument"));
+        return reply(session, heldPayload(session));
+      },
     },
     {
       name: "explain_mark",
@@ -308,13 +416,16 @@ function readTools(port: SessionPort): ToolRegistration[] {
       annotations: { readOnlyHint: true },
       execute: async (input) => {
         const session = port.read();
+        if (!hasOnlyKeys(input, ["answerId"])) {
+          return replyRefused(session, refusal("invalid-argument"));
+        }
         const answerId = readAnswerId(input);
         if (answerId === null) return replyRefused(session, refusal("invalid-argument"));
 
         const explained = explainPayload(session, answerId);
         if (explained === null) return replyRefused(session, refusal("unknown-answer"));
 
-        return reply(explained);
+        return reply(session, explained);
       },
     },
     {
@@ -324,14 +435,18 @@ function readTools(port: SessionPort): ToolRegistration[] {
         "Counts only: what would happen to a held answer is the teacher's business, not yours.",
       inputSchema: NO_ARGS,
       annotations: { readOnlyHint: true },
-      execute: async () => reply(unattendedPayload(port.read())),
+      execute: async (input) => {
+        const session = port.read();
+        if (!hasOnlyKeys(input, [])) return replyRefused(session, refusal("invalid-argument"));
+        return reply(session, unattendedPayload(session));
+      },
     },
   ];
 }
 
 /**
- * The three tools that write. Each is gated on `expectedRevision`, each returns a receipt,
- * and none of them sends anything to a student.
+ * The three tools that write. Each is gated on `expectedRevision` plus a single-use operationId,
+ * each returns a receipt, and none of them sends anything to a student.
  */
 function writeTools(port: SessionPort): ToolRegistration[] {
   return [
@@ -346,33 +461,35 @@ function writeTools(port: SessionPort): ToolRegistration[] {
         properties: {
           findings: {
             type: "array",
+            minItems: 1,
+            maxItems: MAX_FINDINGS,
             description: "One entry per answer: its id and the rubric line ids you recognised.",
-            items: {
-              type: "object",
-              properties: {
-                answerId: { type: "string" },
-                foundLineIds: { type: "array", items: { type: "string" } },
-              },
-              required: ["answerId", "foundLineIds"],
-            },
+            items: FINDING_SCHEMA,
           },
           expectedRevision: REVISION_ARG,
+          operationId: OPERATION_ID_SCHEMA,
         },
-        required: ["findings", "expectedRevision"],
+        required: ["findings", "expectedRevision", "operationId"],
+        additionalProperties: false,
       },
       execute: async (input) => {
         const session = port.read();
-        const findings = readFindings(input);
+        if (!hasOnlyKeys(input, ["findings", "expectedRevision", "operationId"])) {
+          return replyRefused(session, refusal("invalid-argument"));
+        }
+        const findings = readFindings(input, session);
         const expectedRevision = readExpectedRevision(input);
-        if (findings === null || expectedRevision === null) {
+        const operationId = readOperationId(input);
+        if (findings === null || expectedRevision === null || operationId === null) {
           return replyRefused(session, refusal("invalid-argument"));
         }
 
-        const outcome = proposeMarks(session, findings, expectedRevision);
+        const outcome = proposeMarks(session, findings, expectedRevision, operationId);
         if (!outcome.ok) return replyRefused(session, outcome);
 
         port.write(outcome.session);
         return reply(
+          outcome.session,
           committedPayload(
             outcome.session,
             outcome.receipt,
@@ -396,22 +513,28 @@ function writeTools(port: SessionPort): ToolRegistration[] {
             description: "Only a level at or above the current one is accepted.",
           },
           expectedRevision: REVISION_ARG,
+          operationId: OPERATION_ID_SCHEMA,
         },
-        required: ["emphasis", "expectedRevision"],
+        required: ["emphasis", "expectedRevision", "operationId"],
+        additionalProperties: false,
       },
       execute: async (input) => {
         const session = port.read();
+        if (!hasOnlyKeys(input, ["emphasis", "expectedRevision", "operationId"])) {
+          return replyRefused(session, refusal("invalid-argument"));
+        }
         const emphasis = readEmphasis(input);
         const expectedRevision = readExpectedRevision(input);
-        if (emphasis === null || expectedRevision === null) {
+        const operationId = readOperationId(input);
+        if (emphasis === null || expectedRevision === null || operationId === null) {
           return replyRefused(session, refusal("invalid-argument"));
         }
 
-        const outcome = setMarkingEmphasis(session, emphasis, expectedRevision);
+        const outcome = setMarkingEmphasis(session, emphasis, expectedRevision, operationId);
         if (!outcome.ok) return replyRefused(session, outcome);
 
         port.write(outcome.session);
-        return reply({
+        return reply(outcome.session, {
           ...committedPayload(outcome.session, outcome.receipt, []),
           emphasis: outcome.session.emphasis,
         });
@@ -425,34 +548,71 @@ function writeTools(port: SessionPort): ToolRegistration[] {
         "There is no tool that confirms it, including for you.",
       inputSchema: {
         type: "object",
-        properties: { expectedRevision: REVISION_ARG },
-        required: ["expectedRevision"],
+        properties: { expectedRevision: REVISION_ARG, operationId: OPERATION_ID_SCHEMA },
+        required: ["expectedRevision", "operationId"],
+        additionalProperties: false,
       },
       execute: async (input) => {
         const session = port.read();
+        if (!hasOnlyKeys(input, ["expectedRevision", "operationId"])) {
+          return replyRefused(session, refusal("invalid-argument"));
+        }
         const expectedRevision = readExpectedRevision(input);
-        if (expectedRevision === null) {
+        const operationId = readOperationId(input);
+        if (expectedRevision === null || operationId === null) {
           return replyRefused(session, refusal("invalid-argument"));
         }
 
-        const outcome = requestRelease(session, expectedRevision);
+        const outcome = requestRelease(session, expectedRevision, operationId);
         if (!outcome.ok) return replyRefused(session, outcome);
 
         port.write(outcome.session);
-        return reply({
-          // The request covers every releasable answer, and `releasableCount` says how many
-          // that is. Which ones is the teacher's business: the page keeps the names.
-          ...committedPayload(outcome.session, outcome.receipt, []),
-          awaitingHuman: true,
-        });
+        return reply(
+          outcome.session,
+          {
+            // The request covers every releasable answer, and `releasableCount` says how many
+            // that is. Which ones is the teacher's business: the page keeps the names.
+            ...committedPayload(outcome.session, outcome.receipt, []),
+            awaitingHuman: true,
+          },
+        );
       },
     },
   ];
 }
 
+/** A safe envelope for unexpected page/transport failures. No exception detail reaches the agent. */
+function internalToolFailure(): ToolResult {
+  const payload = {
+    refused: true,
+    code: "internal-error",
+    message: "the tool could not complete; read the stack again and retry",
+  };
+
+  return {
+    content: [{ type: "text", text: JSON.stringify(payload) }],
+    structuredContent: payload,
+  };
+}
+
+function guardTool(tool: ToolRegistration): ToolRegistration {
+  return {
+    ...tool,
+    execute: async (input) => {
+      try {
+        return await tool.execute(input);
+      } catch {
+        // A boundary assertion, a port failure, or an unexpected renderer error must not turn
+        // into an unstructured exception containing source details or page-owned numbers.
+        return internalToolFailure();
+      }
+    },
+  };
+}
+
 /** All nine, in a stable order. Static registration: no tool appears or vanishes at runtime. */
 export function buildWithheldTools(port: SessionPort): ToolRegistration[] {
-  return [...readTools(port), ...writeTools(port)];
+  return [...readTools(port), ...writeTools(port)].map(guardTool);
 }
 
 export type Installation = {
@@ -463,6 +623,8 @@ export type Installation = {
   /** True when an identical live registration was already in place. */
   alreadyInstalled: boolean;
   aborted: boolean;
+  /** Available after a partial registration; aborts the partial set before trying again. */
+  retry?: () => Promise<Installation>;
 };
 
 /**
@@ -540,6 +702,21 @@ export async function installWithheldTools(
     }
   }
 
+  if (failures.length > 0) {
+    // WebMCP has no unregisterTool, but the registration signal is the teardown mechanism. Remove
+    // the partial set before exposing a retry so a transient failure cannot duplicate the tools
+    // that did register.
+    controller.abort();
+    return {
+      available: true,
+      registered,
+      failures,
+      alreadyInstalled: false,
+      aborted: true,
+      retry: () => installWithheldTools(port, { context, signal: options.signal }),
+    };
+  }
+
   return {
     available: true,
     registered,
@@ -556,9 +733,8 @@ export type ToolFact = { name: string; readOnly: boolean };
  * The surface as a list of facts, so the page can show what an agent would be handed even
  * when there is no agent — which is every run so far.
  *
- * Built by constructing the real registrations, not by writing the nine names out again. A
- * tenth tool would appear on the page by itself, and the one that is deliberately missing
- * stays missing here too: this function cannot name a tool that does not exist.
+ * Built by constructing the real registrations, not by writing the nine names out again. A new
+ * tool would appear on the page by itself, so the UI cannot drift from the callable surface.
  *
  * The port is inert on purpose. `buildWithheldTools` reads no session at build time — only
  * inside an `execute` — and a `read` that throws is the assertion of that, checked by test.
@@ -606,12 +782,8 @@ export function agentFacingPayloads(
 
   shown.push({ tool: "preview_unattended_outcome", payload: unattendedPayload(session) });
 
-  return shown.map(({ tool, payload }) => ({ tool, payload: assertAgentSafe(payload) }));
+  return shown.map(({ tool, payload }) => ({
+    tool,
+    payload: assertAgentSafe(payload, undefined, { forbiddenNumbers: pageOwnedNumbers(session) }),
+  }));
 }
-
-
-
-
-
-
-\n

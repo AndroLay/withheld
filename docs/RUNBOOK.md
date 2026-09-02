@@ -20,7 +20,7 @@ pnpm install
 pnpm dev          # dev server on http://127.0.0.1:4174
 pnpm build        # tsc -b, then the production bundle into dist/
 pnpm preview      # serve dist/ — this is the only way to exercise the CSP
-pnpm test         # 110 tests
+pnpm test         # 125 tests
 pnpm typecheck    # tsc -b, exit 0 expected
 pnpm browser      # after a build: drives dist/ in a headless Chromium (see below)
 pnpm webmcp       # after a build: invokes the nine tools through the browser's own registry
@@ -50,7 +50,6 @@ and at every width. The top bar and the band scroll away with the document.
 │  ○ Standard     │      nn / 88 · on the line   │ Tools an agent may call     │
 │  ○ Cautious     │  … 3 rows, a form in each    │  describe_stack       read  │
 │  ○ Most cautious│  Showing 1–3 of 14  Next 3 ⌄ │  propose_marks       write  │
-│                 │                              │  confirm_release  ✗ absent  │
 │ Who can do what │ Why the page held these      │  9 registrations counted    │
 │  agent │ page   │  ▾ alias · on the line       │ Revision timeline           │
 │                 │     chain → held for you     │                             │
@@ -107,7 +106,8 @@ something rather than believed.
 
 **1. The bar across the top.** What this is, and which revision the session is on. The revision is the
 session's only clock — there is no wall-clock time anywhere in it — and it is the number every write has
-to quote to be accepted. The two things that look like buttons are anchors: they move you to the audit
+to quote to be accepted. An agent write also carries a single-use opaque operation id, so a retry cannot
+create a second receipt. The two things that look like buttons are anchors: they move you to the audit
 and to the release gate, and neither does anything else. A page whose argument is that exactly one
 control releases a mark cannot afford a second one in its chrome.
 
@@ -145,10 +145,10 @@ back. Two of them are the interesting ones:
 
 **6. The contract column, down the right-hand side.** This is where the claim becomes checkable, and
 it now has a column of its own rather than a card under the stack. It opens with two sides — what the
-agent may read, and what it cannot ever have — then all nine tool names with the read/write split
-counted from the registrations themselves, and a tenth row showing `confirm_release` struck through
-and dashed: the tool that does not exist, drawn as absent because an absence is otherwise invisible.
-Under them, five lines naming what no result can carry and what stops each one. Then the payloads
+agent may read, and what it cannot ever have — then the nine real tool names with the read/write split
+counted from the registrations themselves. The human-only release boundary is described below the
+payloads rather than represented as an agent tool. Under them, five lines naming what no result can carry
+and what stops each one. Then the payloads
 themselves, pretty-printed: `read_rubric` with labels and no point values, `list_held_answers`,
 `explain_mark` for the first marked answer, and
 `preview_unattended_outcome`. Read them against the stack in the middle: the totals, the pass mark and
@@ -223,7 +223,7 @@ It checks what static markup cannot:
   and therefore invisible to `renderToStaticMarkup`;
 - where the tab key actually lands, in order;
 - what the contrast actually is: every rendered text node against the background it resolves to after
-  the cascade, with the threshold taken from the computed size and weight. 423 pairs on the last run.
+  the cascade, with the threshold taken from the computed size and weight. 443 pairs on the last run.
   Only visible text is measured: a screen-reader-only span inside a figure once made a 60px number look
   like crushed prose, which was a defect in the probe and not in the page;
 - what the accessibility tree hands over: how many nodes carry a name, whether any interactive one
@@ -253,9 +253,10 @@ there. A run can no longer silently report someone else's layout as this one's. 
 your own, which is the point of passing it.
 
 The runs are not kept individually — `browser-session.json` holds only the latest, so the count below
-is a note from the session rather than something the evidence preserves. The last run, on 2026-09-01 at
-22:39 UTC against Chrome/151.0.7922.137, reported **37 passed, 0 failed** against the page as it now
-stands, band included. The first two are worth knowing about, because between them they are the whole
+is a note from the session rather than something the evidence preserves. The last run, on 2026-09-02 at
+15:23 UTC against Chrome/151.0.7922.137, reported **44 passed, 0 failed** against the page as it now
+stands, band included. The evidence also records the base Git SHA, dirty-tree state, source/build
+SHA-256 values, browser flags, and screenshot hashes. The first two are worth knowing about, because between them they are the whole
 argument for looking:
 
 - Run 1 failed one check, and the check was wrong rather than the page: it demanded a non-zero width
@@ -271,7 +272,7 @@ argument for looking:
 
 Two later runs found real defects the same way. The contrast probe's first run failed with ten pairs at
 1.43:1 — a rubric-line mark drawn in a tone that had only ever been used on white — and the fold check's
-first run reported all ten tool rows drawn while the panel was shut, which was the check trusting
+the **HISTORICAL_LOCAL** first run reported all ten tool rows drawn while the panel was shut, which was the check trusting
 `getBoundingClientRect()` on a subtree that `content-visibility: hidden` had stopped painting but not
 stopped laying out.
 
@@ -290,7 +291,7 @@ frame that registered it, and `WebMCP.toolResponded` carries back what the handl
 the path an agent's host takes. The script is a client on it, and after each call it reads the
 rendered DOM.
 
-Seventeen checks, in the order the page experiences them:
+Nineteen checks, in the order the page experiences them:
 
 - the browser's registry holds nine tools; the names it holds are the names the contract column
   prints; six carry `readOnly` and only `read_answer` carries `untrustedContent`;
@@ -302,10 +303,13 @@ Seventeen checks, in the order the page experiences them:
 - `list_held_answers` counts five holds and names two, and the count matches the *held* figure in the
   status band, which is where the page prints it for a person;
 - `set_marking_emphasis` moves the rendered page: the care setting, the revision, and the held count;
-- the same call replayed at the revision it has spent is refused `stale-revision`, and the page does
-  not move again;
+- the same accepted call replayed with its operation id and the current revision is refused
+  `duplicate-operation`, and the page does not move again; a different call from the old revision is
+  refused `stale-revision`;
 - `request_release` comes back `awaitingHuman` with no answer id in it, the human control unlocks, and
   focus lands on the bar's heading rather than on its send button;
+- the browser session separately declines a staged request, stages it again, and confirms it through
+  the human control; both decisions appear in the receipt-backed timeline;
 - `WebMCP.invokeTool` on `confirm_release` fails with *Tool not found* — the absence, measured by the
   browser;
 - nothing left `127.0.0.1`, and the browser logged no error of its own beyond the implicit
@@ -315,16 +319,32 @@ It writes `docs/evidence/webmcp-invocation.json` and exits non-zero if any check
 same flags as the session script, on different default ports (preview 4183, CDP 9421), so both can
 run at once — and it carries the same two guards: it walks to a free preview port unless `--preview-port`
 pins one, and it refuses to measure a page whose HTML does not say `<title>Withheld`. It also needs a
-current `dist/`; run `node --run build` first, since a stale bundle passes all seventeen checks while
-proving nothing about the code you just changed. Last run 2026-09-01 against Chrome/151: **17 passed,
+current `dist/`; run `pnpm build` first, since a stale bundle passes all nineteen checks while
+proving nothing about the code you just changed. Last run 2026-09-02 against Chrome/151: **19 passed,
 0 failed**.
 
 **This is not a replay.** The script chose the tools, wrote the arguments, and knew which revision to
 quote. What it proves is that the surface works when the caller is outside the page; what it says
-nothing about is a model finding the page, choosing among nine tools, or composing input for one. The
+it says nothing about is a model finding the page, choosing among nine tools, or composing input for
+one. The
 evidence file carries that sentence in a `notClaimed` field, and `docs/PROGRESS.md` keeps the five
 classes of evidence in a table so a green run here cannot be read as the two rows that are still
 empty.
+
+## Running the failure/recovery journey
+
+After `pnpm build`, run:
+
+```sh
+node --experimental-strip-types scripts/failure-recovery.mjs
+```
+
+This deterministic local CDP harness records one continuous journey in
+`docs/evidence/failure-recovery.json`: clean read, safe refusals, bounded proposal, stale and
+duplicate recovery, stage, human decline, reload, re-stage, human confirm, receipt, and final
+reread. The latest run is 27/27. It deliberately uses synthetic alias-only data, stores no answer
+bodies, point values, or pass boundaries, and is not a model replay or a persistence test. Hosted and model
+runs have separate blocked artifacts under `docs/evidence/`.
 
 ## Checking for WebMCP
 

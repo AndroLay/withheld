@@ -455,6 +455,31 @@ a.btn:hover {
   font-weight: 600;
 }
 
+.error-state {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 32px 22px;
+}
+
+.error-state h1,
+.error-state p {
+  margin: 0;
+}
+
+.error-state h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.error-state p:not(.lab) {
+  max-width: 52ch;
+  color: var(--muted);
+}
+
 /* ── The marking queue ───────────────────────────────────────────────────────────────────────── */
 
 /* The centre column's one section: header, the open answer, the rest as rows, then the pager. It
@@ -914,6 +939,31 @@ a.btn:hover {
 .tick__note {
   font-size: 11.5px;
   color: var(--muted);
+}
+
+.tick__conflict {
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--ink);
+  border-radius: var(--r-sm);
+  background: var(--band);
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.tick__conflict p {
+  margin: 0;
+}
+
+.tick__box:disabled,
+.tick__line:has(.tick__box:disabled) {
+  cursor: not-allowed;
+}
+
+.tick__line:has(.tick__box:disabled) {
+  opacity: 0.72;
 }
 
 /* ── The compact rows ────────────────────────────────────────────────────────────────────────── */
@@ -1585,29 +1635,14 @@ a.btn:hover {
   color: var(--muted-2);
 }
 
-/**
- * The tenth row: a tool that does not exist. Dashed and struck through, because the absence is the
- * submission — a page that only listed what it has cannot show what it refuses to have.
- */
-.tool--absent {
-  border-style: dashed;
-  border-color: var(--black-line);
-  background: transparent;
-}
-
-.tool--absent .tool__name {
-  color: var(--muted-2);
-  text-decoration: line-through;
-}
-
 .tools__note {
   font-size: 11.5px;
   color: var(--muted-2);
 }
 
 /**
- * Every accepted write, numbered by the only clock this session has. The rule down the left is drawn
- * as each item's left border, so it grows with the list and stops at the last one.
+ * Every accepted state-changing action, numbered by the only clock this session has. The rule down the
+ * left is drawn as each item's left border, so it grows with the list and stops at the last one.
  */
 .tl {
   margin-bottom: 12px;
@@ -1634,7 +1669,7 @@ a.btn:hover {
   background: var(--on-black);
 }
 
-/* Revision 00 is the page opening, which is why the first receipt is 01. */
+/* Revision 01 is the page opening, which is why the first receipt is 02. */
 .tl__item--first .tl__dot {
   background: var(--black-line);
 }
@@ -2556,5 +2591,3 @@ a.btn:hover {
     padding: 16px 22px;
   }
 }
-
-\n

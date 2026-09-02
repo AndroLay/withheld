@@ -1,0 +1,15 @@
+{
+  "status": "UNKNOWN",
+  "evidenceClass": "UNKNOWN",
+  "artifact": "performance-baseline",
+  "project": "withheld",
+  "reason": "No controlled cold/warm, interaction-latency, long-task, or memory baseline was collected on representative hardware or the hosted target.",
+  "availableObservation": "The local browser harness completed the tested interactions without uncaught exceptions; this is not a performance benchmark.",
+  "rerunProtocol": [
+    "Measure cold and warm navigation on the final hosted URL in a clean profile.",
+    "Measure native dispatch-to-DOM update latency for reads and writes over repeated runs.",
+    "Record long tasks, memory/lifecycle behavior after repeated register/abort/reload cycles, browser/device, and raw samples.",
+    "Report distributions and limitations rather than a single unrepeatable number."
+  ],
+  "notClaimed": "No performance target or production-scale responsiveness claim is made."
+}

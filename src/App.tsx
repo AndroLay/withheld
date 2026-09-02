@@ -41,11 +41,11 @@ import { useOneColumn } from "./ui/useOneColumn.ts";
  * in `src/domain/views.ts` and has no total, no pass mark and no distance in it.
  *
  * The page is fully usable with no agent present, which is not a fallback so much as the base case:
- * at the time of writing, a browser agent driving these tools has never been observed here. A teacher
- * can tick rubric lines by hand and get exactly the same holds.
+ * no natural-language model has driven these tools here; the local CDP harness is a transport check,
+ * not an agent replay. A teacher can tick rubric lines by hand and get exactly the same holds.
  */
 export function App() {
-  const { session, apply, installation, demoFindings } = useMarkingSession();
+  const { session, apply, readLatest, installation, retryInstallation, demoFindings } = useMarkingSession();
 
   // Layout is the page's business, not the panel's: the contract column folds into a disclosure when
   // there is only one column to put it in. Read here and passed down, so the shape is decided in the
@@ -65,14 +65,15 @@ export function App() {
    * revision is not reachable by clicking, but the branch is here rather than asserted away,
    * because both callers write to one session and only one of them is in this file.
    */
-  function commit(result: Outcome) {
+  function commit(result: Outcome): boolean {
     if (!result.ok) {
       setNotice(result.message);
-      return;
+      return false;
     }
 
     setNotice(null);
     apply(result.session);
+    return true;
   }
 
   const staged = session.releaseRequest?.answerIds ?? [];
@@ -108,8 +109,11 @@ export function App() {
           <Stack
             session={session}
             heldReason={heldReason}
-            onSave={(answerId, foundLineIds) =>
-              commit(proposeMarks(session, [{ answerId, foundLineIds }], session.revision))
+            onSave={(answerId, foundLineIds, expectedRevision) =>
+              // Read from the ref-backed session. A native form submit can arrive between an
+              // external tool write and React's next committed render; the expected revision must
+              // be checked against the state that the tool port would read at that instant.
+              commit(proposeMarks(readLatest(), [{ answerId, foundLineIds }], expectedRevision))
             }
             onMark={() => commit(proposeMarks(session, demoFindings, session.revision))}
           />
@@ -125,8 +129,8 @@ export function App() {
               build is served under a policy that forbids one.
             </p>
             <p>
-              No browser agent has ever driven these tools. What is on this page is the shape of the
-              surface an agent would meet — exercised by hand, and by test.
+              No natural-language model has driven these tools here. The local CDP harness exercises
+              the transport, but it is not a model replay; the page remains usable by hand.
             </p>
           </footer>
         </main>
@@ -138,7 +142,12 @@ export function App() {
           }
         />
 
-        <AgentPanel session={session} installation={installation} oneColumn={oneColumn} />
+        <AgentPanel
+          session={session}
+          installation={installation}
+          oneColumn={oneColumn}
+          onRetry={retryInstallation}
+        />
       </div>
 
       <ActionBar

@@ -113,22 +113,40 @@ const MARKER_DIRECTED_INSTRUCTION = new RegExp(
     String.raw`\bignore\b[^.!?]{0,40}\b(?:rubric|instructions?|marking|guidance|previous)\b`,
     String.raw`\byou\s+(?:must|should|shall|will|have to)\s+(?:award|give|mark|pass|score)\b`,
     String.raw`\b(?:as|to)\s+the\s+(?:marker|examiner|grader|teacher|assistant)\b[^.!?]{0,20}\b(?:award|give|pass|ignore)\b`,
+    String.raw`\b(?:award|give|assign|grant|mark|score)\b[^.!?]{0,60}\b(?:full|maximum|top|all|100)\s+(?:marks?|points?|credit|score)\b`,
+    String.raw`\b(?:grader|marker|examiner|teacher)\s*:\s*(?:please\s+)?(?:award|give|mark|score|pass|ignore)\b`,
+    String.raw`\b(?:this|the)\s+answer\s+(?:should|must|needs?\s+to)\s+be\s+(?:marked|scored|graded)\s+(?:as\s+)?(?:correct|right|a\s+pass|full)\b`,
+    String.raw`\bplease\s+(?:score|mark|grade)\s+(?:this|the\s+answer)\s+(?:generously|leniently|as\s+correct|as\s+a\s+pass)\b`,
+    String.raw`\b(?:beri(?:kan)?|kasih|tandai|nilai(?:lah)?)\b[^.!?]{0,50}\b(?:nilai|poin)\s+(?:penuh|maksimal)\b`,
+    String.raw`\b(?:guru|penilai|penguji|grader)\s*:\s*(?:beri(?:kan)?|kasih|nilai|tandai|luluskan)\b`,
   ].join("|"),
   "i",
 );
 
 /** Whether an answer body is addressing the marker rather than answering the question. */
 export function looksLikeMarkerInstruction(body: string): boolean {
-  return MARKER_DIRECTED_INSTRUCTION.test(body);
+  const normalized = body.normalize("NFKC").replace(/[\u200b-\u200d\ufeff]/g, "").replace(/\s+/g, " ");
+  return MARKER_DIRECTED_INSTRUCTION.test(normalized);
 }
 
 export type Hold = { answerId: string; reason: HoldReason };
 
 /** What the page wrote down when it accepted a change. Identified by string, never a date. */
+export type ReceiptAction =
+  | "propose_marks"
+  | "set_marking_emphasis"
+  | "request_release"
+  | "human_release_confirmed"
+  | "human_release_declined";
+
 export type Receipt = {
   id: string;
-  action: "propose_marks" | "set_marking_emphasis" | "request_release";
+  /** The exact revision this action produced; never inferred from array position. */
+  revision: number;
+  action: ReceiptAction;
   answerIds: string[];
+  /** An opaque caller key for an accepted WebMCP write; never sent back to the agent. */
+  operationId?: string;
 };
 
 export type ReleaseRequest = { receiptId: string; answerIds: string[] };
@@ -234,6 +252,9 @@ export type RefusalCode =
   | "unknown-answer"
   | "already-released"
   | "emphasis-cannot-be-lowered"
+  | "no-change"
+  | "duplicate-operation"
+  | "release-already-staged"
   | "nothing-to-release"
   | "invalid-argument";
 
@@ -246,6 +267,9 @@ const REFUSAL_MESSAGE: Record<RefusalCode, string> = {
   "unknown-answer": "no answer on this stack has that id",
   "already-released": "that answer has gone to the student and cannot be marked again",
   "emphasis-cannot-be-lowered": "emphasis may be raised but never lowered",
+  "no-change": "that operation would not change the current state, so nothing changed",
+  "duplicate-operation": "that operation id was already accepted; read the stack and do not apply it again",
+  "release-already-staged": "a release is already staged; confirm or decline it before asking again",
   "nothing-to-release": "nothing is both marked and unheld, so there is nothing to release",
   "invalid-argument": "the arguments did not match what this tool accepts",
 };
@@ -263,11 +287,18 @@ function refuse(code: RefusalCode): Refusal {
 function commit(
   session: Session,
   patch: Partial<Session>,
-  action: Receipt["action"],
+  action: ReceiptAction,
   answerIds: string[],
+  operationId?: string,
 ): Commit {
   const revision = session.revision + 1;
-  const receipt: Receipt = { id: `rcp-${revision}`, action, answerIds };
+  const receipt: Receipt = {
+    id: `rcp-${revision}`,
+    revision,
+    action,
+    answerIds: [...answerIds],
+    ...(operationId === undefined ? {} : { operationId }),
+  };
   const next: Session = {
     ...session,
     ...patch,
@@ -278,8 +309,43 @@ function commit(
   return { ok: true, session: next, receipt };
 }
 
+/** A successful agent write key is single-use for this session, including across tool names. */
+function duplicateOperation(session: Session, operationId: string | undefined): Refusal | null {
+  if (operationId === undefined) return null;
+  return session.receipts.some((receipt) => receipt.operationId === operationId)
+    ? refuse("duplicate-operation")
+    : null;
+}
+
 function fingerprint(mark: Mark): string {
   return [...mark.awardedLineIds].sort().join("+");
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function sameMarks(left: Record<string, Mark>, right: Record<string, Mark>): boolean {
+  const leftIds = Object.keys(left);
+  const rightIds = Object.keys(right);
+  if (!sameStrings(leftIds, rightIds)) return false;
+
+  return leftIds.every((id) => {
+    const leftMark = left[id];
+    const rightMark = right[id];
+    return (
+      leftMark !== undefined &&
+      rightMark !== undefined &&
+      leftMark.total === rightMark.total &&
+      sameStrings(leftMark.awardedLineIds, rightMark.awardedLineIds)
+    );
+  });
+}
+
+function sameStringsById(left: Record<string, string>, right: Record<string, string>): boolean {
+  const leftIds = Object.keys(left);
+  const rightIds = Object.keys(right);
+  return sameStrings(leftIds, rightIds) && leftIds.every((id) => left[id] === right[id]);
 }
 
 /**
@@ -294,7 +360,10 @@ export function proposeMarks(
   session: Session,
   findings: AgentFinding[],
   expectedRevision: number,
+  operationId?: string,
 ): Outcome {
+  const duplicate = duplicateOperation(session, operationId);
+  if (duplicate) return duplicate;
   if (expectedRevision !== session.revision) return refuse("stale-revision");
 
   const byId = new Map(session.answers.map((answer) => [answer.id, answer]));
@@ -333,11 +402,24 @@ export function proposeMarks(
     fingerprints[answer.id] = print;
   }
 
+  // A retry with the current revision must not create a second receipt when it would produce the
+  // exact same state. Changed findings still commit normally, and an unstable answer may still be
+  // re-entered deliberately; this check only covers a genuine whole-batch no-op.
+  if (
+    sameMarks(session.marks, marks) &&
+    sameStringsById(session.fingerprints, fingerprints) &&
+    sameStrings(session.quarantined, quarantined) &&
+    sameStrings(session.unstable, unstable)
+  ) {
+    return refuse("no-change");
+  }
+
   return commit(
     session,
     { marks, fingerprints, quarantined, unstable },
     "propose_marks",
     findings.map((finding) => finding.answerId),
+    operationId,
   );
 }
 
@@ -346,28 +428,40 @@ export function setMarkingEmphasis(
   session: Session,
   emphasis: Emphasis,
   expectedRevision: number,
+  operationId?: string,
 ): Outcome {
+  const duplicate = duplicateOperation(session, operationId);
+  if (duplicate) return duplicate;
   if (expectedRevision !== session.revision) return refuse("stale-revision");
 
   const current = EMPHASIS_ORDER.indexOf(session.emphasis);
   const wanted = EMPHASIS_ORDER.indexOf(emphasis);
+  if (wanted < 0) return refuse("invalid-argument");
   if (wanted < current) return refuse("emphasis-cannot-be-lowered");
+  if (wanted === current) return refuse("no-change");
 
-  return commit(session, { emphasis }, "set_marking_emphasis", []);
+  return commit(session, { emphasis }, "set_marking_emphasis", [], operationId);
 }
 
 /**
  * The agent asks for the unheld marks to go out. Asking is all it can do: this records a
  * request and nothing leaves the page. `confirmRelease` below is the human's action and is
- * deliberately unreachable from the tool surface — there is no `confirm_release` tool.
+ * deliberately unreachable from the tool surface — release confirmation is a page-only action.
  */
-export function requestRelease(session: Session, expectedRevision: number): Outcome {
+export function requestRelease(
+  session: Session,
+  expectedRevision: number,
+  operationId?: string,
+): Outcome {
+  const duplicate = duplicateOperation(session, operationId);
+  if (duplicate) return duplicate;
   if (expectedRevision !== session.revision) return refuse("stale-revision");
+  if (session.releaseRequest !== null) return refuse("release-already-staged");
 
   const answerIds = releasableAnswerIds(session);
   if (answerIds.length === 0) return refuse("nothing-to-release");
 
-  const committed = commit(session, {}, "request_release", answerIds);
+  const committed = commit(session, {}, "request_release", answerIds, operationId);
   return {
     ...committed,
     session: {
@@ -390,23 +484,19 @@ export function confirmRelease(session: Session): Session {
   const stillFine = new Set(releasableAnswerIds(session));
   const going = request.answerIds.filter((id) => stillFine.has(id));
 
-  return {
-    ...session,
-    revision: session.revision + 1,
-    releaseRequest: null,
-    releasedAnswerIds: [...session.releasedAnswerIds, ...going],
-  };
+  return commit(
+    session,
+    {
+      releaseRequest: null,
+      releasedAnswerIds: [...session.releasedAnswerIds, ...going],
+    },
+    "human_release_confirmed",
+    going,
+  ).session;
 }
 
 /** The teacher declines. The request is dropped; nothing is released. */
 export function declineRelease(session: Session): Session {
   if (!session.releaseRequest) return session;
-  return { ...session, revision: session.revision + 1, releaseRequest: null };
+  return commit(session, { releaseRequest: null }, "human_release_declined", []).session;
 }
-
-
-
-
-
-
-\n

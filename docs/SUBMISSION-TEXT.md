@@ -10,7 +10,7 @@ from `dist/` here, the host is right and this file is stale.
 
 ## Title and one line
 
-**Withheld — your agent marks the class, the page keeps the last word.**
+**Withheld — your agent proposes marks, the page keeps the last word.**
 
 A marking workspace that hands a browser agent everything it needs to read a class of short answers,
 and nothing it needs to decide one.
@@ -38,9 +38,10 @@ The teacher never leaves the marking screen. No pasting answers into a chat, no 
 no prompt to compose — the work arrives as tool calls and the page updates around it.
 
 What is new is that the boundary is *legible*. The right-hand column shows the agent's own contract:
-what it may read, what it can never have, all nine tool names with the read/write split counted from
-the registrations themselves, and a tenth row showing `confirm_release` struck through, because an
-absence is otherwise invisible. Under it, the page prints the actual JSON four of those tools return.
+what it may read, what it can never have, and all nine real tool names with the read/write split
+counted from the registrations themselves. The human-only release boundary is stated in plain
+language below the payloads without presenting an unavailable operation as an agent tool. Under it,
+the page prints the actual JSON four of those tools return.
 The teacher can read the totals and the pass mark in the middle column, read the agent's payloads on
 the right, and see for themselves that the numbers are not in there. That is a checkable claim
 instead of a trusted one.
@@ -52,7 +53,7 @@ credited or missed. Refusals appear in a live region, carry a code, and never ca
 
 ## 3. The human + agent capability that was hard before
 
-A class marked in bulk by a machine that provably cannot decide the grade or send it.
+A bounded proposal for a class, where the machine provably cannot decide the grade or send it.
 
 Three things make that concrete on the fixture. Five of fourteen answers are held back for a person;
 two of the holds are named to the agent and three are not, because those three sit on the pass
@@ -67,30 +68,35 @@ confirms the absence: dispatching that name fails with *Tool not found*.
 ## 4. How WebMCP was implemented
 
 `document.modelContext.registerTool` (falling back to `navigator.modelContext`, deprecated in
-Chromium 150), nine tools registered in `src/tools/webmcp.ts:245-421` — six read, three write. The
+Chromium 150), nine tools registered in `src/tools/webmcp.ts` — six read, three write. The
 six carry `readOnly`; only `read_answer` carries `untrustedContent`, so the hint means something.
 
 - Reads: `describe_stack`, `read_rubric`, `read_answer`, `list_held_answers`, `explain_mark`,
   `preview_unattended_outcome`.
 - Writes: `propose_marks`, `set_marking_emphasis`, `request_release`.
 
-Every write quotes `expectedRevision` and is refused `stale-revision` if the session has moved, so a
-replayed call cannot land twice. Every result — success and refusal alike — is built by one function,
+Every write quotes `expectedRevision` and a single-use opaque `operationId`. A retry of an accepted
+operation is refused `duplicate-operation` without another revision or receipt; a different call
+from an old read is refused `stale-revision`. Every result — success and refusal alike — is built by one function,
 `reply()`, which runs a fail-closed guard: numbers are permitted only at explicitly listed paths and
-anything else throws, and a second check scans the serialised result for the rubric's own values in
-case one escaped as prose. The agent names rubric line ids; the page maps ids to points. An invented
-id earns nothing and a line claimed twice is paid once.
+anything else throws, and a second check scans generated prose for the live page-owned values in case
+one escaped as text. Raw `read_answer` content remains explicitly untrusted student text. The agent
+names rubric line ids; the page maps ids to points. An invented id earns nothing and a line claimed
+twice is paid once.
 
 React 19 and TypeScript on Vite, no runtime dependencies beyond React, no backend, no network access.
 The production build carries a nine-directive Content-Security-Policy with no `'unsafe-inline'`, which
 is why every proportional bar on the page is a stylesheet class rather than an inline width.
 
-Verified: 110 unit tests; 37 browser checks against the built page in Chromium 151 (layout, enforced
-CSP, focus, tab order, clean console, 423 measured contrast pairs with none failing, the accessibility
-tree with no unnamed control, and the contract column folding to a closed panel at 420px); and 17
+Verified: 125 tests; 44 browser checks against the built page in Chromium 151 (layout, enforced
+CSP, focus, tab order, clean console, 443 measured contrast pairs with none failing, the accessibility
+tree with no unnamed control, the revision-conflict form, the human decline/confirm path, and the
+contract column folding to a closed panel at 420px); and 19
 checks in which Chromium's own `WebMCP` DevTools domain
-dispatches all nine tools into the page — including the injection, the stale replay, and
-`confirm_release` coming back *Tool not found*. Evidence in `docs/evidence/`.
+dispatches all nine tools into the page — including the injection, duplicate-operation retry, stale
+revision refusal, unknown rubric-line refusal, and
+`confirm_release` coming back *Tool not found*. Evidence in `docs/evidence/` is bound to source,
+build, browser flags, and screenshot hashes.
 
 ## Testing instructions for a judge
 

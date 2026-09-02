@@ -9,8 +9,8 @@
  * The point values and the pass boundary are all larger than the number of answers, so no
  * count or index can ever collide with one. That is what lets the text canary in
  * `tools/agent-boundary.ts` search a tool result for those exact numbers and treat a hit as
- * a leak rather than a coincidence. `tests/fixtures.test.mts` holds that property in place,
- * including for answer lengths.
+ * a leak rather than a coincidence. `tests/views.test.mts` and `tests/agent-boundary.test.mts`
+ * hold that property in place, including for answer lengths.
  *
  * The stack is built to exercise every escalation rule at least once: three answers land
  * within a few marks of the boundary, one is long and matches nothing, one addresses the
@@ -180,7 +180,3 @@ export const DEMO_FINDINGS: AgentFinding[] = [
   { answerId: "ans-13", foundLineIds: ["l-heat-flow"] },
   { answerId: "ans-14", foundLineIds: ["l-same-temp", "l-heat-flow", "l-rate"] },
 ];
-
-
-
-\n

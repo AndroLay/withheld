@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { after, test } from "node:test";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createElement, type ReactElement } from "react";
@@ -69,14 +71,19 @@ const DEFINED = new Set(
   ),
 );
 
+const renderCacheDir = mkdtempSync(join(tmpdir(), "withheld-vite-render-"));
 const server = await createServer({
   root: fileURLToPath(new URL("..", import.meta.url)),
+  cacheDir: renderCacheDir,
   logLevel: "silent",
   appType: "custom",
-  server: { middlewareMode: true, hmr: false },
+  server: { middlewareMode: true, hmr: false, ws: false },
 });
 
-after(() => server.close());
+after(async () => {
+  await server.close();
+  rmSync(renderCacheDir, { recursive: true, force: true });
+});
 
 /** One exported component, loaded through Vite so its JSX is transformed. */
 async function load(module: string, name: string) {
@@ -96,6 +103,7 @@ const [ActionBar, AgentPanel, App, Audit, Compare, Intro, Rail, Stack, TopBar] =
   load("/src/ui/Stack.tsx", "Stack"),
   load("/src/ui/TopBar.tsx", "TopBar"),
 ]);
+const { ErrorBoundary } = await server.ssrLoadModule("/src/ui/ErrorBoundary.tsx");
 
 const FRESH = createSession(SPOON_RUBRIC, SPOON_ANSWERS, { question: SPOON_QUESTION });
 
@@ -172,6 +180,15 @@ const CONNECTED = {
   aborted: false,
 };
 
+const PARTIAL = {
+  available: true,
+  registered: ["describe_stack"],
+  failures: [{ name: "read_rubric", reason: "browser detail is not shown" }],
+  alreadyInstalled: false,
+  aborted: true,
+  retry: async () => CONNECTED,
+};
+
 /**
  * An agent that is not there. Every real browser run has been in this state — no `navigator.modelContext`
  * in Chrome 151 — and it is the branch the status line spends its life in, so it is rendered too.
@@ -186,6 +203,15 @@ const AWAY = {
 
 function panelOf(session: Session, installation: unknown, oneColumn = false) {
   return createElement(AgentPanel, { session, installation, oneColumn });
+}
+
+function partialPanelOf(session: Session) {
+  return createElement(AgentPanel, {
+    session,
+    installation: PARTIAL,
+    oneColumn: false,
+    onRetry: noop,
+  });
 }
 
 function barOf(session: Session, stackMoved = false) {
@@ -367,6 +393,14 @@ const REACHED_ELSEWHERE = [
     pattern: /^delta--on$/,
     why: "an answer landing exactly on the pass mark, which this rubric's points cannot sum to — see the test below",
   },
+  {
+    pattern: /^error-state$/,
+    why: "ErrorBoundary's recovery screen, reachable only after a runtime render failure",
+  },
+  {
+    pattern: /^tick__conflict$/,
+    why: "the manual form's live revision-conflict state, reachable only after an external write",
+  },
 ];
 
 test("every rule in the stylesheet has something that asks for it", () => {
@@ -514,13 +548,12 @@ test("the queue pages the class, opens one answer, and draws no bar of its own",
   );
 });
 
-test("the panel lists the whole surface, the absent tool included", () => {
+test("the panel lists exactly the registered surface", () => {
   const html = renderOf("the agent panel, marked");
   const tools = toolSurfaceFacts();
 
-  assert.equal(times(html, "tool"), tools.length + 1, "every registered tool, and one that is not");
-  assert.equal(times(html, "tool--absent"), 1);
-  assert.ok(html.includes("confirm_release"), "the tool that does not exist is drawn as absent");
+  assert.equal(times(html, "tool"), tools.length, "every registered tool, and no unavailable operation");
+  assert.ok(html.includes("human-only gate is at the foot of the page"));
 
   for (const fact of tools) {
     assert.ok(html.includes(fact.name), `${fact.name} registers but is not on the page`);
@@ -532,7 +565,7 @@ test("the panel lists the whole surface, the absent tool included", () => {
 /**
  * The read/write split, counted from the registrations rather than read off the page. Each row carries
  * its own role as a word, and the note under the list carries the total — both are derived, because a
- * hand-typed six would survive a tenth tool being added and would then be a claim about a surface that
+ * hand-typed six would survive a new tool being added and would then be a claim about a surface that
  * no longer exists.
  */
 test("the panel counts the read and write tools the way the registrations do", () => {
@@ -545,17 +578,30 @@ test("the panel counts the read and write tools the way the registrations do", (
   assert.equal(times(html, "tool--read"), reads);
   assert.equal(times(html, "tool--write"), tools.length - reads);
 
-  // The role word on every row, the absent one included: nine registrations plus the tenth that is
-  // the submission. A row without its word would be a name with no indication of what calling it does.
-  assert.equal(times(html, "tool__role"), tools.length + 1);
+  // The role word on every real row. A row without its word would be a name with no indication of
+  // what calling it does.
+  assert.equal(times(html, "tool__role"), tools.length);
   assert.equal(occurrences(html, />read</g), reads);
   assert.equal(occurrences(html, />write</g), tools.length - reads);
-  assert.equal(occurrences(html, />absent</g), 1);
 
   assert.ok(
     html.includes(`>${tools.length}</span> registrations`),
     "the note under the list disagrees with the registrations it is counting",
   );
+});
+
+test("the error boundary fallback is fixed and non-diagnostic", () => {
+  assert.deepEqual(ErrorBoundary.getDerivedStateFromError(new Error("private fixture detail")), {
+    failed: true,
+  });
+
+  const boundary = new ErrorBoundary({ children: createElement("p", null, "healthy") });
+  boundary.state = { failed: true };
+  const html = renderToStaticMarkup(boundary.render());
+
+  assert.ok(html.includes("The page could not render"));
+  assert.ok(html.includes("Reload page"));
+  assert.equal(html.includes("private fixture detail"), false);
 });
 
 /**
@@ -568,6 +614,7 @@ test("the panel counts the read and write tools the way the registrations do", (
 test("the panel says whether an agent is here, without needing one to be", () => {
   const waiting = renderOf("the agent panel, marked");
   const live = renderOf("the agent panel, an agent connected");
+  const partial = renderToStaticMarkup(partialPanelOf(MARKED));
 
   assert.equal(times(waiting, "conn--wait"), 1, "no installation yet is its own state");
   assert.equal(times(waiting, "conn--live"), 0);
@@ -581,13 +628,17 @@ test("the panel says whether an agent is here, without needing one to be", () =>
     "the live state is the one that most needs to say what the surface cannot do",
   );
 
+  assert.ok(partial.includes("Tool registration is incomplete"));
+  assert.ok(partial.includes("Retry registration"));
+  assert.ok(!partial.includes("browser detail is not shown"));
+
   // Every state but the live one offers a way to get an agent here, and it is an anchor: a button
   // that cannot connect anything would be the one dishonest control in the column.
   assert.equal(times(waiting, "conn__act"), 1);
   assert.equal(times(live, "conn__act"), 0, "there is nothing to connect once one is connected");
 });
 
-/** The one control an agent has no tool for, named in the agent's own column and only pointed at. */
+/** The one control an agent has no tool for, pointed at without adding an agent-side control. */
 test("the contract column points at the release gate instead of carrying a second one", () => {
   const html = renderOf("the agent panel, marked");
 
@@ -617,7 +668,7 @@ test("in one column the contract is a panel that opens; beside the work it is no
 
   // One body, two shells. Folding is about when the column is read, not about what it says, so
   // everything the wide shape argues has to be inside the folded one too.
-  for (const part of ["propose_marks", "confirm_release", "Only a person can send it", "proj__json"]) {
+  for (const part of ["propose_marks", "Only a person can send it", "proj__json"]) {
     assert.ok(folded.includes(part), `${part} is missing from the folded column`);
     assert.ok(wide.includes(part), `${part} is missing from the wide column`);
   }
@@ -628,7 +679,7 @@ test("in one column the contract is a panel that opens; beside the work it is no
   assert.ok(folded.includes("fold__more fold__more--open"));
 });
 
-test("the panel prints one projection per payload, and names the missing one before anything is marked", () => {
+test("the panel prints one projection per payload, and explains the empty state before anything is marked", () => {
   const marked = renderOf("the agent panel, marked");
   const fresh = renderOf("the agent panel, nothing marked");
 
@@ -712,6 +763,9 @@ test("the send button is locked until a person stages a release", () => {
   assert.ok(staged.includes("Decline the request"), "a staged request can be cleared");
   assert.ok(staged.includes("There is no tool for it."));
 
+  const moved = renderOf("the action bar, the stack scrolled away");
+  assert.ok(moved.includes("The request was for"), "a changed staged request needs an explicit diff");
+
   // The one control on the page that sends says so on itself, in both states, so the claim travels
   // with the button rather than living only in the caption under it.
   assert.equal(times(idle, "btn__only"), 1);
@@ -733,7 +787,7 @@ test("the whole page renders as one tree", () => {
     assert.equal(times(html, region), 1, `the page draws ${region} more than once, or not at all`);
   }
   assert.equal(times(html, "slab"), 3, "the audit, the comparison, and the limits");
-  assert.ok(html.includes("No browser agent has ever driven these tools"));
+  assert.ok(html.includes("No natural-language model has driven these tools here"));
 
   // One band, above the columns rather than inside one of them, and it did not take the page's `h1`
   // off the marking surface.

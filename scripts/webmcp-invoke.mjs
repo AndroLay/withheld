@@ -22,11 +22,11 @@
  *   4. a prompt injection arriving as a tool call — all four rubric lines claimed for the answer that
  *      asks for full marks — is quarantined and credited with nothing;
  *   5. a write moves the rendered page: the care setting, the revision and the held count all change;
- *   6. that same write replayed at the revision it has already consumed is refused `stale-revision`,
- *      and the page does not move a second time;
+ *   6. that same write replayed with its accepted operation id is refused `duplicate-operation`,
+ *      while a different write from the old revision is refused `stale-revision`;
  *   7. a release staged by a tool unlocks the human control and puts focus on the heading rather than
  *      on the send button;
- *   8. `confirm_release` cannot be invoked, because the browser has never heard of it.
+ *   8. the human-only release action cannot be invoked, because the browser has never registered it.
  *
  * What it is still not: a model. Every call below was composed by this file. Nothing here shows a
  * model reading a page, choosing a tool, or writing its own input; that is a different claim, it needs
@@ -45,6 +45,8 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { evidenceMeta } from "./evidence-meta.mjs";
 
 const PACKAGE = fileURLToPath(new URL("..", import.meta.url));
 const EVIDENCE = join(PACKAGE, "docs", "evidence");
@@ -328,8 +330,8 @@ const STATE = `
     staged: document.querySelector(".bar--waiting") !== null,
     sendDisabled: document.querySelector(".btn--send")?.disabled ?? null,
     focused: document.activeElement?.id || null,
-    printedTools: names(".tool:not(.tool--absent) .tool__name"),
-    printedAbsent: names(".tool--absent .tool__name"),
+    printedTools: names(".tool__name"),
+    humanOnly: text(".only__hard"),
   };
 `;
 
@@ -432,12 +434,28 @@ async function main() {
     `${rubricKeys.length} keys, none of them points`,
   );
 
+  const unknownRubric = await invoke(cdp, frameId, "propose_marks", {
+    findings: [{ answerId: "ans-01", foundLineIds: ["rubric-not-present"] }],
+    expectedRevision: stack.payload.revision,
+    operationId: "probe-unknown-rubric",
+  });
+  const afterUnknownRubric = await invoke(cdp, frameId, "describe_stack", {});
+  check(
+    "an unknown rubric line is refused before arithmetic and leaves the page unchanged",
+    unknownRubric.payload?.refused === true &&
+      unknownRubric.payload?.code === "invalid-argument" &&
+      afterUnknownRubric.payload?.revision === stack.payload.revision &&
+      afterUnknownRubric.payload?.markedCount === 0,
+    `${unknownRubric.payload?.code} · revision ${afterUnknownRubric.payload?.revision}`,
+  );
+
   // The injection arrives as a tool call rather than out of a fixture: every rubric line claimed for
   // the answer whose text asks the marker to ignore the rubric and award full marks.
   const lineIds = (rubric.payload?.rubric?.lines ?? []).map((line) => line.id);
   const injected = await invoke(cdp, frameId, "propose_marks", {
     findings: [{ answerId: "ans-11", foundLineIds: lineIds }],
     expectedRevision: stack.payload.revision,
+    operationId: "probe-injection",
   });
   await settle();
   const afterInjection = await invoke(cdp, frameId, "describe_stack", {});
@@ -475,6 +493,7 @@ async function main() {
   const raised = await invoke(cdp, frameId, "set_marking_emphasis", {
     emphasis: "cautious",
     expectedRevision: holds.payload.revision,
+    operationId: "raise-care",
   });
   await settle();
   const moved = await cdp.evaluate(STATE);
@@ -489,21 +508,36 @@ async function main() {
   );
 
   const replayed = await invoke(cdp, frameId, "set_marking_emphasis", {
-    emphasis: "most-cautious",
-    expectedRevision: holds.payload.revision,
+    emphasis: "cautious",
+    expectedRevision: moved.revision,
+    operationId: "raise-care",
   });
   await settle();
   const unmoved = await cdp.evaluate(STATE);
   check(
-    "the same write replayed at a spent revision is refused, and the page does not move again",
+    "an accepted write replayed with the current revision is refused as a duplicate, and the page does not move again",
     replayed.payload?.refused === true &&
-      replayed.payload?.code === "stale-revision" &&
+      replayed.payload?.code === "duplicate-operation" &&
       unmoved.emphasis === "cautious" &&
       unmoved.revision === moved.revision,
     `${replayed.payload?.code} · still ${unmoved.emphasis} at revision ${unmoved.revision}`,
   );
 
-  const release = await invoke(cdp, frameId, "request_release", { expectedRevision: unmoved.revision });
+  const stale = await invoke(cdp, frameId, "set_marking_emphasis", {
+    emphasis: "most-cautious",
+    expectedRevision: holds.payload.revision,
+    operationId: "stale-care",
+  });
+  check(
+    "a different write from an old read is still refused as stale",
+    stale.payload?.refused === true && stale.payload?.code === "stale-revision",
+    `${stale.payload?.code} · still ${unmoved.emphasis} at revision ${unmoved.revision}`,
+  );
+
+  const release = await invoke(cdp, frameId, "request_release", {
+    expectedRevision: unmoved.revision,
+    operationId: "stage-release",
+  });
   await settle();
   const gate = await cdp.evaluate(STATE);
   check(
@@ -524,8 +558,8 @@ async function main() {
     .command("WebMCP.invokeTool", { frameId, toolName: "confirm_release", input: {} })
     .then(() => null, (error) => error.message);
   check(
-    "the browser cannot invoke the tool that was never built",
-    typeof absent === "string" && /not found/i.test(absent) && gate.printedAbsent.includes("confirm_release"),
+    "the browser cannot invoke the human-only release action",
+    typeof absent === "string" && /not found/i.test(absent) && gate.humanOnly === "Only a person can send it.",
     absent ?? "the browser accepted it",
   );
 
@@ -546,8 +580,15 @@ async function main() {
   );
 
   const failed = checks.filter((entry) => !entry.passed);
+  const evidence = evidenceMeta(PACKAGE, {
+    browserFlags: ["--enable-experimental-web-platform-features", "--enable-features=WebMCPTesting"],
+  });
   const report = {
+    status: failed.length === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
+    evidenceClass: "VERIFIED_ARTIFACT",
+    scope: "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
     ranAt: new Date().toISOString(),
+    evidence,
     browser: version.product,
     protocol: version.protocolVersion,
     url,
@@ -562,13 +603,14 @@ async function main() {
     invocations: {
       describe_stack: stack,
       read_rubric: { status: rubric.status, keys: [...keysOf(rubric.payload)] },
+      unknown_rubric_line: unknownRubric,
       propose_marks: injected,
       explain_mark: explained,
       list_held_answers: holds,
       set_marking_emphasis: raised,
       "set_marking_emphasis (replayed)": replayed,
       request_release: release,
-      confirm_release: { status: "not dispatched", error: absent },
+      unavailable_confirmation: { attemptedTool: "confirm_release", status: "not dispatched", error: absent },
     },
     page: { fresh, marked, moved, unmoved, gate },
     requests: { total: requests.length, offsite },
@@ -586,6 +628,28 @@ async function main() {
   mkdirSync(EVIDENCE, { recursive: true });
   const file = join(EVIDENCE, "webmcp-invocation.json");
   writeFileSync(file, `${JSON.stringify(report, null, 2)}\n`);
+  writeFileSync(
+    join(EVIDENCE, "native-registry.json"),
+    `${JSON.stringify(
+      {
+        status: report.failed === 0 ? "VERIFIED_RUN" : "FAILED_RUN",
+        evidenceClass: "VERIFIED_ARTIFACT",
+        scope: "local loopback Chromium native WebMCP registry; not hosted and not model-selected",
+        ranAt: report.ranAt,
+        evidence: report.evidence,
+        browser: report.browser,
+        protocol: report.protocol,
+        url: report.url,
+        toolCount: report.registry.length,
+        tools: report.registry,
+        notClaimed:
+          "This is a local native-registry observation from the flagged Chromium run. It does not " +
+          "prove a hosted URL, model-selected replay, or judge-client compatibility.",
+      },
+      null,
+      2,
+    )}\n`,
+  );
   console.log(`\n${report.passed} passed, ${report.failed} failed → ${file}`);
 
   if (failed.length > 0) process.exitCode = 1;
@@ -599,13 +663,3 @@ try {
 } finally {
   runCleanups();
 }
-
-
-
-
-
-
-
-
-
-\n

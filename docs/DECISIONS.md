@@ -184,7 +184,7 @@ tests pin the property, and lowering a fixture point value will fail them.
 
 ## D-14 — The teacher's manual path is the same write path
 
-**2026-09-01.** Rubric ticks are collected by an uncontrolled `<form>` and submitted through
+**Historical snapshot, 2026-09-01.** Rubric ticks were collected by an uncontrolled `<form>` and submitted through
 `proposeMarks` with the current revision, exactly as an agent's report is.
 
 **Consequence.** There is no privileged write, so the escalation rules cannot be bypassed by
@@ -195,6 +195,11 @@ than being asserted away, because two callers share one session and only one of 
 **Why uncontrolled.** No half-entered mark sits in React state waiting for something else to
 commit it. The page reads the ticks once, on submit.
 
+**Current status.** This decision is superseded by the revision-aware controlled form in
+`src/ui/Stack.tsx`. A draft opened before another caller changes the session now enters an explicit
+conflict, disables save, and requires `Reload current mark`; this closes the silent-overwrite risk
+without changing the shared `proposeMarks` write path.
+
 ---
 
 ## D-15 — The page works with no agent, as the base case
@@ -202,9 +207,10 @@ commit it. The page reads the ticks once, on submit.
 **2026-09-01.** Every tool has a visible manual equivalent, and the status line says plainly when
 no model context was found.
 
-**Consequence.** This is not a graceful fallback. At the time of writing, **a browser agent driving
-these tools has never been observed here** — so the no-agent path is the only one that has ever
-run, and it had better be the honest one. A teacher can tick rubric lines by hand and get exactly
+**Consequence.** This is not a graceful fallback. At the time of writing, **no natural-language
+model driving these tools has been observed here** — the local CDP harness is a transport check,
+not a model replay. The no-agent path is still the only ordinary page path that has run, and it had
+better be the honest one. A teacher can tick rubric lines by hand and get exactly
 the same holds, the same counterfactual, and the same two release buttons.
 
 ---
@@ -236,8 +242,9 @@ describes, traded against a surface an agent can use correctly.
 
 ## D-17 — The agent's view is printed on the page, and it is the tool output
 
-**2026-09-01.** The page now shows what an agent is handed: all nine tool names, the absent tenth,
-and four redacted payloads as JSON. Two alternatives were rejected. A screenshot of a browser agent
+**Historical design, 2026-09-01 (superseded 2026-09-02).** The page showed what an agent was handed:
+all nine tool names, an absent tenth, and four redacted payloads as JSON. Two alternatives were
+rejected. A screenshot of a browser agent
 mid-session is not available — none has ever driven these tools. A hand-written illustration of the
 payloads was rejected for a worse reason: it would drift from the tools silently, and the drift would
 always be in the flattering direction.
@@ -247,18 +254,22 @@ payload builders the read tools call, through the same `assertAgentSafe`. Four t
 `tests/webmcp.test.mts` hold the two together, one of them asserting each printed payload is
 `deepEqual` to what its tool returns.
 
-**Consequence.** The central claim stops being a sentence in a README. A reader sees the totals and
-the five held answers in the stack, and the JSON directly beneath it that contains neither. A tenth
-tool would appear on this page without anyone editing the page.
+**Historical consequence.** The central claim stopped being a sentence in a README. A reader saw the
+totals and the five held answers in the stack, and the JSON directly beneath it that contained neither.
+A tenth tool would appear on that page without anyone editing the page.
 
-**Why the absent row is hand-written.** A list built from the registrations cannot name a tool that
-was never built, which is exactly the property being demonstrated — so `confirm_release` is typed out
-once, in `AgentPanel.tsx`, struck through and dashed. `src/tools/webmcp.ts` still never names it, and
-the test that reads that file as text is unchanged.
+**Why the old absent row was hand-written.** A list built from the registrations could not name a
+tool that was never built, so the old design typed it out once in `AgentPanel.tsx`, struck through and
+dashed. That row was removed on 2026-09-02 because the acceptance boundary is stronger when the agent
+UI exposes only callable tools. The browser registry negative probe remains the evidence for absence.
 
 **Cost.** The teacher's page now displays the agent's view, which means one more surface to keep
 honest: if the panel ever showed a total it would be contradicting the page's own claim on screen. A
 test asserts the printed payloads pass the same two boundary checks the tool results do.
+
+**Current decision, 2026-09-02.** The panel lists exactly the nine registered tools and describes the
+human-only release gate in prose. It does not print an unavailable operation name. The native browser
+negative probe still attempts that name outside the page and records `Tool not found`.
 
 ---
 
@@ -327,7 +338,8 @@ there.
 Static renders prove the trees do not throw; they cannot say whether the grid lays out,
 whether the policy is enforced, where focus goes, or whether a bar has any width on screen. That
 gap was the largest one in the package, and it was closed by a program rather than by a session
-someone remembers having: `scripts/browser-session.mjs`, run with `pnpm browser`, 37 checks as of
+someone remembers having: `scripts/browser-session.mjs`, run with `pnpm browser`, **HISTORICAL_LOCAL:
+37 checks** as of
 2026-09-01, exits
 non-zero if any fails, writes `docs/evidence/browser-session.json` and four screenshots.
 
@@ -378,14 +390,14 @@ bar from a broken one is the only version of that check worth having.
 **Superseded by D-27, and kept as a dated record rather than corrected.** Everything below describes the
 two-hue mockups of 2026-09-01 and the page built to them: 256/776/336px tracks, an amber and grey text
 pair, one bar with the pass mark ticked. A monochrome mockup replaced both drawings the next day —
-`withheld-v3-monochrome-refined.png`, 1487×1058 — and the two blue-and-amber SVGs this entry was written
-against are no longer in `docs/target-images/`. The current palette, the current tracks and the current
+An earlier monochrome visual target was 1487×1058, and the two blue-and-amber SVGs this entry was written
+against are no longer retained as public design references. The current palette, the current tracks and the current
 count of departures are D-27's, not this entry's. The three
 departures named here still hold in substance — contrast beat fidelity, the tool names stayed whole, and
 the top bar's release control is still an anchor to the gate rather than a second button that could send —
 but their figures are the old drawing's.
 
-**2026-09-01.** `docs/target-images/` holds two deterministic mockups — 1440×900 and 390×844 — and
+**2026-09-01.** Two deterministic visual mockups — 1440×900 and 390×844 — guided the interface, and
 the page was rebuilt to them: a bar across the top, three columns, a sticky foot. The layout is now
 measured rather than asserted: 256px of policy, 776px of work, 336px of contract at 1440px, and one
 column at 420px, both recorded in `docs/evidence/browser-session.json`.
@@ -419,7 +431,7 @@ credited, which is one fact drawn twice — the track a fill does not cover *is*
 is one bar now, with the pass mark ticked on the same axis, and the percentages a sighted reader gets
 from the tick's position are spelled out for a screen reader beside it.
 
-**The omission this entry used to record is now done.** `docs/target-images/README.md` asks that on a
+**The omission this entry used to record is now done.** The design brief asks that on a
 phone the contract column become a panel that can be opened rather than small text that is always
 there. It is one: below 62rem the whole third column is a `<details class="fold">` that arrives closed,
 with the column's own `h2` as its summary, and above that width it is a plain region with no summary at
@@ -430,8 +442,8 @@ live — and CSS alone genuinely cannot do it, which is why the earlier version 
 omission instead. The breakpoint is exported as one string and `tests/styles.test.mts` asserts the sheet
 switches `.app__cols` at exactly that width, since two copies of a breakpoint drift silently into a
 folded desktop column or a phone with a column off the side of the screen. Measured at both widths in
-the browser: absent at 1440px; at 420px 110px shut with 0 of 10 tool rows visible, 2538px and all ten
-visible when pressed, shut again on the next press. That check failed on its first run for a reason
+the browser: absent at 1440px; at 420px the closed panel showed 0 of 9 tool rows and the opened panel
+showed all 9, shut again on the next press. That check failed on its first run for a reason
 worth keeping — a closed `<details>` is `content-visibility: hidden`, which skips paint but keeps
 layout, so every row still reported a box; it asks `checkVisibility()` now and the evidence keeps both
 figures. **What is still not true: nobody has read this page on a phone.** 420px in a headless browser
@@ -466,10 +478,11 @@ including by me, which is why the separation is now structural:
 
 | class | what it establishes | where it lives | state |
 | --- | --- | --- | --- |
-| the source | the functions do what they say, and no tree throws | 110 tests, twenty-three renders | green |
-| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | `pnpm browser`, 37 checks | green |
+| the source | the functions do what they say, and no tree throws | **HISTORICAL_LOCAL:** 110 tests, twenty-three renders; **VERIFIED_RUN:** current writable run is 125 tests | green for the current run |
+| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | **HISTORICAL_LOCAL:** `pnpm browser`, 37 checks; **VERIFIED_RUN:** current 44 checks | green for the current run |
 | the browser's registry | the API exists and nine tools registered | both scripts | green |
-| dispatch through that registry | a call from outside reaches the handler, and the page moves | `pnpm webmcp`, 17 checks | green |
+| dispatch through that registry | a call from outside reaches the handler, and the page moves | **HISTORICAL_LOCAL:** `pnpm webmcp`, 18 checks; **VERIFIED_RUN:** current 19 checks | green for the current run |
+| failure and recovery | one refusal/retry/release journey remains consistent across native dispatch and page UI | **VERIFIED_RUN:** `failure-recovery.mjs`, 27 checks | green locally; hosted/model open |
 | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
 
 The fourth is new and it is the one this entry adds. It closes the part of the agent story that was
@@ -628,8 +641,8 @@ sheet and the page argue with each other automatically instead of at whatever po
 
 ## D-27 — The page was rebuilt to a monochrome mockup, and departs from it in eleven places
 
-**2026-09-01.** A third target arrived: `docs/target-images/withheld-v3-monochrome-refined.png`, 1487×1058
-and grey end to end. The page was rebuilt to it, and this entry is the list of what did not come across,
+**2026-09-01.** A third monochrome visual target arrived at 1487×1058 and grey end to end. The page
+was rebuilt to it, and this entry is the list of what did not come across,
 because a redesign that records only its successes is a redesign nobody can check.
 
 **What the mockup settled.** The greyscale is now the whole palette, not a restraint on top of one —
@@ -652,7 +665,7 @@ them sentence case. Case marks scale here, not authority — a control is told f
 
 **The half of the rule that holds is the half worth having: no status word wears a control's case.** Every
 state word in a queue row is lower case, and `src/styles.css:1013-1026` says why — a status word must not
-dress up as a control. So are `read`, `write` and `absent` beside a tool, `revision 00`, the four counters
+dress up as a control. So are `read` and `write` beside a tool, `revision 00`, the four counters
 in the band, and `no longer available` under a locked column in the comparison. One heading opts back in
 halfway: `HUMAN AUTHORITY` is lettered as a standing label while the part that changes, `— a release is
 waiting`, drops to a sentence, because a caps-lock alarm would contradict the page's own claim that a held
@@ -691,9 +704,10 @@ install an agent into a browser, which it cannot.
 here and never timed, because a receipt that says when is a receipt someone will read as an audit trail,
 and a page that cannot be trusted to keep one should not draw one.
 
-*Ten tool rows, not seven.* The nine names come from `toolSurfaceFacts()` — the same surface the page
-registers, so the list cannot drift from what an agent is actually offered — and the tenth is written by
-hand, struck through and marked `absent`, which is the point of the project rather than a decoration.
+*Nine tool rows, not seven.* The names come from `toolSurfaceFacts()` — the same surface the page
+registers, so the list cannot drift from what an agent is actually offered. The human-only release
+boundary is stated below the list, while the browser negative probe verifies that no release tool is
+registered.
 
 *The rail carries a fourth block.* The mockup's policy column ends at the audit ledger; the page follows
 it with "How a mark gets made", which is the only place the page walks a reader through the sequence it
@@ -720,5 +734,37 @@ fair, whether the problem is real to anyone but the author, whether a hosted cop
 agent has ever driven this page in words. The browser session establishes the layout; the mockup only ever
 said what to aim at.
 
+## D-28 — State changes need their own receipts, and retries need a bounded contract
 
-\n
+**2026-09-02.** The audit exposed two places where a state transition could look more complete
+than it was: human confirm/decline advanced the revision without entering the timeline, and a
+repeated write could consume a revision without changing the state. The session now routes
+human confirm and decline through the same receipt constructor as agent writes, with explicit
+`human_release_confirmed` and `human_release_declined` actions and the exact resulting revision.
+
+The write contract stays small and deterministic. A proposal that produces the same marks,
+fingerprints, quarantine, and instability state is refused as `no-change`; an emphasis already
+active and a second pending release request are refused as well. Each write also carries a bounded,
+single-use operation ID, so a transport retry cannot apply the same accepted operation twice. The
+fixture has no persistence or network retry layer, but the local contract protects the retry boundary
+without enlarging the agent
+surface before a real client demonstrates that need.
+
+Two boundary rules follow from the same decision. WebMCP schemas are closed and bounded, with
+runtime validation repeated before arithmetic, and the manual form captures its opened revision
+and blocks stale saves. The text canary checks generated tool prose at runtime but deliberately
+skips the raw answer body, because untrusted student text must remain readable. A generic
+recovery envelope handles unexpected tool errors without exposing implementation details.
+
+## D-29 — Agent writes carry bounded, session-local operation ids
+
+**2026-09-02.** The later reliability pass revises the retry choice above for the WebMCP boundary.
+Every agent write must carry a bounded opaque `operationId`. The session stores it only on the
+accepted receipt; reusing it, even with the current revision or through another write tool, returns
+`duplicate-operation` without changing state, advancing the revision, or adding a receipt. This is
+at-most-once protection for the in-memory fixture, not durable idempotency: a refresh or restart
+intentionally clears the session and its receipt history because Withheld has no persistence layer.
+
+The key is not part of the agent-facing receipt payload. It is a caller correlation value, not a
+new fact the page needs to disclose, and keeping it out preserves the existing numeric and answer-id
+boundaries. Manual page writes omit it because they do not cross a retrying transport boundary.

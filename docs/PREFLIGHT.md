@@ -21,13 +21,13 @@ minute to do both.
 | requirement | the rules' words | status | whose call |
 | --- | --- | --- | --- |
 | Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **absent** | owner |
-| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md`, two placeholders, never checked against a host | mine |
+| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` is complete for the local artifact but still has the live/repository placeholders | mine |
 | Public repository | source, assets and instructions "required for the project to be functional" | **absent** — no remote exists | owner |
 | Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | file present, detection unverifiable until a repository exists | both |
-| A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — `src/tools/webmcp.ts:536`, nine tools | done |
+| A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — `src/tools/webmcp.ts:613-727`, nine tools | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
 | Free, unrestricted access through judging | no login needed; credentials required only if the site is private | the page needs no account and makes no network request; hosting is the open half | owner |
-| English | everything in English or translated | done — every document in this package is English | done |
+| English | everything in English or translated | **partial** — submission-facing copy and target-image notes are English; the internal audit registers still contain Indonesian notes and should not be presented as submission copy | mine |
 | New work, dated | new in the window, or an existing project meaningfully extended, "documented with dated evidence such as commit history" | done — every commit for this package is 2026-09-01 or later, and each touches only `submissions/withheld/` | done |
 | Eligibility and a Representative | tied to OpenAI's supported-countries list; a team or organisation names one authorised Representative | **unverified** — I have not checked the list, and the entrant is not me | owner |
 
@@ -36,7 +36,7 @@ minute to do both.
 Nothing below is started. Each is an outward-facing act, and the standing instruction in this
 workspace is that publication is the owner's decision, per instance, in their own words.
 
-1. **A public repository.** `gh repo create`, or a remote and a push. Four commits exist locally.
+1. **A public repository.** `gh repo create`, or a remote and a push. The local candidate history includes source commit `8a228b8` and evidence refresh `8b0a3ae`, both authored by `AndroLay`; no remote exists.
 2. **Hosting.** GitHub Pages, Cloudflare Pages, Netlify, Vercel — any static host. The artefact is
    already subpath-safe: `vite.config.ts` sets `base: "./"` and `dist/index.html` emits
    `./assets/…`, so a project-page URL works without a rebuild.
@@ -53,20 +53,25 @@ workspace is that publication is the owner's decision, per instance, in their ow
   built here. What it does not have is a live URL, a repository URL, or a single sentence checked
   against a hosted page. Both placeholders are marked, and step 5 below is when it stops being a
   draft.
-- **The English testing instructions** a judge follows: which browser, which flag, what to click, what
-  to expect, and the known limitations. Drafted in the same file, in the section addressed to a judge.
-  `docs/RUNBOOK.md` remains the version for someone with the repository checked out.
+- **The testing instructions** are updated for the local artifact: browser flags, the 44-check
+  session, the 19-check WebMCP dispatch, the 27-check failure/recovery journey, the concurrent-form
+  conflict, and the human release path. The artifacts explicitly say local/CDP, not hosted or model.
+  They still need one hosted-URL run before they can be called instructions for the final entry.
 - **`GATE-P2`.** Ten minutes with one person who did not build the page, four written questions, and an
   honest record of what they said. The instrument is `docs/GATE-P2.md`; what it needs is a person.
   This is the weakest criterion in the whole entry — Potential Impact rests on a problem I have
   asserted and not measured, and `README.md` says so in as many words.
 - **A pass over wording and over what a screen reader says, by eye and by ear.** Contrast is no longer
-  on this list: it is measured in the browser on every session run, 423 pairs against the backgrounds
+  on this list: it is measured in the browser on every session run, 443 pairs against the backgrounds
   they actually resolve to, and guarded from the other end by arithmetic over the palette. The
   accessibility tree is read too — every named control has a name, the headings descend in order. What
   is still missing is a listener: no screen reader has been run, so no one knows whether the page makes
   sense read aloud, and no person other than the author has read the wording.
-- **Node 22 verification.** CI is pinned to it; every local run was Node 26. Never run.
+- **Node 22 verification.** CI is pinned to it; every local run was Node 26. It has not run in this
+  environment, so this remains open rather than a compatibility claim.
+- **Blocked evidence is recorded.** `docs/evidence/` contains explicit blocked/not-run artifacts
+  for hosted browser, hosted WebMCP, natural-language replay, GATE-P2, manual accessibility, and
+  performance. These are not substitutes for the missing gates.
 
 ## The order these have to happen in
 
@@ -97,11 +102,11 @@ submission copy too, and the four sentences below are the ones most easily writt
 
 - **Not** "an agent marks the class". A model has never driven these tools. What has happened is that
   Chromium's own `WebMCP` domain dispatched all nine into the page and the page moved —
-  `docs/evidence/webmcp-invocation.json`, 17 checks. That is the surface working when called from
+  `docs/evidence/webmcp-invocation.json`, 19 checks. That is the surface working when called from
   outside, and it is not a replay.
 - **Not** "tested in ChatGPT's in-app browser". No run has happened there. Every browser figure in
   this package is headless Chromium 151 on one Linux machine.
-- **Not** "accessible" as a bare adjective. Focus order, live regions, named steps, contrast (423
+- **Not** "accessible" as a bare adjective. Focus order, live regions, named steps, contrast (443
   measured pairs) and the accessibility tree (no unnamed control, headings in order) are built and
   measured; what no screen reader announces is unknown, and no person other than the author has read
   the page.
@@ -115,5 +120,3 @@ submission copy too, and the four sentences below are the ones most easily writt
 - The video is public, plays with audio, and is under three minutes.
 - The four description points are all present, and each one is true of the hosted page.
 - `docs/PROGRESS.md` and this file agree with what the form claims.
-
-\n

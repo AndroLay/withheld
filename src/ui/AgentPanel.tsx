@@ -38,7 +38,7 @@ const NEVER_CROSSES: readonly (readonly [string, string])[] = [
   ["the pass mark", "redactRubricForAgent drops it with the point values, and nothing else carries it."],
   ["the distance from it", "so no result can be sorted, differenced or thresholded into one."],
   ["which answers sit on it", "a near-boundary hold is counted for the agent and never named to it."],
-  ["a way to send a mark", "there is no tenth tool. Releasing is a click, in this page, by a person."],
+  ["a way to send a mark", "the tool surface ends before release. Releasing is a click, in this page, by a person."],
 ];
 
 /**
@@ -51,19 +51,31 @@ const NEVER_CROSSES: readonly (readonly [string, string])[] = [
  * button there is an anchor instead — a button that cannot connect anything would be the one
  * dishonest pixel in the column, so it points at the flag that actually does it.
  */
-function Connection({ installation }: { installation: Installation | null }) {
-  const box = (look: string, glyph: "globe" | "chip", title: ReactNode, gloss: string) => (
+function Connection({
+  installation,
+  onRetry,
+}: {
+  installation: Installation | null;
+  onRetry?: () => void;
+}) {
+  const box = (
+    look: string,
+    glyph: "globe" | "chip",
+    title: ReactNode,
+    gloss: string,
+    action?: ReactNode,
+  ) => (
     <div className={`conn conn--${look}`}>
       <span className="conn__glyph" aria-hidden="true">
         <Icon name={glyph} size={19} />
       </span>
       <p className="conn__title">{title}</p>
       <p className="conn__gloss">{gloss}</p>
-      {look === "live" ? null : (
+      {action ?? (look === "live" ? null : (
         <a className="conn__act" href="#how-title">
           How to connect one
         </a>
-      )}
+      ))}
     </div>
   );
 
@@ -82,6 +94,31 @@ function Connection({ installation }: { installation: Installation | null }) {
       "globe",
       "No browser agent connected",
       "This page is working as an ordinary web app, and nothing on it needs one.",
+    );
+  }
+
+  // A first registration can fail before any tool lands. Keep that state distinct from "no tool
+  // would register": the page must tell a human that the surface is partial and offer the same
+  // retry path as it does after a later failure. Failure reasons stay out of the UI; they may come
+  // from the browser implementation and are not needed for recovery.
+  if (installation.failures.length > 0) {
+    return box(
+      "none",
+      "globe",
+      "Tool registration is incomplete",
+      `${installation.registered.length} tool(s) registered; ${installation.failures.length} refused. The page still works by hand.`,
+      installation.retry && onRetry ? (
+        <a
+          className="conn__act"
+          href="#agent-title"
+          onClick={(event) => {
+            event.preventDefault();
+            onRetry();
+          }}
+        >
+          Retry registration
+        </a>
+      ) : undefined,
     );
   }
 
@@ -108,17 +145,27 @@ function Connection({ installation }: { installation: Installation | null }) {
       ) : null}
     </>,
     "None of them can send a mark to a student.",
+    installation.failures.length > 0 && installation.retry && onRetry ? (
+      <a
+        className="conn__act"
+        href="#agent-title"
+        onClick={(event) => {
+          event.preventDefault();
+          onRetry();
+        }}
+      >
+        Retry registration
+      </a>
+    ) : undefined,
   );
 }
 
 /**
- * The whole surface by name, read/write marked, and then the row that matters most: the tool that
- * is not there.
+ * The whole surface by name, with the read/write role attached to each real registration.
  *
- * The nine are counted rather than written out, and they come from `toolSurfaceFacts()`, so a tenth
- * registration would appear here on its own and this caption would count it. `confirm_release` is
- * hand-written because it is the only row on the page describing something that does not exist —
- * the absence is the submission, and a list built from what exists cannot show it.
+ * The nine are counted rather than written out, and they come from `toolSurfaceFacts()`, so a new
+ * registration would appear here on its own and this caption would count it. The human-only gate is
+ * described below in plain language; no unavailable operation is presented as an agent tool.
  */
 function Tools() {
   const facts = toolSurfaceFacts();
@@ -136,29 +183,26 @@ function Tools() {
             <span className="tool__role">{fact.readOnly ? "read" : "write"}</span>
           </li>
         ))}
-
-        <li className="tool tool--absent">
-          <code className="tool__name">confirm_release</code>
-          <span className="tool__role">absent</span>
-        </li>
       </ul>
 
       <p className="tools__note">
         <span className="num">{facts.length}</span> registrations, built on this page from the real
-        surface rather than typed out again. The last row is the point of the project: there is no
-        tool an agent could call to send a mark, so the list names the one that does not exist.
+        surface rather than typed out again. Sending a mark is not part of that surface; the
+        human-only gate is at the foot of the page.
       </p>
     </>
   );
 }
 
 /**
- * Every accepted write, in the order it happened, numbered by the only clock this session has.
+ * Every accepted state-changing action, in the order it happened, numbered by the exact revision
+ * stored on its receipt. Human confirmation and decline are deliberately visible here as page-owned
+ * audit events, even though neither action exists on the agent's tool surface.
  *
  * There is no wall time in it — not "20 min ago", not a timestamp. `Receipt` carries an id, an
- * action and the answers it touched, and nothing else: a clock reading is a value that would have
- * to cross the boundary guard, and revisions already order the writes. Revision 00 is the page
- * opening, which is why the first receipt is revision 01.
+ * action and the answers it touched, and nothing else: a wall-clock reading is not needed, and the
+ * exact revision is already the session's deterministic order. Revision 00 is the page opening,
+ * which is why the first receipt is revision 02 in the underlying session.
  */
 function Timeline({ session }: { session: Session }) {
   return (
@@ -176,11 +220,11 @@ function Timeline({ session }: { session: Session }) {
           <p className="tl__what">the page opened</p>
         </li>
 
-        {session.receipts.map((receipt, index) => (
+        {session.receipts.map((receipt) => (
           <li key={receipt.id} className="tl__item">
             <span className="tl__dot" aria-hidden="true" />
             <p className="tl__rev">
-              revision <span className="num">{String(index + 1).padStart(2, "0")}</span>
+              revision <span className="num">{String(receipt.revision).padStart(2, "0")}</span>
             </p>
             <p className="tl__what">
               {ACTION_WORDING[receipt.action]}
@@ -207,10 +251,12 @@ export function AgentPanel({
   session,
   installation,
   oneColumn = false,
+  onRetry,
 }: {
   session: Session;
   installation: Installation | null;
   oneColumn?: boolean;
+  onRetry?: () => void;
 }) {
   // `explain_mark` needs an answer that has a mark. The first one in stack order is the one the
   // teacher's eye is already on; when nothing is marked the projection is omitted rather than
@@ -230,7 +276,7 @@ export function AgentPanel({
   // shells, one body: a phone gets a panel it opens, a wide screen gets a region that is simply there.
   const body = (
     <>
-      <Connection installation={installation} />
+      <Connection installation={installation} onRetry={onRetry} />
 
       <Tools />
 
@@ -314,8 +360,8 @@ export function AgentPanel({
         A browser agent reaches this page through <code className="how__code">document.modelContext</code>,
         which today is behind <code className="how__code">chrome://flags/#enable-webmcp-testing</code> in
         Chrome Canary. Turn it on, reload, and the box at the top of this column counts the
-        registrations. No browser agent has ever been watched reading these payloads — this is the
-        surface, exercised by hand and by test.
+        registrations. No natural-language model has been watched reading these payloads — the local
+        CDP harness exercises the transport, while this page remains usable by hand and by test.
       </p>
     </>
   );

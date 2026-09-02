@@ -1,4 +1,9 @@
-import { type Emphasis, type HoldReason, type MarkingPolicy } from "../domain/session.ts";
+import {
+  type Emphasis,
+  type HoldReason,
+  type MarkingPolicy,
+  type ReceiptAction,
+} from "../domain/session.ts";
 
 /**
  * Every hold reason, in three lengths. The short tag rides on a chip next to a name; the long
@@ -56,13 +61,12 @@ export const EMPHASIS_LABEL: Record<Emphasis, string> = {
  * column and by the revision timeline in the right, so the two cannot describe the same write in two
  * different sets of words.
  */
-export const ACTION_WORDING: Record<
-  "propose_marks" | "set_marking_emphasis" | "request_release",
-  string
-> = {
+export const ACTION_WORDING: Record<ReceiptAction, string> = {
   propose_marks: "marks proposed",
   set_marking_emphasis: "care setting raised",
   request_release: "release staged",
+  human_release_confirmed: "release confirmed by human",
+  human_release_declined: "release declined by human",
 };
 
 /**

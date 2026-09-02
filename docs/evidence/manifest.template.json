@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1",
+  "project": "withheld",
+  "status": "TEMPLATE_ONLY",
+  "finalCommitSha": "<final commit SHA>",
+  "sourceSha256": "<source tree SHA256>",
+  "buildSha256": "<production dist tree SHA256>",
+  "hostedUrl": "<public HTTPS URL>",
+  "provider": "<static hosting provider>",
+  "browser": "<browser product and version>",
+  "webmcpFlags": [
+    "<required WebMCP browser flag>"
+  ],
+  "modelClient": "<model and client, or none if not run>",
+  "runs": [],
+  "gateP2": {
+    "participantCount": 0,
+    "result": "not-run"
+  },
+  "limitations": [
+    "Replace every placeholder only with observed evidence.",
+    "Do not mark E4 achieved while any required gate is open."
+  ]
+}

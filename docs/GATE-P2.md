@@ -1,6 +1,7 @@
 # GATE-P2 — is the problem real to anyone but the author?
 
-**Status: not run.** This file is the instrument, not the result. Nothing in this repository should
+**Status: NOT RUN.** `docs/evidence/gate-p2-not-run.json` records the reason and rerun protocol.
+This file is the instrument, not the result. Nothing in this repository should
 be read as evidence about a teacher's workload until the "Result" section at the foot has been filled
 in with someone's actual answers.
 
@@ -46,7 +47,7 @@ gets recorded as a failure to communicate. A gate that the observer can talk the
 the observer.
 
 Running step 2 needs the page open in a browser, and that prerequisite is now met: `pnpm build &&
-pnpm browser` opens `dist/` in a headless Chromium and reports 37 checks green, so the page lays out
+pnpm browser` opens `dist/` in a headless Chromium and reports 44 checks green, so the page lays out
 and responds. What this gate still needs is a person who did not build it — twenty minutes of one,
 which is not something code can supply.
 
@@ -86,8 +87,8 @@ means the page is teaching something false.
 Since the introduction states that claim in the first paragraph on the page, note whether the answer
 comes back in the band's words or in the reader's own. An echo is a weaker pass than a paraphrase: it
 shows the sentence was read, not that the page was understood. If they point at something on the
-screen while answering — the struck-through tool row, the printed payloads, the zero in the band —
-record which, because that is the artefact doing the work.
+screen while answering — the tool list, the printed payloads, the human-only gate, or the zero in the
+band — record which, because that is the artefact doing the work.
 
 **Q4 — whether the demonstration convinces.** *"The page held five answers back for you. Do you
 believe it could not tell your agent which five? What would you need to see to believe it?"*

@@ -1,0 +1,15 @@
+{
+  "status": "UNKNOWN",
+  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "artifact": "accessibility-manual-review",
+  "project": "withheld",
+  "automatedEvidence": "browser-session.json records the accessibility tree, named controls, landmarks, focus order, keyboard traversal, contrast calculation, and reduced-motion source checks.",
+  "reason": "No independent screen-reader operator or representative real device was available for a manual session.",
+  "rerunProtocol": [
+    "Use keyboard-only navigation at desktop and mobile widths.",
+    "Repeat with a screen reader and record announcements for landmarks, live status, conflict, stage, decline, and confirm.",
+    "Check focus restoration after disclosure, conflict reload, decline, confirm, and browser refresh.",
+    "Record browser, OS, assistive technology, viewport, observed issue, and limitation; do not claim a manual pass from the automated tree."
+  ],
+  "notClaimed": "Automated accessibility evidence is not a substitute for manual screen-reader or device validation."
+}

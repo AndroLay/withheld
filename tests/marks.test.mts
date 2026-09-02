@@ -7,6 +7,7 @@ import {
   redactRubricForAgent,
   type Rubric,
 } from "../src/domain/marks.ts";
+import { SPOON_ANSWERS, SPOON_RUBRIC } from "../src/data/fixtures.ts";
 
 // Deliberately odd point values and boundary, so a leak test can look for the exact
 // numbers without colliding with ids, labels, or array indices.
@@ -96,4 +97,45 @@ test("distance from the boundary stays a page-side calculation", () => {
 
   assert.equal(distanceFromBoundary(RUBRIC, passing) >= 0, true);
   assert.equal(distanceFromBoundary(RUBRIC, failing) < 0, true);
+});
+
+test("computeMark preserves its invariants across duplicate and unknown input", () => {
+  const candidates = [
+    "line-light",
+    "line-water",
+    "line-glucose",
+    "unknown-a",
+    "unknown-b",
+  ];
+
+  for (let mask = 0; mask < 1 << candidates.length; mask += 1) {
+    const input = candidates.filter((_, index) => (mask & (1 << index)) !== 0);
+    const mark = computeMark(RUBRIC, {
+      answerId: "ans-property",
+      foundLineIds: [...input, ...input.slice(0, 2)],
+    });
+    const uniqueAwarded = new Set(mark.awardedLineIds);
+
+    assert.equal(uniqueAwarded.size, mark.awardedLineIds.length);
+    assert.equal(mark.awardedLineIds.every((id) => RUBRIC.lines.some((line) => line.id === id)), true);
+    assert.equal(
+      mark.total,
+      mark.awardedLineIds.reduce(
+        (total, id) => total + (RUBRIC.lines.find((line) => line.id === id)?.points ?? 0),
+        0,
+      ),
+    );
+  }
+});
+
+test("the synthetic fixture has unique, non-empty identities and positive page-owned values", () => {
+  const answerIds = new Set(SPOON_ANSWERS.map((answer) => answer.id));
+  const lineIds = new Set(SPOON_RUBRIC.lines.map((line) => line.id));
+
+  assert.equal(answerIds.size, SPOON_ANSWERS.length);
+  assert.equal(lineIds.size, SPOON_RUBRIC.lines.length);
+  assert.ok(SPOON_ANSWERS.every((answer) => answer.id && answer.studentAlias && answer.body));
+  assert.ok(SPOON_ANSWERS.every((answer) => answer.questionId === SPOON_RUBRIC.questionId));
+  assert.ok(SPOON_RUBRIC.lines.every((line) => line.id && line.label && line.points > 0));
+  assert.ok(SPOON_RUBRIC.passBoundary > SPOON_ANSWERS.length);
 });

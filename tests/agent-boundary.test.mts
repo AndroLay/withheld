@@ -84,6 +84,23 @@ test("wording that leaks nothing passes the canary", () => {
   assert.deepEqual(forbiddenNumbersInText(careful, PAGE_OWNED), []);
 });
 
+test("the runtime canary distinguishes untrusted answer text from generated prose", () => {
+  const answer = { answer: { body: "A student's answer contains 37." } };
+  const generated = { message: "The page generated 37 points." };
+
+  assert.deepEqual(forbiddenNumbersInText(answer, PAGE_OWNED, ["answer.body"]), []);
+  assert.deepEqual(forbiddenNumbersInText(generated, PAGE_OWNED), [37]);
+  assert.doesNotThrow(() =>
+    assertAgentSafe(answer, AGENT_SAFE_NUMERIC_PATHS, {
+      forbiddenNumbers: PAGE_OWNED,
+      ignoredTextPaths: ["answer.body"],
+    }),
+  );
+  assert.throws(() =>
+    assertAgentSafe(generated, AGENT_SAFE_NUMERIC_PATHS, { forbiddenNumbers: PAGE_OWNED }),
+  );
+});
+
 test("the redacted rubric is safe to hand to the agent", () => {
   const redacted = redactRubricForAgent(RUBRIC);
 

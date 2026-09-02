@@ -128,8 +128,8 @@ function Care({
 }
 
 /**
- * The receipt ledger. Every accepted write is in here whichever caller made it, which is the point: a
- * teacher can read back what an agent did without asking the agent.
+ * The receipt ledger. Every accepted state-changing action is in here whichever caller made it,
+ * which is the point: a teacher can read back what an agent or a human did without asking the agent.
  *
  * Two shapes, because an empty ledger has nothing to disclose. With no receipts it is a plain box — the
  * state the target image draws — and a disclosure marker on it would promise something to open.
@@ -273,5 +273,3 @@ export function Rail({
     </aside>
   );
 }
-
-\n

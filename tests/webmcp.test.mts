@@ -35,8 +35,11 @@ const EXPECTED_TOOLS = [
   "request_release",
 ];
 
-function makePort(): SessionPort & { current: () => Session } {
-  let session = createSession(SPOON_RUBRIC, SPOON_ANSWERS, { question: SPOON_QUESTION });
+function makePort(
+  answers = SPOON_ANSWERS,
+  question = SPOON_QUESTION,
+): SessionPort & { current: () => Session } {
+  let session = createSession(SPOON_RUBRIC, answers, { question });
 
   return {
     read: () => session,
@@ -83,6 +86,33 @@ test("every tool fits the documented description and name budgets", () => {
   }
 });
 
+test("every tool schema is closed, and bounded collections advertise their limits", () => {
+  const tools = buildWithheldTools(makePort());
+
+  for (const tool of tools) {
+    assert.equal(tool.inputSchema["additionalProperties"], false, `${tool.name} accepts extra input`);
+  }
+
+  const propose = byName(tools, "propose_marks");
+  const properties = propose.inputSchema["properties"] as Record<string, Record<string, unknown>>;
+  const findings = properties["findings"];
+  const item = findings["items"] as Record<string, unknown>;
+  const itemProperties = item["properties"] as Record<string, Record<string, unknown>>;
+  const operationId = properties["operationId"];
+
+  assert.equal(findings["minItems"], 1);
+  assert.equal(typeof findings["maxItems"], "number");
+  assert.equal(item["additionalProperties"], false);
+  assert.equal(itemProperties["foundLineIds"]["maxItems"] !== undefined, true);
+  assert.equal(itemProperties["answerId"]["maxLength"], 64);
+  assert.equal(operationId["maxLength"], 64);
+  assert.deepEqual(propose.inputSchema["required"], ["findings", "expectedRevision", "operationId"]);
+  for (const name of ["set_marking_emphasis", "request_release"]) {
+    const tool = byName(tools, name);
+    assert.ok((tool.inputSchema["required"] as string[]).includes("operationId"), `${name} needs operationId`);
+  }
+});
+
 test("six tools read and three write, and the readers say so", () => {
   const tools = buildWithheldTools(makePort());
   const readOnly = tools.filter((tool) => tool.annotations?.["readOnlyHint"] === true);
@@ -112,14 +142,14 @@ test("no tool on the whole surface can leak a page-owned number", async () => {
     ["describe_stack", {}],
     ["read_rubric", {}],
     ["read_answer", { answerId: "ans-04" }],
-    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: 1 }],
+    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: 1, operationId: "numbers-probe" }],
     ["describe_stack", {}],
     ["list_held_answers", {}],
     ["explain_mark", { answerId: "ans-04" }],
     ["explain_mark", { answerId: "ans-11" }],
     ["preview_unattended_outcome", {}],
-    ["set_marking_emphasis", { emphasis: "cautious", expectedRevision: 2 }],
-    ["request_release", { expectedRevision: 3 }],
+    ["set_marking_emphasis", { emphasis: "cautious", expectedRevision: 2, operationId: "care-probe" }],
+    ["request_release", { expectedRevision: 3, operationId: "release-probe" }],
     ["describe_stack", {}],
   ];
 
@@ -138,7 +168,11 @@ test("no tool on the whole surface can leak a page-owned number", async () => {
 test("a refusal comes back as a result with a code, not as a thrown error", async () => {
   const tools = buildWithheldTools(makePort());
   const payload = payloadOf(
-    await byName(tools, "propose_marks").execute({ findings: DEMO_FINDINGS, expectedRevision: 99 }),
+    await byName(tools, "propose_marks").execute({
+      findings: DEMO_FINDINGS,
+      expectedRevision: 99,
+      operationId: "stale-probe",
+    }),
   );
 
   assert.equal(payload["refused"], true);
@@ -152,12 +186,21 @@ test("arguments are checked in code, not trusted from the schema", async () => {
     ["read_answer", {}],
     ["read_answer", { answerId: 4 }],
     ["explain_mark", { answerId: "" }],
-    ["propose_marks", { findings: "all of them", expectedRevision: 1 }],
-    ["propose_marks", { findings: [{ answerId: "ans-01" }], expectedRevision: 1 }],
-    ["propose_marks", { findings: [{ answerId: "ans-01", foundLineIds: [7] }], expectedRevision: 1 }],
-    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: "1" }],
-    ["set_marking_emphasis", { emphasis: "lenient", expectedRevision: 1 }],
+    ["propose_marks", { findings: "all of them", expectedRevision: 1, operationId: "bad-findings" }],
+    ["propose_marks", { findings: [{ answerId: "ans-01" }], expectedRevision: 1, operationId: "missing-lines" }],
+    ["propose_marks", { findings: [{ answerId: "ans-01", foundLineIds: [7] }], expectedRevision: 1, operationId: "number-line" }],
+    ["propose_marks", { findings: [{ answerId: "ans-01", foundLineIds: ["rubric-not-present"] }], expectedRevision: 1, operationId: "unknown-rubric-line" }],
+    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: 1, operationId: "extra-field", extra: true }],
+    ["propose_marks", { findings: [{ answerId: "ans-01", foundLineIds: [] }, { answerId: "ans-01", foundLineIds: [] }], expectedRevision: 1, operationId: "duplicate-answer" }],
+    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: "1", operationId: "string-revision" }],
+    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: 1 }],
+    ["propose_marks", { findings: DEMO_FINDINGS, expectedRevision: 1, operationId: "" }],
+    ["describe_stack", { extra: true }],
+    ["set_marking_emphasis", { emphasis: "lenient", expectedRevision: 1, operationId: "bad-emphasis" }],
+    ["set_marking_emphasis", { emphasis: "standard", expectedRevision: 1, operationId: "extra-care", extra: true }],
     ["request_release", {}],
+    ["request_release", { expectedRevision: 1, operationId: "x".repeat(65) }],
+    ["request_release", { expectedRevision: 1, operationId: "extra-release", extra: true }],
   ];
 
   for (const [name, args] of rubbish) {
@@ -166,12 +209,101 @@ test("arguments are checked in code, not trusted from the schema", async () => {
   }
 });
 
+test("oversized and duplicate findings are refused before arithmetic runs", async () => {
+  const port = makePort();
+  const tools = buildWithheldTools(port);
+  const oversized = Array.from({ length: 50_000 }, () => ({ answerId: "ans-01", foundLineIds: [] }));
+
+  const result = await byName(tools, "propose_marks").execute({
+    findings: oversized,
+    expectedRevision: 1,
+    operationId: "oversized-findings",
+  });
+  const payload = payloadOf(result);
+
+  assert.equal(payload["refused"], true);
+  assert.equal(payload["code"], "invalid-argument");
+  assert.equal(port.current().revision, 1);
+  assert.deepEqual(port.current().marks, {});
+});
+
+test("an accepted operation id is single-use, even when a retry has the current revision", async () => {
+  const port = makePort();
+  const tools = buildWithheldTools(port);
+  const first = await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: 1,
+    operationId: "one-write-only",
+  });
+  const afterFirst = port.current();
+
+  const duplicate = await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: afterFirst.revision,
+    operationId: "one-write-only",
+  });
+
+  assert.equal(payloadOf(first)["refused"], undefined);
+  assert.equal(payloadOf(duplicate)["refused"], true);
+  assert.equal(payloadOf(duplicate)["code"], "duplicate-operation");
+  assert.equal(port.current().revision, afterFirst.revision);
+  assert.equal(port.current().receipts.length, afterFirst.receipts.length);
+  assert.equal(port.current().receipts[0]?.operationId, "one-write-only");
+});
+
+test("raw answer numbers are allowed only on the explicitly untrusted body path", async () => {
+  const answers = SPOON_ANSWERS.map((answer) =>
+    answer.id === "ans-01" ? { ...answer, body: "A note containing the number 17." } : answer,
+  );
+  const payload = payloadOf(
+    await byName(buildWithheldTools(makePort(answers)), "read_answer").execute({
+      answerId: "ans-01",
+    }),
+  );
+
+  assert.equal((payload["answer"] as { body: string }).body, "A note containing the number 17.");
+  assert.deepEqual(
+    forbiddenNumbersInText(payload, PAGE_OWNED_NUMBERS, ["answer.body"]),
+    [],
+  );
+});
+
+test("a generated page string containing owned arithmetic fails closed", async () => {
+  const tools = buildWithheldTools(makePort(SPOON_ANSWERS, "Question contains 17."));
+  const payload = payloadOf(await byName(tools, "describe_stack").execute({}));
+
+  assert.equal(payload["refused"], true);
+  assert.equal(payload["code"], "internal-error");
+  assert.doesNotMatch(JSON.stringify(payload), /17/);
+});
+
+test("unexpected tool failures return a recovery envelope instead of throwing", async () => {
+  const tools = buildWithheldTools({
+    read: () => {
+      throw new Error("private implementation detail");
+    },
+    write: () => {},
+  });
+
+  const payload = payloadOf(await byName(tools, "describe_stack").execute({}));
+
+  assert.deepEqual(payload, {
+    refused: true,
+    code: "internal-error",
+    message: "the tool could not complete; read the stack again and retry",
+  });
+});
+
 test("a write lands through the port and moves the revision on", async () => {
   const port = makePort();
   const tools = buildWithheldTools(port);
 
   const payload = payloadOf(
-    await byName(tools, "propose_marks").execute({ findings: DEMO_FINDINGS, expectedRevision: 1 }),
+    await byName(tools, "propose_marks").execute({
+      findings: DEMO_FINDINGS,
+      expectedRevision: 1,
+      operationId: "write-lands",
+    }),
   );
 
   assert.equal(port.current().revision, 2);
@@ -185,9 +317,16 @@ test("no sequence of tool calls can put a mark in front of a student", async () 
   const port = makePort();
   const tools = buildWithheldTools(port);
 
-  await byName(tools, "propose_marks").execute({ findings: DEMO_FINDINGS, expectedRevision: 1 });
+  await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: 1,
+    operationId: "mark-before-release",
+  });
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    await byName(tools, "request_release").execute({ expectedRevision: port.current().revision });
+    await byName(tools, "request_release").execute({
+      expectedRevision: port.current().revision,
+      operationId: `release-attempt-${attempt}`,
+    });
   }
 
   // Nine answers are ready and a request is on the page. Nothing has gone anywhere.
@@ -273,6 +412,29 @@ test("one tool failing to register does not hide the other eight", async () => {
   assert.deepEqual(installation.failures, [{ name: "explain_mark", reason: "blocked by policy" }]);
 });
 
+test("a partial registration exposes a retry without duplicating the successful tools", async () => {
+  let failedOnce = false;
+  const seen: string[] = [];
+  const context: ModelContextLike = {
+    registerTool: async (tool) => {
+      if (tool.name === "explain_mark" && !failedOnce) {
+        failedOnce = true;
+        throw new Error("temporary registration failure");
+      }
+      seen.push(tool.name);
+    },
+  };
+
+  const first = await installWithheldTools(makePort(), { context });
+  assert.equal(first.failures.length, 1);
+  assert.equal(typeof first.retry, "function");
+
+  const second = await first.retry!();
+  assert.deepEqual(second.failures, []);
+  assert.deepEqual(second.registered, EXPECTED_TOOLS);
+  assert.equal(seen.length, EXPECTED_TOOLS.length - 1 + EXPECTED_TOOLS.length);
+});
+
 
 
 
@@ -310,7 +472,11 @@ test("what the page prints as the agent's view is what the tools return", async 
   const port = makePort();
   const tools = buildWithheldTools(port);
 
-  await byName(tools, "propose_marks").execute({ findings: DEMO_FINDINGS, expectedRevision: 1 });
+  await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: 1,
+    operationId: "payload-parity",
+  });
 
   const session = port.current();
   const firstMarked = session.answers.find((answer) => session.marks[answer.id] !== undefined);

@@ -79,6 +79,7 @@ test("a release receipt names no answer the page picked, so the held set stays u
   const proposed = await byName(tools, "propose_marks").execute({
     findings: DEMO_FINDINGS,
     expectedRevision: 1,
+    operationId: "boundary-mark",
   });
   assert.ok(payloadOf(proposed)["receipt"], "the worked example should land");
 
@@ -87,6 +88,7 @@ test("a release receipt names no answer the page picked, so the held set stays u
 
   const result = await byName(tools, "request_release").execute({
     expectedRevision: session.revision,
+    operationId: "boundary-release",
   });
   const wire = JSON.stringify(payloadOf(result));
 
@@ -106,6 +108,7 @@ test("a receipt still echoes back the ids the agent itself sent", async () => {
   const result = await byName(tools, "propose_marks").execute({
     findings: [{ answerId: "ans-01", foundLineIds: ["l-conductor"] }],
     expectedRevision: 1,
+    operationId: "boundary-echo",
   });
 
   // The rule is about provenance, not about ids: what the agent supplied may come back, so

@@ -7,7 +7,7 @@ The gate is defined by this package's agent-boundary contract and regression tes
 the cheap same-origin equivalent of a cross-origin leak test; the historical research
 register is not an active submission dependency.
 
-**Run on 2026-09-01, on Node 26, against the source in this package.** The gate is driven by
+**Run on 2026-09-02, on Node 26, against the source in this package.** The gate is driven by
 tests and by reading the tool surface; **no browser agent was involved**, here or anywhere in
 this workspace, so everything below is a statement about what the tool surface can emit and
 not a recording of an agent failing to extract it.
@@ -31,30 +31,32 @@ full below so that a reader can disagree with the judgement rather than take it.
 | `set_marking_emphasis` | the same three | none |
 | `request_release` | the same three | none |
 
-`AGENT_SAFE_NUMERIC_PATHS` (`src/tools/agent-boundary.ts:32`) is that middle column, and
-`assertAgentSafe` (:80) throws on anything else. The right column has no such guard, which is
+`AGENT_SAFE_NUMERIC_PATHS` (`src/tools/agent-boundary.ts`) is that middle column, and
+`assertAgentSafe` throws on anything else. The right column has no such guard, which is
 where this gate earned its keep.
 
 ## Claim 1 — no result contains a point value or the boundary
 
-Enforced structurally rather than reviewed. `reply()` (`src/tools/webmcp.ts:73`) is the only
-constructor of a tool result and calls `assertAgentSafe` on every payload; `replyRefused` (:82)
-delegates to it, so refusal paths are guarded on the same code path as successes.
+Enforced structurally rather than reviewed. `reply()` in `src/tools/webmcp.ts` is the constructor
+for session-backed success and refusal payloads and calls `assertAgentSafe` on every one;
+`replyRefused` delegates to it, so refusal paths are guarded on the same code path as successes.
+The same wrapper scans generated text for live page-owned values, while `read_answer` explicitly
+marks only the raw student body as untrusted.
 
-- `tests/agent-boundary.test.mts` — 9 tests on the guard: the allowlist, nested and array
+- `tests/agent-boundary.test.mts` — 10 tests on the guard: the allowlist, nested and array
   paths, and that adding a number anywhere else throws.
 - `tests/webmcp.test.mts` — twelve tool calls in sequence, the stack marked part-way through
   so later results are computed from real marks and real holds, asserting after every one that
-  neither the structural check nor `forbiddenNumbersInText` (`agent-boundary.ts:99`) fires.
+  neither the structural check nor `forbiddenNumbersInText` in `agent-boundary.ts` fires.
 - `tests/views.test.mts` — the three agent-facing projections built from a session, each
   checked against both. The fourth, the rubric redaction itself, is checked in
   `tests/marks.test.mts` and again in `tests/agent-boundary.test.mts`.
 
 ## Claim 2 — no result names an answer held for sitting near the boundary
 
-`agentHoldReason` (`src/domain/session.ts:99`) returns `null` for `near-boundary`, so
-`agentVisibleHolds` (`src/domain/views.ts:106`) omits the answer rather than renaming it, and
-`stateOf` (`src/tools/webmcp.ts:144`) reports such an answer as `marked` like any other. The
+`agentHoldReason` in `src/domain/session.ts` returns `null` for `near-boundary`, so
+`agentVisibleHolds` in `src/domain/views.ts` omits the answer rather than renaming it, and
+`stateOf` in `src/tools/webmcp.ts` reports such an answer as `marked` like any other. The
 agent learns that *something* is held, from `heldCount`, and never which.
 
 - `tests/views.test.mts` — the named list is strictly shorter than `heldCount`, and
@@ -95,7 +97,7 @@ neither existing check could see it: an id is not a number, so the structural gu
 to test, and the ids are not the fixture's secret values, so the text canary does not fire.
 The twelve-call sweep passed with the leak in place.
 
-Fixed at `src/tools/webmcp.ts:181` — `committedPayload` now takes the ids to echo as an
+Fixed in `src/tools/webmcp.ts` — `committedPayload` now takes the ids to echo as an
 argument, and only `propose_marks` passes any: what the agent named may come back to it, what
 the page chose may not. `releasableCount` still says how many answers the request covers, which
 is the part the agent needs. Regression test: the first test in

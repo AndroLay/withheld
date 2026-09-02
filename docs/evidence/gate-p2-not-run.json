@@ -1,0 +1,17 @@
+{
+  "status": "NOT_RUN",
+  "evidenceClass": "UNKNOWN",
+  "artifact": "gate-p2",
+  "project": "withheld",
+  "participantCount": 0,
+  "reason": "No non-builder marker, reviewer, or workflow owner was available for an independent session.",
+  "privacy": "No participant identity or personal data is stored.",
+  "rerunProtocol": [
+    "Recruit one or more non-builder markers or workflow owners and obtain consent for a short recorded evaluation.",
+    "Show the clean page without explaining the implementation first.",
+    "Ask the participant to explain the problem, agent role, page authority, human release boundary, and the meaning of held/staged/released.",
+    "Have the participant complete or inspect one synthetic alias-only journey and state what was confusing.",
+    "Store verbatim responses, observed actions, interpretation, and limitations without real student data."
+  ],
+  "notClaimed": "No user comprehension, time saving, adoption, or impact result is claimed."
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1",
+  "project": "withheld",
+  "status": "UNKNOWN",
+  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "artifactState": "blocked",
+  "hostedUrl": null,
+  "reason": "No authorized public HTTPS deployment exists in this task. Deploying or publishing is explicitly out of scope.",
+  "requiredEnvironment": [
+    "Public HTTPS URL",
+    "Clean browser profile",
+    "Chrome 149+ with the WebMCP flag enabled"
+  ],
+  "rerun": {
+    "command": "pnpm build && node scripts/browser-session.mjs --preview-port <port> --port <cdp-port>",
+    "requiredChanges": [
+      "Replace the preview target with the public HTTPS URL.",
+      "Record provider, final commit SHA, source/build hashes, browser version, and flags.",
+      "Regenerate screenshots and retain raw console/network results."
+    ]
+  },
+  "notClaimed": [
+    "No hosted browser pass",
+    "No deployment or public availability",
+    "No final release manifest"
+  ]
+}
