@@ -1,17 +1,15 @@
 {
-  "status": "UNKNOWN",
-  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "status": "HISTORICAL_LOCAL",
+  "evidenceClass": "HISTORICAL_LOCAL",
   "artifact": "hosted-browser-session",
   "project": "withheld",
-  "ranAt": null,
-  "hostedUrl": null,
-  "reason": "Withheld has no hosted HTTPS URL, and deployment is explicitly outside this task's authorization.",
-  "localSubstitute": "docs/evidence/browser-session.json is local-only and must not be relabelled as hosted.",
+  "ranAt": "2026-09-03",
+  "hostedUrl": "https://androlay.github.io/withheld/",
+  "reason": "Pre-deployment placeholder retained for provenance only; the current hosted browser result is recorded in hosted-browser-session.json.",
+  "localSubstitute": "Use hosted-browser-session.json for the current hosted result; this file is not a replacement.",
   "rerunProtocol": [
-    "Deploy the final commit to a free public HTTPS static host with security response headers.",
-    "Open the exact hosted URL in a clean Chrome 149+ profile with the required WebMCP flags.",
-    "Run scripts/browser-session.mjs against that URL, capture browser/version/flags/URL/commit/source/build hashes, and retain raw screenshots.",
-    "Check no external request, console error, policy violation, uncaught exception, or responsive overflow occurs."
+    "Do not use this historical placeholder as the hosted browser pass.",
+    "If the hosted page changes, regenerate hosted-browser-session.json with the exact URL and build."
   ],
-  "notClaimed": "No hosted browser result is claimed by this artifact."
+  "notClaimed": "This historical placeholder is not the current hosted browser result."
 }

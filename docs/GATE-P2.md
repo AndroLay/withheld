@@ -46,11 +46,10 @@ question with the answer — "what does that mean?" gets "what do you think it m
 gets recorded as a failure to communicate. A gate that the observer can talk their way past measures
 the observer.
 
-Running step 2 needs the page open in a browser, and that prerequisite is now met: `pnpm build &&
-pnpm browser` opens `dist/` in a headless Chromium and reports 37 of its 44 checks green — the seven
-that fail are the script describing an older layout, each named in `docs/RUNBOOK.md` — so the page lays
-out and responds. What this gate still needs is a person who did not build it — twenty minutes of one,
-which is not something code can supply.
+Running step 2 needs the page open in a browser, and that prerequisite is now met: the published
+HTTPS page passes 43/43 browser checks in flagged Chromium, so the page lays out and responds.
+What this gate still needs is a person who did not build it — twenty minutes of one, which is not
+something code can supply.
 
 The page has since grown an introduction whose whole purpose is to say, in the first ten seconds, what
 Q3 asks a reader to say back (`docs/DECISIONS.md` D-24). That does not make this gate any less

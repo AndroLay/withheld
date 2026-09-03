@@ -20,43 +20,35 @@ minute to do both.
 
 | requirement | the rules' words | status | whose call |
 | --- | --- | --- | --- |
-| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **absent** | owner |
-| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` is complete for the local artifact but still has the live/repository placeholders | mine |
-| Public repository | source, assets and instructions "required for the project to be functional" | **absent** — no remote exists | owner |
+| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **verified** — <https://androlay.github.io/withheld/> returns the current Pages build and passed the hosted browser harness | done |
+| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — `docs/SUBMISSION-TEXT.md` and the winner-style draft now point at the hosted URL; owner must still review before pasting | mine |
+| Public repository | source, assets and instructions "required for the project to be functional" | **verified** — [AndroLay/withheld](https://github.com/AndroLay/withheld), source commit `93eee30` | done |
 | Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | file present, detection unverifiable until a repository exists | both |
 | A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — `src/tools/webmcp.ts:613-727`, nine tools | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
-| Free, unrestricted access through judging | no login needed; credentials required only if the site is private | the page needs no account and makes no network request; hosting is the open half | owner |
+| Free, unrestricted access through judging | no login needed; credentials required only if the site is private | verified — the page needs no account, makes no outbound request, and the hosted harness found no off-origin request | done |
 | English | everything in English or translated | **partial** — submission-facing copy and target-image notes are English; the internal audit registers still contain Indonesian notes and should not be presented as submission copy | mine |
 | New work, dated | new in the window, or an existing project meaningfully extended, "documented with dated evidence such as commit history" | done — every commit for this package is 2026-09-01 or later, and each touches only `submissions/withheld/` | done |
 | Eligibility and a Representative | tied to OpenAI's supported-countries list; a team or organisation names one authorised Representative | **unverified** — I have not checked the list, and the entrant is not me | owner |
 
 ## Blocked on the owner, and only on the owner
 
-Nothing below is started. Each is an outward-facing act, and the standing instruction in this
-workspace is that publication is the owner's decision, per instance, in their own words.
+Repository publication, GitHub Pages hosting, and hosted browser/native verification are complete.
+The remaining outward-facing decisions are:
 
-1. **A public repository.** `gh repo create`, or a remote and a push. The local candidate history includes source commit `8a228b8` and evidence refresh `8b0a3ae`, both authored by `AndroLay`; no remote exists.
-2. **Hosting.** GitHub Pages, Cloudflare Pages, Netlify, Vercel — any static host. The artefact is
-   already subpath-safe: `vite.config.ts` sets `base: "./"` and `dist/index.html` emits
-   `./assets/…`, so a project-page URL works without a rebuild.
-3. **The video.** Three minutes, with a voice on it. Nobody but the owner can record it.
-4. **The Devpost form.** Registration, the four description points, the URLs, and the status reading
+1. **The video.** Three minutes, with a voice on it. Nobody but the owner can record it.
+2. **The Devpost form.** Registration, the four description points, the URLs, and the status reading
    `Submitted` — which is the only state that counts.
-5. **Eligibility.** Confirming the entrant's country is on OpenAI's supported list, and being the
+3. **Eligibility.** Confirming the entrant's country is on OpenAI's supported list, and being the
    named Representative.
 
 ## Mine, and still undone
 
 - **The text description.** Drafted, not finished: `docs/SUBMISSION-TEXT.md` has all four points, the
-  judge's testing instructions and the list of things it must not claim, written against the page as
-  built here. What it does not have is a live URL, a repository URL, or a single sentence checked
-  against a hosted page. Both placeholders are marked, and step 5 below is when it stops being a
-  draft.
-- **The testing instructions** are updated for the local artifact: browser flags, the 44-check
-  session, the 19-check WebMCP dispatch, the 27-check failure/recovery journey, the concurrent-form
-  conflict, and the human release path. The artifacts explicitly say local/CDP, not hosted or model.
-  They still need one hosted-URL run before they can be called instructions for the final entry.
+  judge's instructions, the live URL, and the repository URL. The owner must still review the copy
+  against the hosted page before using it in Devpost.
+- **The testing instructions** now have hosted browser/native evidence: 43/43 browser checks and
+  19/19 WebMCP dispatch checks on the public URL. They still must not be described as model replay.
 - **`GATE-P2`.** Ten minutes with one person who did not build the page, four written questions, and an
   honest record of what they said. The instrument is `docs/GATE-P2.md`; what it needs is a person.
   This is the weakest criterion in the whole entry — Potential Impact rests on a problem I have
@@ -69,16 +61,10 @@ workspace is that publication is the owner's decision, per instance, in their ow
   sense read aloud, and no person other than the author has read the wording.
 - **Node 22 verification.** CI is pinned to it; every local run was Node 26. It has not run in this
   environment, so this remains open rather than a compatibility claim.
-- **`docs/evidence/` is one build behind the page.** Every artifact in there, and all four PNGs, bind
-  to the source and build that preceded the disclosure redesign (D-30), so their `sourceSha256` and
-  `buildSha256` no longer match `dist/`. The redesigned build was re-proved on 2026-09-02 with the
-  committed harnesses run from a throwaway root — 125 unit tests, 44 browser checks, 19 WebMCP
-  dispatches, 27 failure/recovery checks, all passing, 446 contrast pairs with none failing, 883 AX
-  nodes with 38 named and none unnamed — but nothing in `docs/evidence/` was rewritten, because the
-  three harness scripts and `checksums.txt` have uncommitted modifications in the working tree and a
-  refresh now would bind the sheet to scripts that are themselves unreviewed. Regenerate the whole
-  directory, checksums included, once those land; until then read the numbers here and in
-  `docs/DECISIONS.md` D-30 as the current ones and the sheet as history.
+- **`docs/evidence/` now includes hosted artifacts.** The hosted browser report records 43/43 checks;
+  the hosted native report records 19/19 dispatch checks and nine registered tools. Local recovery
+  and agent-view artifacts remain explicitly local. Every generated report records its own source
+  and build hashes; no report is evidence of a model-selected replay.
 - **Blocked evidence is recorded.** `docs/evidence/` contains explicit blocked/not-run artifacts
   for hosted browser, hosted WebMCP, natural-language replay, GATE-P2, manual accessibility, and
   performance. These are not substitutes for the missing gates.
@@ -90,8 +76,8 @@ The dependencies are real, not preferences:
 1. **`GATE-P2` first**, because it is the only item that can still change the page. If the person who
    reads it cannot say what the page is for, the description and the video would be built on a
    misunderstanding, and both are expensive to redo.
-2. **Publish the repository**, because the licence requirement is about a repository page and the video
-   will show a URL.
+2. **Review the published repository and description**, because the licence requirement is about a
+   repository page and the video will show a URL.
 3. **Host, then open the hosted URL in a clean browser** — ChatGPT's in-app browser or Chrome 149+ with
    `chrome://flags/#enable-webmcp-testing`. A local run proves nothing about a host: the CSP travels in
    a meta tag, `base: "./"` has never been served from a subpath, and `document.modelContext` requires

@@ -1,27 +1,1487 @@
 {
-  "schemaVersion": "1",
-  "project": "withheld",
-  "status": "UNKNOWN",
-  "evidenceClass": "ENVIRONMENT_BLOCKED",
-  "artifactState": "blocked",
-  "hostedUrl": null,
-  "reason": "No authorized public HTTPS deployment exists in this task. Deploying or publishing is explicitly out of scope.",
-  "requiredEnvironment": [
-    "Public HTTPS URL",
-    "Clean browser profile",
-    "Chrome 149+ with the WebMCP flag enabled"
+  "status": "VERIFIED_RUN",
+  "evidenceClass": "VERIFIED_ARTIFACT",
+  "scope": "hosted production build in flagged Chromium; not model-selected",
+  "ranAt": "2026-09-03T07:44:04.631Z",
+  "evidence": {
+    "gitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
+    "workingTreeDirty": false,
+    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
+    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "node": "v26.4.0",
+    "browserFlags": [
+      "--enable-experimental-web-platform-features",
+      "--enable-features=WebMCPTesting"
+    ],
+    "artifactSha256": {
+      "docs/evidence/browser-1440-marked.png": "e4c1ffd1bc67d03390a772d07ed879438380bc6c5566b0fa01f8497c7a3c3b3a",
+      "docs/evidence/browser-fold-1487.png": "36828c83585503795192b6307fdb37b9c2ff4106e8e4e8126f257db27e70f94b",
+      "docs/evidence/browser-1440-staged.png": "2bb50b8dfc2d9632f3aea2a8fe5b0f8007a1a1c0636099e9fafe1dcf7b3409b7",
+      "docs/evidence/browser-420-staged.png": "f2f8625e2435cd63db3c3319e1dfadffbf1efaa8a184acdd78e4abcba6ac6fe5"
+    }
+  },
+  "browser": "Chrome/151.0.7922.137",
+  "protocol": "1.3",
+  "url": "https://androlay.github.io/withheld/",
+  "passed": 43,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "the page mounts and lays out as a grid",
+      "passed": true,
+      "detail": "322px 761px 357px"
+    },
+    {
+      "name": "three columns at 1440px",
+      "passed": true,
+      "detail": "3 tracks: 322px 761px 357px"
+    },
+    {
+      "name": "the band opens the page and its four figures run across",
+      "passed": true,
+      "detail": "74px tall, 4 figures on 1 row"
+    },
+    {
+      "name": "the band prints the session's own figures and keeps view controls separate from marking",
+      "passed": true,
+      "detail": "figures read 14/0/0/0, 2 buttons in the band"
+    },
+    {
+      "name": "the page draws one of each region and three slabs",
+      "passed": true,
+      "detail": "5 regions, 3 slabs"
+    },
+    {
+      "name": "the queue shows the class and says how many rows are visible",
+      "passed": true,
+      "detail": "14 rows, foot reads \"14 of 14\""
+    },
+    {
+      "name": "the action bar is pinned rather than in the flow",
+      "passed": true,
+      "detail": "sticky"
+    },
+    {
+      "name": "nothing spills sideways at 1440px",
+      "passed": true,
+      "detail": "0px over"
+    },
+    {
+      "name": "nothing carries an inline style attribute",
+      "passed": true,
+      "detail": "0 found"
+    },
+    {
+      "name": "send is locked before anything is staged",
+      "passed": true,
+      "detail": "disabled=true"
+    },
+    {
+      "name": "no paragraph is crushed into a narrow column",
+      "passed": true,
+      "detail": "narrowest 200px of 26: \"The page owns the decision.\""
+    },
+    {
+      "name": "the audit draws two rails per marked hold",
+      "passed": true,
+      "detail": "8 fills"
+    },
+    {
+      "name": "every rail above the empty stop has width",
+      "passed": true,
+      "detail": "0 broken, 0 unclassed, narrowest 257px, widest 308px"
+    },
+    {
+      "name": "the stops resolve to lengths that differ",
+      "passed": true,
+      "detail": "4 distinct widths across 8 rails"
+    },
+    {
+      "name": "the band's figures move with the marking",
+      "passed": true,
+      "detail": "figures read 14/13/5/0"
+    },
+    {
+      "name": "five accounts are in the audit rail",
+      "passed": true,
+      "detail": "5 entries"
+    },
+    {
+      "name": "the agent panel lists nine registered tools",
+      "passed": true,
+      "detail": "9 rows"
+    },
+    {
+      "name": "a concurrent manual write blocks a stale row draft",
+      "passed": true,
+      "detail": "draft={\"ok\":true,\"opened\":{\"ok\":true,\"open\":true},\"before\":false,\"after\":true,\"disabled\":false}, external={\"ok\":true,\"before\":\"02\",\"disabled\":false}, state={\"revision\":\"03\",\"conflict\":true,\"saveDisabled\":true}"
+    },
+    {
+      "name": "the stale row recovers only after reloading current state",
+      "passed": true,
+      "detail": "reload=true, recovered={\"conflict\":false,\"saveDisabled\":false}"
+    },
+    {
+      "name": "a successful row save does not conflict with its own form",
+      "passed": true,
+      "detail": "draft={\"ok\":true,\"before\":false,\"after\":true,\"disabled\":false}, save={\"ok\":true,\"before\":\"03\",\"disabled\":false}, state={\"revision\":\"04\",\"conflict\":false,\"saveDisabled\":false}"
+    },
+    {
+      "name": "the contract column is not a panel at 1440px",
+      "passed": true,
+      "detail": "0 folds found"
+    },
+    {
+      "name": "every text pair on the page meets its WCAG threshold",
+      "passed": true,
+      "detail": "593 text pairs, worst 4.8:1 on p.ifnobody__note (needs 4.5)"
+    },
+    {
+      "name": "every control and heading in the accessibility tree arrives with a name",
+      "passed": true,
+      "detail": "57 named nodes"
+    },
+    {
+      "name": "the heading outline is walkable: one level 1, no level skipped",
+      "passed": true,
+      "detail": "14 headings in document order, levels 1/2/3"
+    },
+    {
+      "name": "the page hands over its landmarks",
+      "passed": true,
+      "detail": "banner, main, 3 complementary; no contentinfo — the footnote is scoped inside the work"
+    },
+    {
+      "name": "the live region reaches the tree as a status",
+      "passed": true,
+      "detail": "1 status regions, first says \"\""
+    },
+    {
+      "name": "staging a release turns the bar",
+      "passed": true,
+      "detail": "bar--waiting true"
+    },
+    {
+      "name": "focus moves to the bar's heading, not its send button",
+      "passed": true,
+      "detail": "{\"tag\":\"h2\",\"id\":\"gate-title\",\"className\":\"bar__title\",\"text\":\"Human authority — a release is waiting\"}"
+    },
+    {
+      "name": "send unlocks only once a release is staged",
+      "passed": true,
+      "detail": "disabled=false"
+    },
+    {
+      "name": "declining a staged release clears it and records the human decision",
+      "passed": true,
+      "detail": "staged=false, release declined by human"
+    },
+    {
+      "name": "a declined release can be staged again",
+      "passed": true,
+      "detail": "staged=true"
+    },
+    {
+      "name": "confirming through the human control records the final release",
+      "passed": true,
+      "detail": "staged=false, revision=08, last timeline revision=8"
+    },
+    {
+      "name": "the keyboard reaches the page",
+      "passed": true,
+      "detail": "14 of 14 tab stops focused something"
+    },
+    {
+      "name": "nothing spills sideways at 420px",
+      "passed": true,
+      "detail": "0px over, 1 grid tracks"
+    },
+    {
+      "name": "the contract column is a panel at 420px, closed on arrival",
+      "passed": true,
+      "detail": "open=false, 0 of 9 tool rows visible (9 still hold a box), panel 110px on a 110px summary"
+    },
+    {
+      "name": "pressing it opens the whole contract, and pressing it again closes it",
+      "passed": true,
+      "detail": "110px shut, 2501px open, 9 of 9 rows"
+    },
+    {
+      "name": "the page raised no policy violation of its own",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "no console error and no uncaught exception",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "nothing left the expected origin",
+      "passed": true,
+      "detail": "4 requests, 0 off-site"
+    },
+    {
+      "name": "an inline script is blocked by the policy",
+      "passed": true,
+      "detail": "ran=false"
+    },
+    {
+      "name": "an inline style attribute is blocked by the policy",
+      "passed": true,
+      "detail": "applied=false"
+    },
+    {
+      "name": "the served policy names nine directives",
+      "passed": true,
+      "detail": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
+    },
+    {
+      "name": "the browser logged the two blocks",
+      "passed": true,
+      "detail": "2 violations after the probes"
+    }
   ],
-  "rerun": {
-    "command": "pnpm build && node scripts/browser-session.mjs --preview-port <port> --port <cdp-port>",
-    "requiredChanges": [
-      "Replace the preview target with the public HTTPS URL.",
-      "Record provider, final commit SHA, source/build hashes, browser version, and flags.",
-      "Regenerate screenshots and retain raw console/network results."
+  "snapshots": {
+    "fresh": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
+      "toolRows": 9,
+      "auditEntries": 0,
+      "inlineStyled": 0,
+      "revision": "01",
+      "marked": 0,
+      "bars": {
+        "fills": 0,
+        "widths": [],
+        "atZeroStop": 0,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 9999,
+        "widest": 0
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 761px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "0",
+          "0",
+          "0"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "spillers": []
+      },
+      "staged": false,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority"
+        }
+      ],
+      "prose": {
+        "count": 26,
+        "narrowest": {
+          "width": 200,
+          "text": "The page owns the decision."
+        }
+      },
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened"
+      ],
+      "timelineRevisions": [
+        0
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "body",
+        "id": null,
+        "className": "",
+        "text": "WithheldMarking workspacerevision 01Held for rev"
+      }
+    },
+    "marked": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "02",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          308,
+          282,
+          282,
+          282,
+          257,
+          282,
+          0,
+          282
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 257,
+        "widest": 308
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 761px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "0"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "spillers": []
+      },
+      "staged": false,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority"
+        }
+      ],
+      "prose": {
+        "count": 29,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "body",
+        "id": null,
+        "className": "",
+        "text": "WithheldMarking workspacerevision 02Held for rev"
+      }
+    },
+    "staged": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "05",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          448,
+          308,
+          420,
+          308,
+          280,
+          308,
+          0,
+          308
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 280,
+        "widest": 448
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 808px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "9"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1487,
+        "clientWidth": 1487,
+        "spillers": []
+      },
+      "staged": true,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority — a release is waiting"
+        }
+      ],
+      "prose": {
+        "count": 32,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": false,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers",
+        "marks proposed · 1 answers",
+        "marks proposed · 1 answers",
+        "release staged · 9 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4,
+        5
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "h2",
+        "id": "gate-title",
+        "className": "bar__title",
+        "text": "Human authority — a release is waiting"
+      }
+    },
+    "declined": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "06",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          410,
+          282,
+          385,
+          282,
+          257,
+          282,
+          0,
+          282
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 257,
+        "widest": 410
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 761px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "0"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "spillers": []
+      },
+      "staged": false,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority"
+        }
+      ],
+      "prose": {
+        "count": 33,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers",
+        "marks proposed · 1 answers",
+        "marks proposed · 1 answers",
+        "release staged · 9 answers",
+        "release declined by human"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "h2",
+        "id": "gate-title",
+        "className": "bar__title",
+        "text": "Human authority"
+      }
+    },
+    "stagedAgain": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "07",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          410,
+          282,
+          385,
+          282,
+          257,
+          282,
+          0,
+          282
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 257,
+        "widest": 410
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 761px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "9"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "spillers": []
+      },
+      "staged": true,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority — a release is waiting"
+        }
+      ],
+      "prose": {
+        "count": 34,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": false,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers",
+        "marks proposed · 1 answers",
+        "marks proposed · 1 answers",
+        "release staged · 9 answers",
+        "release declined by human",
+        "release staged · 9 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "h2",
+        "id": "gate-title",
+        "className": "bar__title",
+        "text": "Human authority — a release is waiting"
+      }
+    },
+    "confirmed": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 20,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "08",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          410,
+          282,
+          385,
+          282,
+          257,
+          282,
+          0,
+          282
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 257,
+        "widest": 410
+      },
+      "grid": {
+        "display": "grid",
+        "columns": "322px 761px 357px"
+      },
+      "band": {
+        "height": 74,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "0"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "spillers": []
+      },
+      "staged": false,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority"
+        }
+      ],
+      "prose": {
+        "count": 35,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers",
+        "marks proposed · 1 answers",
+        "marks proposed · 1 answers",
+        "release staged · 9 answers",
+        "release declined by human",
+        "release staged · 9 answers",
+        "release confirmed by human · 9 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "h2",
+        "id": "gate-title",
+        "className": "bar__title",
+        "text": "Human authority"
+      }
+    },
+    "narrow": {
+      "title": "Withheld — the page hands back only what you must decide",
+      "regions": {
+        "work": 1,
+        "rail": 1,
+        "contract": 1,
+        "queue": 1,
+        "audit": 1,
+        "slabs": 3
+      },
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 20,
+      "toolRows": 9,
+      "auditEntries": 5,
+      "inlineStyled": 0,
+      "revision": "08",
+      "marked": 14,
+      "bars": {
+        "fills": 8,
+        "widths": [
+          144,
+          99,
+          135,
+          99,
+          90,
+          99,
+          0,
+          99
+        ],
+        "atZeroStop": 1,
+        "brokenStops": [],
+        "unclassed": 0,
+        "narrowestAbove": 90,
+        "widest": 144
+      },
+      "grid": {
+        "display": "block",
+        "columns": "none"
+      },
+      "band": {
+        "height": 217,
+        "aboveColumns": true,
+        "counts": 4,
+        "countRows": 1,
+        "buttons": 2,
+        "figures": [
+          "14",
+          "13",
+          "5",
+          "0"
+        ]
+      },
+      "barPosition": "sticky",
+      "overflow": {
+        "scrollWidth": 420,
+        "clientWidth": 420,
+        "spillers": []
+      },
+      "staged": false,
+      "focusWho": null,
+      "headings": [
+        {
+          "level": 1,
+          "name": "Marking queue"
+        },
+        {
+          "level": 2,
+          "name": "Why the page held these"
+        },
+        {
+          "level": 2,
+          "name": "What this page cannot know"
+        },
+        {
+          "level": 2,
+          "name": "What if the page were more careful?"
+        },
+        {
+          "level": 3,
+          "name": "If nobody had looked"
+        },
+        {
+          "level": 2,
+          "name": "Policy"
+        },
+        {
+          "level": 2,
+          "name": "Who can do what"
+        },
+        {
+          "level": 2,
+          "name": "How a mark gets made"
+        },
+        {
+          "level": 3,
+          "name": "It reads the pile"
+        },
+        {
+          "level": 3,
+          "name": "It names ideas, not marks"
+        },
+        {
+          "level": 3,
+          "name": "The page does the sums"
+        },
+        {
+          "level": 3,
+          "name": "You send them, or you don't"
+        },
+        {
+          "level": 2,
+          "name": "Agent contract"
+        },
+        {
+          "level": 2,
+          "name": "Human authority"
+        }
+      ],
+      "prose": {
+        "count": 15,
+        "narrowest": {
+          "width": 1,
+          "text": "13 of 14 answers marked. 5 held back for"
+        }
+      },
+      "sendDisabled": true,
+      "timelineActions": [
+        "the page opened",
+        "marks proposed · 14 answers",
+        "marks proposed · 1 answers",
+        "marks proposed · 1 answers",
+        "release staged · 9 answers",
+        "release declined by human",
+        "release staged · 9 answers",
+        "release confirmed by human · 9 answers"
+      ],
+      "timelineRevisions": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "focusConflict": false,
+      "focusSaveDisabled": null,
+      "active": {
+        "tag": "a",
+        "id": null,
+        "className": "cell cell--held",
+        "text": "10"
+      }
+    }
+  },
+  "contrast": {
+    "pairs": 593,
+    "skippedForImage": 5,
+    "skippedInvisible": 453,
+    "worst": {
+      "ratio": 4.8,
+      "needs": 4.5,
+      "size": 11.5,
+      "weight": 400,
+      "color": "rgb(107, 107, 115)",
+      "background": "rgb(244, 244, 245)",
+      "where": "p.ifnobody__note",
+      "text": "The page is not saying any of those is w"
+    },
+    "thinnest": [
+      "4.8:1 p.ifnobody__note",
+      "4.8:1 span.ledger__label",
+      "4.8:1 span.ledger__scope"
+    ],
+    "failures": [],
+    "failureCount": 0
+  },
+  "fold": {
+    "exists": true,
+    "rows": 9,
+    "summaryText": "Agent contractLanguage in. Arithmetic stays here.Open it: the tool list, the payloads, the one thing no tool can doClose it",
+    "shut": {
+      "open": false,
+      "column": 110,
+      "rows": 0,
+      "rowsWithBoxes": 9,
+      "head": 110
+    },
+    "shown": {
+      "open": true,
+      "column": 2501,
+      "rows": 9,
+      "rowsWithBoxes": 9
+    },
+    "closedAgain": false
+  },
+  "accessibility": {
+    "nodes": 1139,
+    "named": 57,
+    "unnamed": [],
+    "outline": [
+      "h1 Marking queue",
+      "h2 Why the page held these",
+      "h2 What this page cannot know",
+      "h2 What if the page were more careful?",
+      "h3 If nobody had looked",
+      "h2 Policy",
+      "h2 Who can do what",
+      "h2 How a mark gets made",
+      "h3 It reads the pile",
+      "h3 It names ideas, not marks",
+      "h3 The page does the sums",
+      "h3 You send them, or you don't",
+      "h2 Agent contract",
+      "h2 Human authority"
+    ],
+    "landmarks": [
+      "banner",
+      "main",
+      "complementary"
+    ],
+    "complementary": 3,
+    "contentinfo": "absent by design; the footnote is a note about the work and sits inside main",
+    "liveRegions": [
+      ""
     ]
   },
-  "notClaimed": [
-    "No hosted browser pass",
-    "No deployment or public availability",
-    "No final release manifest"
-  ]
+  "enforcement": {
+    "inlineScriptRan": false,
+    "styleAttributeApplied": false,
+    "policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; form-action 'none'; base-uri 'none'"
+  },
+  "modelContext": {
+    "present": true,
+    "on": "document",
+    "tools": [
+      "describe_stack",
+      "explain_mark",
+      "list_held_answers",
+      "preview_unattended_outcome",
+      "propose_marks",
+      "read_answer",
+      "read_rubric",
+      "request_release",
+      "set_marking_emphasis"
+    ],
+    "note": null
+  },
+  "tabOrder": [
+    {
+      "tag": "a",
+      "id": null,
+      "className": "top__act",
+      "text": "Held for review"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "top__act top__act--hard",
+      "text": "Human release"
+    },
+    {
+      "tag": "button",
+      "id": null,
+      "className": "lens__btn lens__btn--on",
+      "text": "Your view"
+    },
+    {
+      "tag": "button",
+      "id": null,
+      "className": "lens__btn",
+      "text": "Agent's view"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "01"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "02"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--held",
+      "text": "03"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--held",
+      "text": "04"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--held cell--secret",
+      "text": "05"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "06"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "07"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "08"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--sent",
+      "text": "09"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--held",
+      "text": "10"
+    }
+  ],
+  "requests": {
+    "total": 4,
+    "offsite": []
+  },
+  "consoleErrors": [],
+  "policyViolations": {
+    "beforeProbes": [],
+    "afterProbes": 2
+  },
+  "screenshots": {
+    "marked": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-marked.png",
+    "fold": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-fold-1487.png",
+    "staged": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-staged.png",
+    "narrow": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-420-staged.png"
+  },
+  "notClaimed": "This run reads the WebMCP registry; it does not let a model call a tool. No browser agent has driven these tools. Contrast here is arithmetic on what the cascade composed, not a judgement about whether the page reads well; the accessibility tree is what a screen reader would be handed, not a recording of one speaking. Wording has been read by nobody but the author."
 }

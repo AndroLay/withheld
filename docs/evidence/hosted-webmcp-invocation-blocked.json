@@ -1,17 +1,15 @@
 {
-  "status": "UNKNOWN",
-  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "status": "HISTORICAL_LOCAL",
+  "evidenceClass": "HISTORICAL_LOCAL",
   "artifact": "hosted-webmcp-invocation",
   "project": "withheld",
-  "ranAt": null,
-  "hostedUrl": null,
-  "reason": "There is no authorized hosted URL on which to repeat the native WebMCP registry and dispatch run.",
-  "localSubstitute": "docs/evidence/webmcp-invocation.json and native-registry.json are local/CDP artifacts, not hosted evidence.",
+  "ranAt": "2026-09-03",
+  "hostedUrl": "https://androlay.github.io/withheld/",
+  "reason": "Pre-deployment placeholder retained for provenance only; the current hosted native WebMCP result is recorded in hosted-webmcp-invocation.json.",
+  "localSubstitute": "Use hosted-webmcp-invocation.json and native-registry.json for the current hosted result; this file is not a replacement.",
   "rerunProtocol": [
-    "Use the exact final hosted URL and the same final source/build hashes as hosted-browser-session.",
-    "Run scripts/webmcp-invoke.mjs with that URL in a clean flagged browser profile; do not use a hand-written registry or a model transcript as a substitute.",
-    "Verify exactly nine tools, closed schemas, annotations, real state movement, refusal/recovery, no confirm_release, and no off-site request.",
-    "Store raw invocation payloads and screenshot references, then bind them to the final manifest."
+    "Do not use this historical placeholder as the hosted native WebMCP pass.",
+    "If the hosted page changes, regenerate hosted-webmcp-invocation.json and native-registry.json."
   ],
-  "notClaimed": "No hosted native WebMCP invocation result is claimed by this artifact."
+  "notClaimed": "This historical placeholder is not the current hosted native WebMCP result."
 }

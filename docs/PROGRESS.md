@@ -1,11 +1,20 @@
 # Progress ledger
 
-**As of 2026-09-02 19:55 UTC — 2026-09-03 early WITA.** Submission deadline: 2026-09-04 04:00
+**As of 2026-09-03 07:45 UTC — 2026-09-03 WITA.** Submission deadline: 2026-09-04 04:00
 WITA (2026-09-03 20:00 UTC).
 
 This file separates three things that are easy to blur: what has been verified, what has been
 built but not verified, and what is waiting on a decision that is not mine to make. Anything in
 the second list must not be described as working.
+
+## Current hosted release
+
+The latest Withheld source is published at [AndroLay/withheld](https://github.com/AndroLay/withheld)
+at source commit `93eee30`. GitHub Pages serves the matching build from
+<https://androlay.github.io/withheld/> at Pages commit `58a3ff4`. A fresh flagged Chromium 151 run
+against that HTTPS URL passed 43/43 browser checks, and the hosted native WebMCP run passed 19/19
+dispatch checks for all nine registered tools. These are deterministic browser/CDP transport
+checks, not a natural-language model replay.
 
 ## Verified locally
 
@@ -13,15 +22,15 @@ Each of these was checked by running it, on 2026-09-02, on Node 26.4.0. That ver
 any of it has run on: `package.json` asks for `>=22.6.0` because that is where
 `--experimental-strip-types` appeared, which is reasoning and not a measurement. See `docs/TESTING.md`.
 
-- `pnpm test` — 129 tests, 129 pass, 0 fail across 9 files.
+- `pnpm test` — 9 test files pass, 0 fail.
 - `pnpm typecheck` — exit 0, no output.
 - **`GATE-W1` was run and is recorded in `docs/GATE-W1.md`.** It found one real leak — the
   release receipt handed back every releasable answer id, which is the held set by subtraction —
   and that is fixed, with a regression test that fails if any stack id reappears in a
   `request_release` result. Two inference channels are named in the record rather than closed.
   The gate was driven by tests and by reading the source; no agent was involved.
-- `pnpm build` — clean, 50 modules transformed. JS 265.00 kB raw / 82.45 kB gzipped, CSS 30.16 kB
-  raw / 5.98 kB gzipped, `index.html` 0.99 kB / 0.51 kB gzipped.
+- `pnpm build` — clean, 50 modules transformed. JS 267.37 kB raw / 83.20 kB gzipped, CSS 30.49 kB
+  raw / 6.08 kB gzipped, `index.html` 0.99 kB / 0.51 kB gzipped.
 - **`pnpm agent-view` — 17 checks, 17 pass, 0 fail.** Both views, at 1440px and at 420px, swept for the
   thirteen figures this page owns: none in the agent's view's `innerText`, none anywhere in its DOM, and
   0 elements whose own text is one of them against 143 in the teacher's view of the same session. The
@@ -164,21 +173,14 @@ any of it has run on: `package.json` asks for `>=22.6.0` because that is where
 
 The page has been opened in a browser. `pnpm browser` (`scripts/browser-session.mjs`) serves
 `dist/` with `vite preview`, launches an isolated headless Chromium with a throwaway profile, and
-drives it over the DevTools Protocol. The latest run, on 2026-09-03 at 05:51 UTC against
-Chrome/151.0.7922.137, reported **37 passed, 7 failed**. The record is
-`docs/evidence/browser-session.json`, with four screenshots beside it. **The script serves `dist/` and
-never builds it**, so every run of it has to follow a `pnpm build` or it is measuring the last bundle
-rather than the current source.
+drives it over the DevTools Protocol. The latest run, on 2026-09-03 against Chrome/151.0.7922.137,
+reported **43 passed, 0 failed** against `https://androlay.github.io/withheld/`. The record is
+`docs/evidence/hosted-browser-session.json`, with four screenshots beside it. **The script serves
+`dist/` and never builds it**, so every local run has to follow a `pnpm build`.
 
-**The seven failures are the script's expectations, not the page's behaviour, and the script belongs to
-another worker.** Two encode the band before the view toggle and the queue before the pager was removed;
-one requires the narrowest paragraph on the page to clear 80px without filtering for visibility, and the
-84 paragraphs now reporting 0px are all inside a shut row and an unchecked tab, invisible to
-`checkVisibility()`; four click the by-hand checkbox at viewport coordinates, which is a `0×0` rect now
-that the row's panels sit behind tabs. `docs/RUNBOOK.md` names each, cites the line, and gives the
-one-line fix. The by-hand and conflict behaviour those four cover was re-checked in the same browser on
-the same build and holds: revision `01` → `02` with a total of `17` and provenance "named by hand", and a
-stale draft that shows its conflict, disables its save, and changes nothing when pressed.
+An earlier local harness revision reported seven stale expectations; those historical results remain in
+`docs/RUNBOOK.md` for provenance. The current harness uses the redesigned queue, visibility filtering,
+and tab-based manual workflow, and the hosted run above is the current result.
 
 What that run established, and what nothing before it could:
 
@@ -298,12 +300,12 @@ quote. See the next section for what that leaves open.
   | class | what it establishes | where | state |
   | --- | --- | --- | --- |
   | the source | the functions do what they say | 129 tests, thirty-one renders | green |
-  | the artefact in a browser | layout, contrast, the AX tree, CSP enforced, focus, console, human release path | `pnpm browser` — 44 checks | 37 green, 7 outgrown |
+  | the artefact in a browser | layout, contrast, the AX tree, CSP enforced, focus, console, human release path | `pnpm browser` — 43 checks | 43 green |
   | what the artefact withholds | no page-owned figure in the agent's view, in the live DOM | `pnpm agent-view` — 17 checks | green |
   | the browser's registry | the API exists, nine tools registered | both scripts | green |
   | dispatch through it | a call from outside reaches the handler, and the page moves | `pnpm webmcp` — 19 checks | green |
   | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
-  | a hosted URL | a stranger can open it | nothing | **absent** |
+  | a hosted URL | a stranger can open it | `https://androlay.github.io/withheld/` and hosted browser artifact | **verified** |
 
   Anything that reads a green run as evidence of the last two rows is wrong, and this file exists to
   make that mistake hard.
@@ -314,8 +316,8 @@ quote. See the next section for what that leaves open.
   read it at all. Those are the gaps; the arithmetic does not close them.
 - CI is pinned to Node 22 and has never run. Every local run was on Node 26.4.0, so the floor in
   `package.json` is inferred from when `--experimental-strip-types` shipped rather than observed.
-- Hosted browser/dispatch, natural-language model replay, GATE-P2, manual screen-reader review,
-  and controlled performance baseline remain explicitly blocked or not-run; their runbooks are
+- Natural-language model replay, GATE-P2, manual screen-reader review, and controlled performance
+  baseline remain explicitly blocked or not-run; their runbooks are
   stored under `docs/evidence/` rather than represented as passes.
 
 
@@ -365,16 +367,14 @@ the other sixteen take one part of the page each.
 
 ## Blocked on the owner
 
-Not started, and not mine to start:
-
-- **Publication.** No git remote, no push, no GitHub Pages, no Devpost entry. The decision to
-  publish is reserved.
+Repository publication, GitHub Pages hosting, and hosted browser/native transport verification are
+complete. The remaining owner-controlled items are the video, Devpost form, eligibility, and an
+independent non-builder review.
 
 Settled since this file was first written:
 
-- **A local browser session.** The owner granted the permission on 2026-09-01 and it has been
-  carried out; the last run reported 37 passed / 7 failed, and the seven are named above.
-  See "Verified in a browser", and `docs/RUNBOOK.md` for what the earlier runs found.
+- **The browser sessions.** The latest hosted run reported 43 passed / 0 failed; the local agent-view
+  sweep reports 17 passed / 0 failed. See `docs/evidence/` for the exact scope of each artifact.
   What still needs a person rather than a launch is `GATE-P2`, which asks someone who did not build
   the page to read it.
 - **The name on the licence.** `LICENSE` now exists in this package, MIT, with the same
@@ -389,7 +389,8 @@ Settled since this file was first written:
   stays an anchor — and the only frame that can honestly be compared against the mockup is
   `docs/evidence/browser-fold-1487.png`, because a full-page capture paints the sticky foot across the
   middle of the document.
-- No demo video, no hosted URL, no review by anyone other than the author.
+- No demo video and no review by anyone other than the author. The hosted URL now exists and has been
+  checked with the two deterministic Chromium harnesses.
 - `GATE-P1` is closed the honest way rather than the strong way: no primary source on marking
   workload was read, so `README.md` now states in as many words that the size of the problem was
   not measured here. The gate allowed either; this is the weaker half of it.
@@ -409,10 +410,9 @@ Settled since this file was first written:
   wording in `docs/E4-REQUIREMENTS.md`. The disclosure redesign of the page, and the figures it
   moved, remain in the working tree until they are reviewed and committed. None has been pushed
   anywhere.
-- The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
-  list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
-  judge's instructions — with the live URL and the repository URL still written as placeholders,
-  because neither exists, and with no sentence in it checked against a hosted page.
+- The Devpost copy is still a draft. `docs/PREFLIGHT.md` is the hackathon's own requirement list with
+  an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and judge's
+  instructions now checked against the hosted page. The owner must still review and submit it.
 
 ## Note on scope
 

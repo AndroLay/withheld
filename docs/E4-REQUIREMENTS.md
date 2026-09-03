@@ -44,28 +44,25 @@ three minutes. See the [Official Rules](https://webmcp.devpost.com/rules).
 | Tool surface | nine tools: six read, `propose_marks`, `set_marking_emphasis`, `request_release` | source/browser PASS |
 | Registration | browser artifact records nine tools under Chrome 151 WebMCP flags | local native registry PASS |
 | External dispatch | browser artifact records 19 checks, including read/write, unknown rubric-line, stale, duplicate, injection, and no-confirm paths | local CDP dispatch PASS |
-| Browser UI | browser artifact records 44 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | local browser PASS |
-| Stored artifacts | `docs/evidence/browser-session.json`, `native-registry.json`, `webmcp-invocation.json`, `failure-recovery.json`, blocked runbooks, and screenshots exist | local artifacts PASS; source candidate `8a228b8` and hashes are recorded; no final hosted manifest |
+| Browser UI | hosted browser artifact records 43 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | hosted browser PASS |
+| Stored artifacts | `docs/evidence/hosted-browser-session.json`, `hosted-webmcp-invocation.json`, `native-registry.json`, `failure-recovery.json`, blocked runbooks, and screenshots exist | hosted/local artifacts PASS; source commit `93eee30` and hashes are recorded; no final manifest |
 | Model-selected replay | no model has chosen a tool or composed arguments in the repository evidence | UNKNOWN |
-| Hosted URL | preflight and progress state that no public deployment exists | UNKNOWN |
+| Hosted URL | `https://androlay.github.io/withheld/` is reachable and passed the hosted browser/native harnesses | hosted transport PASS; model-selected replay remains UNKNOWN |
 | GATE-P2 | instrument exists, but no non-builder session/result is recorded | NOT RUN |
 | Node/CI | stored evidence is Node 26; Node 22/CI has not run | open |
-| Current fresh test run | 125/125 assertions across 9 files, typecheck, build, 44 browser checks, 19 native dispatch checks, and 27 recovery checks pass on writable Node 26.4.0 | local PASS; Node 22/CI open |
-| Provenance | package/root worktree is dirty and no public remote is configured | open |
+| Current fresh test run | 9/9 test files, typecheck, build, 43 hosted browser checks, 19 hosted native dispatch checks, and 27 local recovery checks pass on writable Node 26.4.0 | hosted/local PASS; Node 22/CI open |
+| Provenance | public repository and Pages URL are recorded; final manifest and entrant-specific evidence remain open | partial |
 
 ### 2.2 Current classification
 
-Withheld is **A-quality-potential and E3-like local dispatch evidence**, but it is
+Withheld is **A-quality-potential with hosted native dispatch evidence**, but it is
 not E4. The existing artifacts prove that a browser-side external caller can reach
 the page and that the page moves safely. They explicitly do not prove that a model
 found the page, selected among nine tools, or composed valid arguments.
 
-The existing artifacts are bound to source candidate `8a228b8` and a localhost URL. The
-browser capture observed a clean target before its output was written; later native/recovery
-captures report `workingTreeDirty: true` because earlier evidence JSON files had already been
-regenerated. The current Withheld target is clean at its documentation/evidence HEAD, but these
-are still local artifacts rather than a final hosted manifest. They must be regenerated from the
-final committed hosted build before being used for an E4 claim.
+The hosted artifacts are bound to source commit `93eee30`, the Pages artifact `58a3ff4`, and the
+published HTTPS URL. They prove hosted browser/native transport, not a model-selected replay,
+independent learner validation, Node 22/CI, manual accessibility, performance, or a final manifest.
 
 ## 3. E4 gates
 

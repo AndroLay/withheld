@@ -1,10 +1,10 @@
 {
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
-  "scope": "local loopback Chromium native WebMCP registry; not hosted and not model-selected",
-  "ranAt": "2026-09-03T07:40:11.918Z",
+  "scope": "hosted Chromium native WebMCP registry; not model-selected",
+  "ranAt": "2026-09-03T07:44:25.439Z",
   "evidence": {
-    "gitSha": "d01cc2e2932331dc2cc203e0a69d782b1223b716",
+    "gitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
     "workingTreeDirty": true,
     "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
     "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
@@ -17,7 +17,7 @@
   },
   "browser": "Chrome/151.0.7922.137",
   "protocol": "1.3",
-  "url": "http://127.0.0.1:4183/",
+  "url": "https://androlay.github.io/withheld/",
   "toolCount": 9,
   "tools": [
     {
@@ -84,5 +84,5 @@
       "hasInputSchema": true
     }
   ],
-  "notClaimed": "This is a local native-registry observation from the flagged Chromium run. It does not prove a model-selected replay or judge-client compatibility."
+  "notClaimed": "This is a hosted native-registry observation from the flagged Chromium run. It does not prove a model-selected replay or judge-client compatibility."
 }

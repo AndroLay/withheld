@@ -6,7 +6,7 @@ The package documents each answer a different question, with one directory of ev
 | --- | --- |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | how it is built, and why the seams are where they are |
 | [DECISIONS.md](DECISIONS.md) | why it is built that way, one numbered decision at a time |
-| [TESTING.md](TESTING.md) | what the 129 tests, 44 browser checks (37 passing, 7 outgrown), 17 two-view checks, 19 native dispatch checks, and 27 recovery checks prove — and what they do not |
+| [TESTING.md](TESTING.md) | what the test files, 43 hosted browser checks, 17 two-view checks, 19 native dispatch checks, and 27 recovery checks prove — and what they do not |
 | [GATE-W1.md](GATE-W1.md) | whether an agent could derive the points or the pass boundary |
 | [GATE-P2.md](GATE-P2.md) | whether the problem is real to anyone but the author. Not run |
 | [RUNBOOK.md](RUNBOOK.md) | how to run it, and what to look at once it is running |

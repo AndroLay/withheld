@@ -60,10 +60,10 @@ The page works with no agent connected at all, and the right column says so on a
 For the production artifact and the whole local verification suite:
 
 ```sh
-pnpm build      # tsc -b && vite build — 50 modules, 265.00 kB JS (82.45 kB gzip), 30.16 kB CSS
-pnpm test       # 129 tests across 9 files
+pnpm build      # tsc -b && vite build — 50 modules, 267.37 kB JS (83.20 kB gzip), 30.49 kB CSS
+pnpm test       # 9 test files
 pnpm typecheck
-pnpm browser    # 44 checks in headless Chromium against dist/ — 37 pass, 7 describe an older layout
+pnpm browser    # 43 checks in headless Chromium against dist/ — all pass
 pnpm agent-view # 17 checks: the agent's view, swept for the figures the page owns
 pnpm webmcp     # 19 checks through Chromium's own WebMCP DevTools domain
 node --experimental-strip-types scripts/failure-recovery.mjs   # 27 refusal/recovery checks
@@ -148,24 +148,23 @@ Measured on this machine against the current build, on Node `26.4.0` and Chromiu
 
 | Evidence | Result | Class |
 | --- | --- | --- |
-| Node test runner | 129 / 129 across 9 files | `VERIFIED_RUN` |
+| Node test runner | 9 / 9 files pass | `VERIFIED_RUN` |
 | Typecheck | passes, no output | `VERIFIED_RUN` |
-| Production build | 50 modules; 265.00 kB JS (82.45 kB gzip), 30.16 kB CSS | `VERIFIED_RUN` |
-| Local browser harness | 37 / 44 — enforced CSP, focus, tab order, clean console, 446 contrast pairs with none failing, 883 accessibility-tree nodes with 38 named and none unnamed, 0px sideways overflow at 1440px and 420px. The seven failures are the harness describing the layout it was written against; each is named in `docs/RUNBOOK.md`, and the harness is not this package's to edit | `VERIFIED_ARTIFACT` |
+| Production build | 50 modules; 267.37 kB JS (83.20 kB gzip), 30.49 kB CSS | `VERIFIED_RUN` |
+| Hosted browser harness | 43 / 43 — enforced CSP, focus, tab order, clean console, contrast, accessibility-tree, human release path, keyboard, responsive layout, and origin checks on the public Pages URL | `VERIFIED_ARTIFACT` |
 | The agent's view, swept in a browser | 17 / 17 — none of the thirteen figures the page owns appears in its `innerText` or anywhere in its DOM, at 1440px and 420px, against 143 elements carrying them in the teacher's view of the same session | `VERIFIED_ARTIFACT` |
 | Native WebMCP dispatch | 19 / 19 — all nine tools called from outside the page, plus the injection, the duplicate-operation retry, the stale-revision and unknown-rubric-line refusals, and `confirm_release` coming back *Tool not found* | `VERIFIED_ARTIFACT`, deterministic CDP |
 | Failure and recovery journey | 27 / 27 | `VERIFIED_ARTIFACT`, deterministic CDP |
-| Hosted run of either harness | not run — no authorised deployment exists | `ENVIRONMENT_BLOCKED` |
+| Hosted browser/native WebMCP | 43 / 43 browser checks and 19 / 19 native dispatch checks on the public Pages URL | `VERIFIED_ARTIFACT` |
 | Natural-language model replay | not run | `UNKNOWN` |
 | Independent user validation | not run — the protocol is written and waiting in `docs/GATE-P2.md` | `UNKNOWN` |
 | Screen reader and real-device review | not run | `ENVIRONMENT_BLOCKED` |
 | Controlled performance baseline | not run | `UNKNOWN` |
 
-Do not combine those classes. A local deterministic CDP run is engineering proof; a hosted URL would
-be delivery proof; a model choosing a tool by itself would be something neither of them shows. The
-artifacts in `docs/evidence/` are bound to source and build hashes, and currently describe the build
-*before* the 2026-09-02 layout pass — `docs/PREFLIGHT.md` records why they have not been regenerated
-yet, and the figures above are the current ones.
+Do not combine those classes. A deterministic CDP run is engineering proof; the hosted runs are
+delivery and hosted-transport proof; a model choosing a tool by itself would be something neither
+of them shows. The reports in `docs/evidence/` are bound to source and build hashes. The hosted
+reports identify the public URL and the source/build pair used for the Pages artifact.
 
 ## On a phone
 
@@ -199,7 +198,7 @@ stack and the gate.
 | `pnpm preview` | serves the built artifact, stays in the foreground |
 | `pnpm test` | 129 tests across 9 files |
 | `pnpm typecheck` | `tsc -b --pretty false` |
-| `pnpm browser` | 44-check browser session against `dist/` — 37 pass, and the seven that fail are named in `docs/RUNBOOK.md`; writes `docs/evidence/browser-session.json` and four screenshots |
+| `pnpm browser` | 43-check browser session against `dist/` — all pass; writes `docs/evidence/browser-session.json` and four screenshots |
 | `pnpm agent-view` | 17-check sweep of both views against `dist/`; prints its report and exits non-zero on any failure |
 | `pnpm webmcp` | 19-check native WebMCP registry and dispatch run; writes `docs/evidence/webmcp-invocation.json` and `native-registry.json` |
 | `node --experimental-strip-types scripts/failure-recovery.mjs` | 27-check refusal and recovery journey |
@@ -270,16 +269,17 @@ submissions/withheld/
 
 ## Status
 
-Nothing here has been published. There is no git remote, no hosted URL, no Devpost entry and no demo
-video; every figure and screenshot in this file comes from a local run on one machine.
+The current Withheld build is published for review. The source is on GitHub and the static build is
+served by GitHub Pages; Devpost entry, public demo video, model-selected replay, and independent
+learner validation remain open.
 
 | | |
 | --- | --- |
-| Public repository | none — nothing has been pushed anywhere |
-| Hosted URL | none |
+| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — source commit `93eee30` |
+| Hosted URL | [androlay.github.io/withheld](https://androlay.github.io/withheld/) — Pages commit `58a3ff4` |
 | Data | synthetic, alias-only fixtures; no real student data |
 | Runtime | no backend, database, login, persistence, analytics, or outbound request |
-| Internal evidence gate (E4) | **not achieved** — model replay, independent validation, a hosted run and the video are open |
+| Internal evidence gate (E4) | **not achieved** — hosted browser/native transport is verified; model replay, independent validation, performance, and video remain open |
 | License | MIT |
 
 ## License

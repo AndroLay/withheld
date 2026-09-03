@@ -15,6 +15,23 @@ Vite/package/TypeScript config, local lockfile, `src/`, and `scripts/`); it deli
 depend on the root workspace lockfile so the package can be published standalone. Browser/CDP calls
 below are deterministic local evidence, not model replay.
 
+## Hosted verification (2026-09-03)
+
+After source commit `93eee305573cf80c4e52db4bc45331777a71ae65` was pushed to
+[AndroLay/withheld](https://github.com/AndroLay/withheld), the matching build was published to
+GitHub Pages at <https://androlay.github.io/withheld/> in Pages commit
+`58a3ff42ca17d9fdef6bcad0800ea2244e0884f9`. The exact HTTPS page was then checked with the same
+flagged Chromium 151 harnesses:
+
+| command | exit code | result/artifact |
+| --- | ---: | --- |
+| `node scripts/browser-session.mjs --url https://androlay.github.io/withheld/` | 0 | 43/43 hosted checks; `hosted-browser-session.json`, screenshots, and the canonical browser report |
+| `node scripts/webmcp-invoke.mjs --url https://androlay.github.io/withheld/` | 0 | 19/19 hosted native WebMCP dispatch checks; `hosted-webmcp-invocation.json` and `native-registry.json` |
+
+The hosted artifacts record the URL, browser flags, source/build hashes, request-origin checks, and
+their explicit non-claims. This proves hosted browser and native transport behavior, not a model
+choosing tools and not learner or screen-reader validation.
+
 ## Commands and results
 
 | command | exit code | result/artifact |
@@ -41,7 +58,6 @@ the source/build hashes and tested source commit remain explicit.
 
 - Node 22 fresh-install verification and GitHub Actions CI: Node 22 is not installed and CI was not
   invoked.
-- Hosted browser/native WebMCP: no hosted URL exists; no deployment or push was performed.
 - Natural-language model replay: no authorized model/client session exists; deterministic CDP calls
   are explicitly excluded.
 - GATE-P2, manual screen-reader/device review, and representative performance baseline: no suitable

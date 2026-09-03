@@ -4,7 +4,8 @@
 
 **Use:** copy-ready English narrative for the WebMCP submission form.
 
-**Owner must still fill:** `[LIVE_URL_PENDING_OWNER]`, `[REPOSITORY_URL_PENDING_OWNER]`, and `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` after the hosted build and video are verified.
+**Owner must still fill:** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` after the hosted build and video are verified. The current hosted URL and public repository are:
+`https://androlay.github.io/withheld/` and `https://github.com/AndroLay/withheld`.
 
 ## Title
 
@@ -128,7 +129,7 @@ than implying a classroom deployment that has not happened.
 
 ## Testing instructions for judges
 
-Open **[LIVE_URL_PENDING_OWNER]** in Chrome 149+ with WebMCP enabled, or use ChatGPT's in-app
+Open **https://androlay.github.io/withheld/** in Chrome 149+ with WebMCP enabled, or use ChatGPT's in-app
 browser after the hosted run is verified. No account or API key should be required.
 
 1. Press **Mark all from the worked example** and compare the page-owned totals with the contract
@@ -159,8 +160,8 @@ submission.
 
 ## Submission fields to fill after verification
 
-- **Live URL:** `[LIVE_URL_PENDING_OWNER]`
-- **Public repository:** `[REPOSITORY_URL_PENDING_OWNER]`
+- **Live URL:** `https://androlay.github.io/withheld/`
+- **Public repository:** `https://github.com/AndroLay/withheld`
 - **Demo video (public YouTube, < 3 minutes):** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]`
 - **License/rights:** MIT code; confirm that every final visual, voice, music, and video element is
   original or licensed.

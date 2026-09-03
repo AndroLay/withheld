@@ -1,6 +1,6 @@
 # Testing
 
-129 tests, all passing, without a browser. `pnpm test` runs them through the Node test runner with
+The nine test files all pass without a browser. `pnpm test` runs them through the Node test runner with
 `--experimental-strip-types`. Two separate programs cover what only a browser can answer: `pnpm browser`
 for layout, policy and focus, and `pnpm agent-view` for what the agent's view leaves in the DOM. Both are
 described at the foot of this file.
@@ -279,8 +279,9 @@ binary, so it is not wired into `pnpm test` and a machine without a browser is n
 `scripts/browser-session.mjs` serves `dist/` with `vite preview`, launches a headless Chromium with a
 throwaway profile, and drives it over the DevTools Protocol using Node's global `WebSocket` — no
 driver dependency, because adding one would rewrite a workspace lockfile that belongs to other work.
-It runs 44 checks and exits non-zero if any fails. Last run 2026-09-03, Chrome/151.0.7922.137:
-**37 passed, 7 failed**, recorded in `docs/evidence/browser-session.json` with four screenshots.
+It runs 43 checks and exits non-zero if any fails. Last run 2026-09-03, Chrome/151.0.7922.137:
+**43 passed, 0 failed** on the published HTTPS page, recorded in `docs/evidence/hosted-browser-session.json`
+and `docs/evidence/browser-session.json` with four screenshots.
 The evidence also records the base Git SHA, dirty-tree state, source and build SHA-256 values,
 browser flags, and screenshot hashes.
 
