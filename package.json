@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --pretty false",
     "browser": "node scripts/browser-session.mjs",
+    "agent-view": "node scripts/agent-view.mjs",
     "webmcp": "node scripts/webmcp-invoke.mjs",
     "test": "node --experimental-strip-types --test tests/marks.test.mts tests/agent-boundary.test.mts tests/session.test.mts tests/views.test.mts tests/webmcp.test.mts tests/boundary-inference.test.mts tests/styles.test.mts tests/contrast.test.mts tests/render.test.mts"
   },

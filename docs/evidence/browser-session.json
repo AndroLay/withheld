@@ -1,29 +1,29 @@
 {
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
-  "scope": "hosted production build in flagged Chromium; not model-selected",
-  "ranAt": "2026-09-02T18:28:40.290Z",
+  "scope": "local production build in flagged Chromium; not hosted and not model-selected",
+  "ranAt": "2026-09-03T07:39:52.556Z",
   "evidence": {
-    "gitSha": "53cc3cfe3d5ab64feb9d233054598015bf1c4ce8",
-    "workingTreeDirty": false,
-    "sourceSha256": "ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118",
-    "buildSha256": "b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d",
+    "gitSha": "d01cc2e2932331dc2cc203e0a69d782b1223b716",
+    "workingTreeDirty": true,
+    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
+    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",
       "--enable-features=WebMCPTesting"
     ],
     "artifactSha256": {
-      "docs/evidence/browser-1440-marked.png": "33f4de92404cc9b869cacfabcae653c06ab8a88f1c63681bcd830d884c0597f2",
-      "docs/evidence/browser-fold-1487.png": "0186f4118b9018b0a40b3db58ea7ebc57b3c74794af79c14688b6e16b0ec6980",
-      "docs/evidence/browser-1440-staged.png": "7e6c7dedd259417acba9e9605b7f07878f80d3616efd868bcef6b6031124f5a8",
-      "docs/evidence/browser-420-staged.png": "b4e185bcfc93ccb0fecb930fd0a64954a867af812667aaaf0a990baf95dc4262"
+      "docs/evidence/browser-1440-marked.png": "e4c1ffd1bc67d03390a772d07ed879438380bc6c5566b0fa01f8497c7a3c3b3a",
+      "docs/evidence/browser-fold-1487.png": "36828c83585503795192b6307fdb37b9c2ff4106e8e4e8126f257db27e70f94b",
+      "docs/evidence/browser-1440-staged.png": "2bb50b8dfc2d9632f3aea2a8fe5b0f8007a1a1c0636099e9fafe1dcf7b3409b7",
+      "docs/evidence/browser-420-staged.png": "f2f8625e2435cd63db3c3319e1dfadffbf1efaa8a184acdd78e4abcba6ac6fe5"
     }
   },
   "browser": "Chrome/151.0.7922.137",
   "protocol": "1.3",
-  "url": "https://androlay.github.io/withheld/",
-  "passed": 44,
+  "url": "http://127.0.0.1:4173/",
+  "passed": 43,
   "failed": 0,
   "checks": [
     {
@@ -42,9 +42,9 @@
       "detail": "74px tall, 4 figures on 1 row"
     },
     {
-      "name": "the band prints the session's own figures and holds no control",
+      "name": "the band prints the session's own figures and keeps view controls separate from marking",
       "passed": true,
-      "detail": "figures read 14/0/0/0, 0 buttons in the band"
+      "detail": "figures read 14/0/0/0, 2 buttons in the band"
     },
     {
       "name": "the page draws one of each region and three slabs",
@@ -52,9 +52,9 @@
       "detail": "5 regions, 3 slabs"
     },
     {
-      "name": "the queue shows one page of the class and says which",
+      "name": "the queue shows the class and says how many rows are visible",
       "passed": true,
-      "detail": "3 rows, foot reads \"Showing 1–3 of 14\""
+      "detail": "14 rows, foot reads \"14 of 14\""
     },
     {
       "name": "the action bar is pinned rather than in the flow",
@@ -79,7 +79,7 @@
     {
       "name": "no paragraph is crushed into a narrow column",
       "passed": true,
-      "detail": "narrowest 200px of 42: \"The page owns the decision.\""
+      "detail": "narrowest 200px of 26: \"The page owns the decision.\""
     },
     {
       "name": "the audit draws two rails per marked hold",
@@ -112,24 +112,19 @@
       "detail": "9 rows"
     },
     {
-      "name": "manual drafts can be reset before a concurrent edit",
+      "name": "a concurrent manual write blocks a stale row draft",
       "passed": true,
-      "detail": "3 drafts reset, focused conflict=false"
+      "detail": "draft={\"ok\":true,\"opened\":{\"ok\":true,\"open\":true},\"before\":false,\"after\":true,\"disabled\":false}, external={\"ok\":true,\"before\":\"02\",\"disabled\":false}, state={\"revision\":\"03\",\"conflict\":true,\"saveDisabled\":true}"
     },
     {
-      "name": "a concurrent manual write blocks a stale focused draft",
+      "name": "the stale row recovers only after reloading current state",
       "passed": true,
-      "detail": "prepared={\"ok\":true,\"before\":false,\"disabled\":false,\"opened\":true,\"x\":419,\"y\":406.390625,\"after\":true}, ready={\"checked\":true,\"disabled\":false}, submitted={\"ok\":true,\"before\":\"02\",\"disabled\":false,\"x\":471.9375,\"y\":406.203125,\"nativeSubmit\":true,\"after\":\"03\",\"notice\":null,\"counts\":[\"14\",\"13\",\"5\",\"0\"],\"focus\":\"Theo\"}, conflict=true, save disabled=true"
+      "detail": "reload=true, recovered={\"conflict\":false,\"saveDisabled\":false}"
     },
     {
-      "name": "the focused form recovers only after reloading current state",
+      "name": "a successful row save does not conflict with its own form",
       "passed": true,
-      "detail": "reload=true, conflict=false, save disabled=false"
-    },
-    {
-      "name": "a successful manual save does not conflict with its own form",
-      "passed": true,
-      "detail": "input={\"ok\":true,\"before\":true,\"disabled\":false}, save={\"ok\":true,\"before\":\"03\",\"disabled\":false,\"x\":445.9375,\"y\":406.265625}, revision=04, conflict=false"
+      "detail": "draft={\"ok\":true,\"before\":false,\"after\":true,\"disabled\":false}, save={\"ok\":true,\"before\":\"03\",\"disabled\":false}, state={\"revision\":\"04\",\"conflict\":false,\"saveDisabled\":false}"
     },
     {
       "name": "the contract column is not a panel at 1440px",
@@ -139,17 +134,17 @@
     {
       "name": "every text pair on the page meets its WCAG threshold",
       "passed": true,
-      "detail": "443 text pairs, worst 4.8:1 on p.ifnobody__note (needs 4.5)"
+      "detail": "593 text pairs, worst 4.8:1 on p.ifnobody__note (needs 4.5)"
     },
     {
       "name": "every control and heading in the accessibility tree arrives with a name",
       "passed": true,
-      "detail": "43 named nodes"
+      "detail": "57 named nodes"
     },
     {
       "name": "the heading outline is walkable: one level 1, no level skipped",
       "passed": true,
-      "detail": "18 headings in document order, levels 1/2/3"
+      "detail": "14 headings in document order, levels 1/2/3"
     },
     {
       "name": "the page hands over its landmarks",
@@ -209,7 +204,7 @@
     {
       "name": "pressing it opens the whole contract, and pressing it again closes it",
       "passed": true,
-      "detail": "110px shut, 2792px open, 9 of 9 rows"
+      "detail": "110px shut, 2501px open, 9 of 9 rows"
     },
     {
       "name": "the page raised no policy violation of its own",
@@ -258,9 +253,9 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 16,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
       "toolRows": 9,
       "auditEntries": 0,
       "inlineStyled": 0,
@@ -284,7 +279,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "0",
@@ -299,15 +294,11 @@
         "spillers": []
       },
       "staged": false,
-      "focusWho": "Rowan",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Rowan"
         },
         {
           "level": 2,
@@ -332,18 +323,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -375,7 +354,7 @@
         }
       ],
       "prose": {
-        "count": 42,
+        "count": 26,
         "narrowest": {
           "width": 200,
           "text": "The page owns the decision."
@@ -389,7 +368,7 @@
         0
       ],
       "focusConflict": false,
-      "focusSaveDisabled": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "body",
         "id": null,
@@ -407,14 +386,14 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 16,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "02",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
@@ -442,7 +421,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -457,15 +436,11 @@
         "spillers": []
       },
       "staged": false,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -490,18 +465,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -533,7 +496,7 @@
         }
       ],
       "prose": {
-        "count": 56,
+        "count": 29,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -549,7 +512,7 @@
         2
       ],
       "focusConflict": false,
-      "focusSaveDisabled": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "body",
         "id": null,
@@ -567,20 +530,20 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 16,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "05",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
-          336,
+          448,
           308,
-          308,
+          420,
           308,
           280,
           308,
@@ -591,7 +554,7 @@
         "brokenStops": [],
         "unclassed": 0,
         "narrowestAbove": 280,
-        "widest": 336
+        "widest": 448
       },
       "grid": {
         "display": "grid",
@@ -602,7 +565,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -617,15 +580,11 @@
         "spillers": []
       },
       "staged": true,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -650,18 +609,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -693,7 +640,7 @@
         }
       ],
       "prose": {
-        "count": 60,
+        "count": 32,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -714,8 +661,8 @@
         4,
         5
       ],
-      "focusConflict": true,
-      "focusSaveDisabled": true,
+      "focusConflict": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "h2",
         "id": "gate-title",
@@ -733,20 +680,20 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 16,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "06",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
-          308,
+          410,
           282,
-          282,
+          385,
           282,
           257,
           282,
@@ -757,7 +704,7 @@
         "brokenStops": [],
         "unclassed": 0,
         "narrowestAbove": 257,
-        "widest": 308
+        "widest": 410
       },
       "grid": {
         "display": "grid",
@@ -768,7 +715,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -783,15 +730,11 @@
         "spillers": []
       },
       "staged": false,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -816,18 +759,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -859,7 +790,7 @@
         }
       ],
       "prose": {
-        "count": 61,
+        "count": 33,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -882,8 +813,8 @@
         5,
         6
       ],
-      "focusConflict": true,
-      "focusSaveDisabled": true,
+      "focusConflict": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "h2",
         "id": "gate-title",
@@ -901,20 +832,20 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 16,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 56,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "07",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
-          308,
+          410,
           282,
-          282,
+          385,
           282,
           257,
           282,
@@ -925,7 +856,7 @@
         "brokenStops": [],
         "unclassed": 0,
         "narrowestAbove": 257,
-        "widest": 308
+        "widest": 410
       },
       "grid": {
         "display": "grid",
@@ -936,7 +867,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -951,15 +882,11 @@
         "spillers": []
       },
       "staged": true,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -984,18 +911,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -1027,7 +942,7 @@
         }
       ],
       "prose": {
-        "count": 62,
+        "count": 34,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1052,8 +967,8 @@
         6,
         7
       ],
-      "focusConflict": true,
-      "focusSaveDisabled": true,
+      "focusConflict": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "h2",
         "id": "gate-title",
@@ -1071,20 +986,20 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 8,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 20,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "08",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
-          308,
+          410,
           282,
-          282,
+          385,
           282,
           257,
           282,
@@ -1095,7 +1010,7 @@
         "brokenStops": [],
         "unclassed": 0,
         "narrowestAbove": 257,
-        "widest": 308
+        "widest": 410
       },
       "grid": {
         "display": "grid",
@@ -1106,7 +1021,7 @@
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -1121,15 +1036,11 @@
         "spillers": []
       },
       "staged": false,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -1154,18 +1065,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -1197,7 +1096,7 @@
         }
       ],
       "prose": {
-        "count": 63,
+        "count": 35,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1224,8 +1123,8 @@
         7,
         8
       ],
-      "focusConflict": true,
-      "focusSaveDisabled": true,
+      "focusConflict": false,
+      "focusSaveDisabled": null,
       "active": {
         "tag": "h2",
         "id": "gate-title",
@@ -1243,20 +1142,20 @@
         "audit": 1,
         "slabs": 3
       },
-      "rows": 3,
-      "showing": "Showing 1–3 of 14",
-      "checkboxes": 8,
+      "rows": 14,
+      "showing": "14 of 14",
+      "checkboxes": 20,
       "toolRows": 9,
       "auditEntries": 5,
       "inlineStyled": 0,
       "revision": "08",
-      "marked": 3,
+      "marked": 14,
       "bars": {
         "fills": 8,
         "widths": [
-          108,
+          144,
           99,
-          99,
+          135,
           99,
           90,
           99,
@@ -1267,18 +1166,18 @@
         "brokenStops": [],
         "unclassed": 0,
         "narrowestAbove": 90,
-        "widest": 108
+        "widest": 144
       },
       "grid": {
         "display": "block",
         "columns": "none"
       },
       "band": {
-        "height": 115,
+        "height": 217,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
-        "buttons": 0,
+        "buttons": 2,
         "figures": [
           "14",
           "13",
@@ -1293,15 +1192,11 @@
         "spillers": []
       },
       "staged": false,
-      "focusWho": "Theo",
+      "focusWho": null,
       "headings": [
         {
           "level": 1,
           "name": "Marking queue"
-        },
-        {
-          "level": 2,
-          "name": "Theo"
         },
         {
           "level": 2,
@@ -1326,18 +1221,6 @@
         {
           "level": 2,
           "name": "Who can do what"
-        },
-        {
-          "level": 3,
-          "name": "Agent"
-        },
-        {
-          "level": 3,
-          "name": "Human"
-        },
-        {
-          "level": 3,
-          "name": "Page"
         },
         {
           "level": 2,
@@ -1369,7 +1252,7 @@
         }
       ],
       "prose": {
-        "count": 62,
+        "count": 15,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1396,20 +1279,20 @@
         7,
         8
       ],
-      "focusConflict": true,
-      "focusSaveDisabled": true,
+      "focusConflict": false,
+      "focusSaveDisabled": null,
       "active": {
-        "tag": "button",
+        "tag": "a",
         "id": null,
-        "className": "pager",
-        "text": "Next 3"
+        "className": "cell cell--held",
+        "text": "10"
       }
     }
   },
   "contrast": {
-    "pairs": 443,
-    "skippedForImage": 0,
-    "skippedInvisible": 3,
+    "pairs": 593,
+    "skippedForImage": 5,
+    "skippedInvisible": 453,
     "worst": {
       "ratio": 4.8,
       "needs": 4.5,
@@ -1441,28 +1324,24 @@
     },
     "shown": {
       "open": true,
-      "column": 2792,
+      "column": 2501,
       "rows": 9,
       "rowsWithBoxes": 9
     },
     "closedAgain": false
   },
   "accessibility": {
-    "nodes": 1107,
-    "named": 43,
+    "nodes": 1139,
+    "named": 57,
     "unnamed": [],
     "outline": [
       "h1 Marking queue",
-      "h2 Theo",
       "h2 Why the page held these",
       "h2 What this page cannot know",
       "h2 What if the page were more careful?",
       "h3 If nobody had looked",
       "h2 Policy",
       "h2 Who can do what",
-      "h3 Agent",
-      "h3 Human",
-      "h3 Page",
       "h2 How a mark gets made",
       "h3 It reads the pile",
       "h3 It names ideas, not marks",
@@ -1517,76 +1396,76 @@
       "text": "Human release"
     },
     {
-      "tag": "select",
+      "tag": "button",
       "id": null,
-      "className": "pick__box",
-      "text": "All answersHeld for youNot marked yet"
+      "className": "lens__btn lens__btn--on",
+      "text": "Your view"
     },
     {
       "tag": "button",
       "id": null,
-      "className": "sq",
-      "text": "Open the answer above"
-    },
-    {
-      "tag": "button",
-      "id": null,
-      "className": "sq",
-      "text": "Open the answer below"
+      "className": "lens__btn",
+      "text": "Agent's view"
     },
     {
       "tag": "a",
       "id": null,
-      "className": "btn btn--quiet",
-      "text": "View full explanation"
+      "className": "cell cell--sent",
+      "text": "01"
     },
     {
-      "tag": "summary",
+      "tag": "a",
       "id": null,
-      "className": "byhand__head",
-      "text": "Mark this answer by hand"
+      "className": "cell cell--sent",
+      "text": "02"
     },
     {
-      "tag": "button",
+      "tag": "a",
       "id": null,
-      "className": "btn btn--quiet",
-      "text": "Reload current mark"
+      "className": "cell cell--held",
+      "text": "03"
     },
     {
-      "tag": "summary",
+      "tag": "a",
       "id": null,
-      "className": "line__head",
-      "text": "01RowanThey start off at the same temperature as"
+      "className": "cell cell--held",
+      "text": "04"
     },
     {
-      "tag": "summary",
+      "tag": "a",
       "id": null,
-      "className": "line__head",
-      "text": "02IslaMetal is a good conductor so heat passes f"
+      "className": "cell cell--held cell--secret",
+      "text": "05"
     },
     {
-      "tag": "summary",
+      "tag": "a",
       "id": null,
-      "className": "line__head",
-      "text": "03TheoHeat moves out of my fingers and into the "
+      "className": "cell cell--sent",
+      "text": "06"
     },
     {
-      "tag": "button",
+      "tag": "a",
       "id": null,
-      "className": "btn btn--quiet",
-      "text": "Reload current mark"
+      "className": "cell cell--sent",
+      "text": "07"
     },
     {
-      "tag": "button",
+      "tag": "a",
       "id": null,
-      "className": "btn btn--quiet",
-      "text": "Mark all from the worked example"
+      "className": "cell cell--sent",
+      "text": "08"
     },
     {
-      "tag": "button",
+      "tag": "a",
       "id": null,
-      "className": "pager",
-      "text": "Next 3"
+      "className": "cell cell--sent",
+      "text": "09"
+    },
+    {
+      "tag": "a",
+      "id": null,
+      "className": "cell cell--held",
+      "text": "10"
     }
   ],
   "requests": {
@@ -1599,10 +1478,10 @@
     "afterProbes": 2
   },
   "screenshots": {
-    "marked": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-1440-marked.png",
-    "fold": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-fold-1487.png",
-    "staged": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-1440-staged.png",
-    "narrow": "/tmp/withheld-staging.R5hkaN/repo/docs/evidence/browser-420-staged.png"
+    "marked": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-marked.png",
+    "fold": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-fold-1487.png",
+    "staged": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-staged.png",
+    "narrow": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-420-staged.png"
   },
   "notClaimed": "This run reads the WebMCP registry; it does not let a model call a tool. No browser agent has driven these tools. Contrast here is arithmetic on what the cascade composed, not a judgement about whether the page reads well; the accessibility tree is what a screen reader would be handed, not a recording of one speaking. Wording has been read by nobody but the author."
 }

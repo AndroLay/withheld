@@ -162,6 +162,32 @@ summary::-webkit-details-marker {
 }
 
 /**
+ * Where a page-owned figure was, in the agent's view. Not the number greyed out and not the number
+ * covered over: the component was handed the projection a tool returns, so there is no value here to
+ * uncover — `getClientRects()` finds a dash and the DOM holds nothing else.
+ *
+ * Sized to hold the slot the figure would have taken, so that changing view does not move the row it
+ * sits in. The dash is decorative and the phrase beside it is the accessible text; a screen reader
+ * reads "withheld from your agent" rather than an em dash.
+ */
+.rd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2em;
+  padding: 0 5px;
+  border: 1px dashed var(--line-2);
+  border-radius: 3px;
+  background: var(--off);
+  color: var(--muted);
+}
+
+.rd__dash {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/**
  * The small uppercase label above a block. It is the page's one repeated typographic device: whatever
  * follows it is a fact, not a claim, and the label says which fact.
  */
@@ -184,8 +210,9 @@ summary::-webkit-details-marker {
  *
  * Every one of them is lettered in capitals, which is the target's rule and a useful one: on this page
  * the capitals mean *this is an action a person is taking*. Status words are left in sentence case, so
- * "Not marked" and "read" can never be mistaken for something to press. The one control that opts out
- * is `.pager`, which does not act on an answer — it turns a page.
+ * "Not marked" and "read" can never be mistaken for something to press. No `.btn` opts out of the
+ * capitals any more: the controls that stay in sentence case are not buttons at all — the queue's view
+ * select, its four tab labels, and the row summary that opens a row. `docs/DECISIONS.md` D-31.
  *
  * A disabled control keeps its place and its label — it never disappears — because the reason it
  * cannot be pressed is the interesting part of this page.
@@ -223,19 +250,21 @@ a.btn:hover {
   cursor: not-allowed;
 }
 
-.btn--send,
-.btn--go {
+/* Filled black, and the only *button* on the page that carries it. The weight is reserved for the
+   release path — the pointer to the gate in the top bar, and the send itself — so that a reader never
+   has to work out which of several black rectangles is the one that lets a mark leave. Saving a mark,
+   the worked example, paging, and the error screen's reload are all outlined. The one other filled
+   thing on the page is the selected care level, which is a state and not an action. */
+.btn--send {
   background: var(--ink);
   color: var(--on-black);
 }
 
-.btn--send:hover:enabled,
-.btn--go:hover:enabled {
+.btn--send:hover:enabled {
   background: var(--ink-2);
 }
 
-.btn--send:disabled,
-.btn--go:disabled {
+.btn--send:disabled {
   background: var(--off);
   color: var(--off-ink);
 }
@@ -371,14 +400,201 @@ a.btn:hover {
   border-bottom: 1px solid var(--line);
 }
 
+/* Shares its line with the view toggle rather than taking one of its own, so that the pair costs the
+   band no height. On a narrow screen the toggle wraps under it and the claim keeps the full width. */
 .band__said {
+  flex: 1 1 auto;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
+/**
+ * Whose view of the session. Two buttons in sentence case, because this pair changes only what is
+ * drawn — capitals on this page mean a control that acts on the marking. `docs/DECISIONS.md` D-33.
+ *
+ * Segmented rather than two separate buttons: the state worth reading is which of the two you are in,
+ * and a joined pair says that at a glance where two outlined buttons would not.
+ */
+.lens {
+  display: flex;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+}
+
+.lens__btn {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  background: var(--card);
+  color: var(--ink-3);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lens__btn + .lens__btn {
+  border-left: 1px solid var(--line-2);
+}
+
+.lens__btn:hover {
+  background: var(--band);
+}
+
+/* Filled, which everywhere else on this page marks a state rather than an action — the selected care
+   level, an answer that has gone to a student. This is a state too: whose view you are reading. */
+.lens__btn--on {
+  background: var(--ink);
+  color: var(--on-black);
+}
+
+/* What the agent's view is, and how many holds it cannot name. Full width under the pair and present
+   only in that view; the teacher's view is the page's default and needs no sentence to explain it. */
+.lens__said {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* ── The spine: the whole class as one strip ─────────────────────────────────────────────────────
+ *
+ * One cell per answer, in arrival order, between the claim and the figures it adds up to. This is
+ * the overview the queue's pager used to buy at the cost of hiding eleven answers, and it is the
+ * only place on the page where an agent working through the class reads as motion rather than as a
+ * figure that went up. Each cell is an anchor to its row: the strip navigates and decides nothing.
+ *
+ * `flex: 1` on the cells rather than a fixed width, because the number of answers is data. Fourteen
+ * is what the fixtures hold, not what the layout assumes.
+ */
+/* The basis is 100% until the page has three columns, so the strip takes a line of its own rather
+   than the third of a phone's width left over beside the four figures. Fourteen cells in 130px are
+   6px wide and the folio numbers inside them collide; in 372px they are legible and still one strip. */
+.cells {
+  display: flex;
+  flex: 1 0 100%;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cells__slot {
+  flex: 1;
+  min-width: 0;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  position: relative;
+  height: 34px;
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  text-decoration: none;
+}
+
+/* Five states, five rules, and the plain one written out rather than left to the base: an answer
+   nobody has marked is a state this page has an opinion about, so it says so. */
+.cell--waiting {
+  background: var(--card);
+  color: var(--muted);
+}
+
+.cell--ready {
+  border-color: var(--ink-3);
+  background: var(--ink-3);
+  color: var(--on-black);
+}
+
+/* Filled black, which on this page means one thing: it went to a student. */
+.cell--sent {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--on-black);
+}
+
+/* Hatched rather than filled. A hold is not a lesser mark, it is a different kind of thing, and a
+   third shade of grey would read as one. The heavier hatch is the quarantined answer. */
+.cell--held {
+  background: repeating-linear-gradient(45deg, var(--card) 0 3px, var(--line-2) 3px 5px);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  color: var(--ink);
+}
+
+.cell--quar {
+  background: repeating-linear-gradient(45deg, var(--card) 0 2px, var(--muted-2) 2px 4px);
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+  color: var(--ink);
+}
+
+/**
+ * The hold the agent is counted and never named.
+ *
+ * `agentHoldReason` returns null for `near-boundary`, so an agent is told how many answers sit in the
+ * band and never which. A hatched cell says which. The heavy bottom edge marks those cells for the
+ * teacher — these are the holds your agent cannot see — and it is a mark only the teacher's view can
+ * carry: in the agent's view the strip is built from `agentVisibleHolds`, so those answers arrive
+ * without a reason and are drawn `ready`, which is the state the agent is actually in. No rule here
+ * covers the cell up, because there is no covered-up cell to draw.
+ */
+.cell--secret {
+  box-shadow:
+    inset 0 0 0 1.5px var(--ink),
+    inset 0 -4px 0 var(--ink);
+}
+
+.cell__folio {
+  font-size: 9.5px;
+}
+
+/* The alias, on hover and on focus, drawn from `data-who` rather than from a span. The anchor's
+   `aria-label` carries the same words, so a screen reader hears the name and nothing hears it twice.
+
+   Idle it is `display: none` rather than transparent. A label that is only transparent is still laid
+   out, and an absolutely positioned box counts toward its container's scrollable width: fourteen
+   60px labels inside 24px cells made a 420px page 18px wider than the phone holding it, on arrival,
+   with nothing hovered. That cost a transition worth 0.12s. */
+.cell::after {
+  content: attr(data-who);
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--on-black);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.cell:hover::after,
+.cell:focus-visible::after {
+  display: block;
+}
+
+/* The last two labels hang from the right edge instead of straddling the cell, because a centred one
+   there is half a label past the end of the page. The first two need no mirror of this: overflow to
+   the left of the page is clipped rather than scrolled, and the band's own padding absorbs it. */
+.cells__slot:nth-last-child(-n + 2) .cell::after {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
 .band__counts {
   display: flex;
+  flex: none;
   align-items: stretch;
 }
 
@@ -437,6 +653,19 @@ a.btn:hover {
 }
 
 /**
+ * Reversed prose, set looser than the same words would be on white.
+ *
+ * Light letters on a black ground bloom: the stroke spreads into the gap around it, so a line that
+ * reads as calm in the two light columns reads as packed here. The remedy is leading rather than
+ * size — this column is 313px of measure, and going larger would cost lines instead of buying
+ * them. `:where` keeps the whole rule at one class of specificity, so any block below that wants
+ * its own leading still gets it.
+ */
+.contract :where(p, li) {
+  line-height: 1.62;
+}
+
+/**
  * The one transient message on the page: a mark landed, a write was refused, a release was declined.
  * It is a live region that is empty most of the time, so it takes no room until it has something to
  * say — a permanent empty box would train the reader to stop looking at it.
@@ -482,9 +711,9 @@ a.btn:hover {
 
 /* ── The marking queue ───────────────────────────────────────────────────────────────────────── */
 
-/* The centre column's one section: header, the open answer, the rest as rows, then the pager. It
-   carries no frame of its own — the column's background is the frame, and every child inside it is
-   already boxed. */
+/* The centre column's one section: header, every answer in the class as a row, then the control that
+   marks them all from the worked example. It carries no frame of its own — the column's background is
+   the frame, and every child inside it is already boxed. */
 .queue {
   min-width: 0;
 }
@@ -541,207 +770,145 @@ a.btn:hover {
   color: var(--muted);
 }
 
-.queue__walk {
-  display: flex;
-  gap: 6px;
-}
-
-/* The two chevrons. Square, because they are the only controls on the page whose whole label is a
-   direction, and their names are in `.vh` beside them. */
-.sq {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 30px;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  background: var(--card);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.sq:hover:enabled {
-  background: var(--band);
-}
-
-.sq:disabled {
-  background: var(--off);
-  color: var(--off-ink);
-  cursor: not-allowed;
-}
-
-/* ── The focused answer ──────────────────────────────────────────────────────────────────────── */
-
-.focus {
-  padding: 22px 24px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--card);
-}
-
-/**
- * Six children. Narrow, they stack: the folio, the name and the state badge in one row, then the total
- * under them and the sentence that says why it is held under that. There is no room for anything else
- * at 420px, and a score pushed onto a second line is still a score.
+/* ── An opened row: four tabs, no state ──────────────────────────────────────────────────────────
  *
- * Wide, the three groups sit in one row — see the 62rem block, where the number and its reason become
- * neighbours. That pairing is the point: a score with the boundary sentence a rule away from it reads
- * as a result, while a score with "within four marks of the pass mark" beside it reads as what it is,
- * which is a position relative to a line the page drew.
+ * Opening a row replaces content rather than adding to it. That is the whole reason the queue can
+ * print fourteen answers in the height the old one spent on three: a collapsed row is one line, and
+ * an open one is one line plus one panel, never four panels stacked with prose between them.
+ *
+ * Four radios and four panels, switched by the cascade. No React state and no script: `details` gives
+ * the disclosure and `:checked ~` gives the tab, so every panel is in the static markup — which is
+ * also why `tests/render.test.mts` can sweep all four for classes with no rule behind them. A
+ * hand-rolled `role="tablist"` would need arrow-key handling this page would then have to test; a
+ * radio group already has it, from the browser.
+ *
+ * The `nth-of-type` pairs below count elements of one type among siblings, so the four inputs are the
+ * only `input` children of `.tabs` and the four panels are the only `section` children. Adding a
+ * fifth of either means adding a pair here.
  */
-.focus__head {
-  display: grid;
-  grid-template-columns: 30px auto auto;
-  align-items: baseline;
-  column-gap: 10px;
-  row-gap: 2px;
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
 }
 
-/* The answer's place in the pile, in the same numbering the compact rows use. Not an id, and not a
-   student number: the pile is a pile, and this is where in it. */
-.focus__folio {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-
-.focus__who {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.focus__label {
-  grid-column: 1 / -1;
-  margin-top: 12px;
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.focus__score {
-  grid-column: 1 / -1;
+/* Off-screen but focusable, so the keyboard reaches the group and the ring lands on the label. */
+.tabs__pick {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
-.focus__big {
-  font-size: 25px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-/* An answer with no mark shows a dash, never a zero: a zero is a mark, and nobody has made one. */
-.focus__big--none {
-  color: var(--muted);
-}
-
-.focus__max {
-  font-size: 15px;
+.tabs__tab {
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--muted);
+  cursor: pointer;
 }
 
-.focus__verdict {
-  grid-column: 1 / -1;
-  margin-top: 8px;
+.tabs__tab:hover {
+  color: var(--ink-2);
+}
+
+.tabs__panel {
+  display: none;
+  flex: 1 0 100%;
+  margin-top: 12px;
+}
+
+.tabs__pick:nth-of-type(1):checked ~ .tabs__panel:nth-of-type(1),
+.tabs__pick:nth-of-type(2):checked ~ .tabs__panel:nth-of-type(2),
+.tabs__pick:nth-of-type(3):checked ~ .tabs__panel:nth-of-type(3),
+.tabs__pick:nth-of-type(4):checked ~ .tabs__panel:nth-of-type(4) {
+  display: block;
+}
+
+.tabs__pick:nth-of-type(1):checked ~ .tabs__tab:nth-of-type(1),
+.tabs__pick:nth-of-type(2):checked ~ .tabs__tab:nth-of-type(2),
+.tabs__pick:nth-of-type(3):checked ~ .tabs__tab:nth-of-type(3),
+.tabs__pick:nth-of-type(4):checked ~ .tabs__tab:nth-of-type(4) {
+  border-color: var(--line-2);
+  background: var(--card);
+  color: var(--ink);
+}
+
+.tabs__pick:nth-of-type(1):focus-visible ~ .tabs__tab:nth-of-type(1),
+.tabs__pick:nth-of-type(2):focus-visible ~ .tabs__tab:nth-of-type(2),
+.tabs__pick:nth-of-type(3):focus-visible ~ .tabs__tab:nth-of-type(3),
+.tabs__pick:nth-of-type(4):focus-visible ~ .tabs__tab:nth-of-type(4) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* What the page did with this answer, in one sentence, at the head of the answer panel. Built from
+   the rule that fired rather than from the total — for three of the four rules the total is not the
+   reason, and the total is already printed in the row above. */
+.said {
+  margin-bottom: 10px;
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--ink-3);
 }
 
 /**
- * The state badge, in four states and one colour. `held` is the one that has to stop a reader, so it
- * is the only filled one; the rest are outlined, and every one of them is also a word.
+ * The two halves of the rubric panel: what the page credited, and what it did not. A vertical rule
+ * between them, drawn as the right half's left border, so there is no separate element to keep aligned.
  */
-.tagline {
-  grid-column: 3;
-  grid-row: 1;
-  justify-self: start;
-  padding: 3px 8px;
-  border: 1px solid var(--line-2);
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.tagline--held {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: var(--on-black);
-}
-
-.tagline--sent {
-  border-color: var(--ink-3);
-  color: var(--ink-3);
-}
-
-.tagline--marked {
-  color: var(--ink-2);
-}
-
-.tagline--waiting {
-  color: var(--muted);
-}
-
-.focus__text {
-  margin-top: 22px;
-}
-
-/* The student's own words, set apart. Left rule rather than quotation marks, because the body can be
-   anything at all — including something that looks like an instruction to the marker. */
-.focus__body {
-  margin: 0;
-  padding: 0 0 0 14px;
-  border-left: 2px solid var(--line-2);
-  font-size: 14.5px;
-  line-height: 1.55;
-  color: var(--ink-2);
-}
-
-.focus__hand {
-  margin-top: 8px;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-/**
- * The two halves of the account: what the page credited, and what it decided. A vertical rule between
- * them, drawn as the right half's left border, so there is no separate element to keep aligned.
- */
-.focus__split {
+.split {
   display: grid;
   gap: 18px;
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
 }
 
-.focus__half--right {
+.split__half--right {
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
 
 /* Inside a half: the divider between the lines credited and the evidence under them. */
-.focus__rule {
+.hr {
   height: 1px;
   margin: 16px 0;
   background: var(--line);
 }
 
-.focus__none {
+.none {
   margin-bottom: 4px;
   font-size: 12.5px;
   color: var(--muted);
 }
 
-.focus__gloss {
+.gloss {
   margin-top: 10px;
   font-size: 12.5px;
   color: var(--ink-3);
+}
+
+/* The tool that would have named these lines, and the control that names them without one. Both are
+   in the sentence rather than beside it: the panel should say what it is waiting for and where the
+   button is, not repeat the button. */
+.gloss__tool {
+  padding: 1px 5px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--band);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+
+.gloss__at {
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
 /* One rubric line: what the page gave it, and what the line says. The points are the page's own and
@@ -841,39 +1008,6 @@ a.btn:hover {
 }
 
 /* ── Marking by hand ─────────────────────────────────────────────────────────────────────────── */
-
-.byhand {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-}
-
-.byhand__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-.byhand__label {
-  margin-right: auto;
-}
-
-.byhand__caret {
-  display: block;
-  color: var(--ink-3);
-}
-
-.byhand[open] .byhand__caret {
-  transform: rotate(180deg);
-}
-
-.byhand__shut {
-  margin-top: 10px;
-  font-size: 12.5px;
-  color: var(--muted);
-}
 
 /**
  * The by-hand form. Real checkboxes with real labels: this is the control a teacher uses when the
@@ -986,11 +1120,6 @@ a.btn:hover {
   background: var(--card);
 }
 
-/* The row that is open above, marked so a reader can see where the focused card came from. */
-.line--on .line__box {
-  border-color: var(--ink);
-}
-
 .line--held .line__box {
   border-left: 3px solid var(--ink);
 }
@@ -999,12 +1128,33 @@ a.btn:hover {
   background: var(--band);
 }
 
+/**
+ * Five cells on a phone, seven when the page has three columns, and the last four are fixed rather
+ * than `auto` in both shapes.
+ *
+ * With `auto` every row sized its own tail: a held row's longer tag ("addressed the marker", 120px
+ * measured) pushed its provenance chip and score left of the row above it, so fourteen rows read as
+ * fourteen ragged edges and the eye had nothing to run down. The widths below are the widest string
+ * each cell can hold plus a little air, so a column means the same distance in every row.
+ *
+ * The narrow shape drops the folio number and the answer preview instead of squeezing them. A phone
+ * gives a row 374px and the tail alone wants 230 of it: keeping the preview would have bought about
+ * twenty characters of answer at the price of the alias, and the row already overflowed its own card
+ * before either was dropped. Both come back at `MANY_COLUMNS`, where there is room to read them.
+ */
 .line__head {
   display: grid;
-  grid-template-columns: 26px 96px minmax(0, 1fr) auto auto 18px;
+  grid-template-columns: minmax(0, 1fr) 42px 44px 126px 18px;
   align-items: center;
   column-gap: 10px;
   padding: 9px 12px;
+}
+
+/* Dropped from the row on a phone, not from the page: the whole answer is in the panel one tap down,
+   and the row still says who, what it scored, and what the page did with it. */
+.line__folio,
+.line__peek {
+  display: none;
 }
 
 .line--marked .line__box {
@@ -1043,7 +1193,40 @@ a.btn:hover {
   color: var(--muted);
 }
 
+/**
+ * Who named the lines on this answer: a tool call, or a person in the page.
+ *
+ * Nothing was added to the domain to draw this. `Receipt.operationId` is written only for an accepted
+ * WebMCP write, so `markProvenance` reads the distinction back out of the receipt trail — see
+ * `src/domain/views.ts`. It is page-owned in the strict sense: no tool result carries it, so an agent
+ * cannot see its own tag, and cannot see a teacher overrule it either.
+ */
+.prov {
+  padding: 2px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* The one an agent wrote is the one worth telling apart, so it is the filled one. */
+.prov--tool {
+  border-color: var(--ink-3);
+  background: var(--ink-3);
+  color: var(--on-black);
+}
+
+.prov--hand {
+  color: var(--ink-3);
+}
+
+/* Right-aligned in its fixed cell, so "8 / 88" and "17 / 88" put the slash in the same place. */
 .line__score {
+  justify-self: end;
   white-space: nowrap;
   font-size: 12.5px;
 }
@@ -1065,8 +1248,7 @@ a.btn:hover {
  *
  * Lower case, and this is the half of the case rule the page keeps: a status word never dresses
  * up as a control. Capitals are not a mark of authority here — the wordmark and every section
- * head is lettered too — so it is this direction of the rule that does the work. The same word
- * set feeds the badge on the focused answer, which *is* capitalised, by `.tagline`, not here.
+ * head is lettered too — so it is this direction of the rule that does the work.
  */
 .line__state {
   font-size: 11.5px;
@@ -1134,35 +1316,6 @@ a.btn:hover {
   align-items: center;
   gap: 12px;
   margin-top: 14px;
-}
-
-.queue__showing {
-  margin-right: auto;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.pager {
-  min-height: 32px;
-  padding: 0 14px;
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  background: var(--card);
-  color: var(--ink);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.pager:hover:enabled {
-  background: var(--band);
-}
-
-.pager:disabled {
-  background: var(--off);
-  color: var(--off-ink);
-  cursor: not-allowed;
 }
 
 .queue__note {
@@ -1304,39 +1457,77 @@ a.btn:hover {
   color: var(--muted);
 }
 
-/* Who may do what, in three rows. The circled glyph is decoration and every row says it in words. */
-.actors {
-  display: grid;
-  gap: 18px;
+/**
+ * The authority matrix: three rows, five columns, fifteen dots.
+ *
+ * The palette has no accent in it — `tests/contrast.test.mts` asserts every colour is grey — so the
+ * locked cell cannot be marked with a hue. It carries the lock glyph instead, at full ink against a
+ * ring, which is the only cell in the table with anything drawn inside it. A filled ring is a yes and
+ * a hollow one is a no.
+ *
+ * Every cell also holds its answer in a `.vh` word, because a hollow ring and a filled one are the
+ * same shape to a reader who cannot see either. See `src/ui/Rail.tsx`.
+ */
+.auth {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.actor {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
-  column-gap: 12px;
+.auth__col {
+  padding: 0 0 6px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
 }
 
-.actor__badge {
-  display: grid;
-  place-items: center;
-  grid-row: 1 / span 2;
-  align-self: start;
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--line-2);
-  border-radius: 50%;
-  color: var(--ink-2);
+.auth__corner {
+  padding: 0;
 }
 
-.actor__who {
-  grid-column: 2;
-  font-size: 13px;
-  font-weight: 700;
+.auth__who,
+.auth__cell {
+  border-top: 1px solid var(--line);
+  padding: 8px 0;
 }
 
-.actor__what {
-  grid-column: 2;
+.auth__who {
   font-size: 12.5px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.auth__cell {
+  text-align: center;
+}
+
+.dot {
+  display: inline-grid;
+  place-items: center;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.dot--yes {
+  background: var(--ink);
+}
+
+.dot--no {
+  border: 1px solid var(--line-2);
+}
+
+.dot--only {
+  border: 1px solid var(--ink-3);
+  color: var(--ink);
+}
+
+.auth__why {
+  margin-top: 10px;
+  font-size: 11.5px;
   color: var(--muted);
 }
 
@@ -1432,6 +1623,7 @@ a.btn:hover {
 .flow__list {
   display: grid;
   gap: 14px;
+  margin-top: 14px;
 }
 
 .step {
@@ -1443,7 +1635,7 @@ a.btn:hover {
 .step__badge {
   display: grid;
   place-items: center;
-  grid-row: 1 / span 3;
+  grid-row: 1 / span 2;
   align-self: start;
   width: 26px;
   height: 26px;
@@ -1490,14 +1682,17 @@ a.btn:hover {
   color: var(--muted);
 }
 
-.step__gloss {
-  grid-column: 2;
-  font-size: 12.5px;
-  color: var(--muted);
-}
-
+/**
+ * The tour, open. It was a disclosure while every step carried a sentence under it, because open it
+ * pushed the ledger off the first screen. Four lines do not, and a reader on their first pass should
+ * not have to open anything to see which step the page is standing in.
+ */
 .flow {
-  margin-top: 4px;
+  margin-top: 22px;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--band);
 }
 
 /* ── The agent contract ──────────────────────────────────────────────────────────────────────── */
@@ -1636,7 +1831,79 @@ a.btn:hover {
 }
 
 .tools__note {
+  font-size: 12px;
+  color: var(--muted-2);
+}
+
+/**
+ * Every call that has arrived. Three columns, fixed in that order: the sequence number, the tool, and
+ * what the page did about it. The number column is a fixed width so the tool names line up however
+ * long the list gets, and the outcome is right-aligned against it — a reader scanning for a refusal
+ * is scanning one edge, not reading nine sentences.
+ *
+ * A refused row is the one that has to be findable, so it is the only one that carries a mark of its
+ * own: a left edge in the reverse ink rather than the row line. Colour is not doing the work alone —
+ * the word `refused` and the code are in the row's text.
+ */
+.act {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.act__row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 10px;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--black-row-line);
+  border-left-width: 2px;
+  border-radius: var(--r-sm);
+  background: var(--black-row);
+}
+
+.act__row--read {
+  border-left-color: var(--black-row-line);
+}
+
+.act__row--wrote {
+  border-left-color: var(--muted-2);
+}
+
+.act__row--refused {
+  border-left-color: var(--on-black);
+}
+
+.act__seq {
+  font-size: 10.5px;
+  color: var(--muted-2);
+}
+
+.act__tool {
   font-size: 11.5px;
+  color: var(--on-black);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.act__what {
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: var(--muted-2);
+  text-align: right;
+}
+
+/* The two outcomes a reader is looking for are the two the page wants read: a revision that moved,
+   and a refusal. A read that changed nothing stays quiet. */
+.act__row--wrote .act__what,
+.act__row--refused .act__what {
+  color: var(--on-black);
+}
+
+.act__note {
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -1680,13 +1947,22 @@ a.btn:hover {
   color: var(--on-black);
 }
 
+/* Which of the two callers moved the session. Lighter than the revision beside it: the number is the
+   session's order and this is a footnote on it. Read out of the receipt's operationId, which no tool
+   result carries, so an agent cannot see its own tag here. */
+.tl__who {
+  margin-left: 8px;
+  font-weight: 400;
+  color: var(--muted-2);
+}
+
 .tl__what {
   font-size: 12.5px;
   color: var(--on-black);
 }
 
 .tl__note {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -1731,6 +2007,14 @@ a.btn:hover {
   color: var(--muted-2);
 }
 
+/* Why four boxes arrive closed: what each one leaves out is on its summary, so the claim is readable
+   without opening any of them. */
+.proj__why {
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--muted-2);
+}
+
 /* What a tool actually returns, printed verbatim. These come from the payload builders the tools
    themselves call, so a field added to a result appears here whether or not anyone remembered. */
 .proj {
@@ -1766,7 +2050,7 @@ a.btn:hover {
 
 .proj__what {
   grid-column: 1;
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--muted-2);
 }
 
@@ -1784,8 +2068,8 @@ a.btn:hover {
 .proj__json {
   margin: 0;
   padding: 0 12px 12px;
-  font-size: 11px;
-  line-height: 1.5;
+  font-size: 11.5px;
+  line-height: 1.55;
   color: var(--on-black);
   overflow-x: auto;
 }
@@ -1938,15 +2222,10 @@ a.btn:hover {
 
 .slab__head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 10px;
   margin-bottom: 16px;
-}
-
-.slab__glyph {
-  display: block;
-  color: var(--ink-2);
 }
 
 .slab__title {
@@ -1956,23 +2235,48 @@ a.btn:hover {
 }
 
 .slab__meta {
-  grid-column: 2;
+  grid-column: 1;
   font-size: 12px;
   color: var(--muted);
 }
 
-/* The audit's own head has a glyph, so its title and meta share the second column. */
-.slab--audit .slab__title {
+/**
+ * A slab drawn as a disclosure.
+ *
+ * All three sections under the queue are `<details>` now, and only their starting state differs. The
+ * counterfactual table and the four sentences about what marking does not settle arrive closed: both
+ * are worth more to a reader who has already watched the page hold something back than to one still
+ * working out what it does, and open they put a thousand pixels between the queue and the gate. The
+ * audit arrives open, for the reasons written at `src/ui/Audit.tsx`. The padding moves from the
+ * section to the `<details>` inside it so a closed slab is exactly as tall as its own summary.
+ */
+.slab--shut {
+  padding: 0;
+}
+
+.slab__box {
+  padding: 20px;
+}
+
+/* Closed, the head is the whole box and needs no gap under it. `.slab__box[open]` puts it back. */
+.slab--shut .slab__head {
+  margin-bottom: 0;
+}
+
+.slab__caret {
   grid-column: 2;
+  grid-row: 1 / span 2;
+  display: block;
+  color: var(--ink-3);
 }
 
-.slab--compare .slab__head {
-  grid-template-columns: minmax(0, 1fr);
+/* Open, the head needs the gap back that it does not need closed. */
+.slab__box[open] .slab__head {
+  margin-bottom: 16px;
 }
 
-.slab--compare .slab__title,
-.slab--compare .slab__meta {
-  grid-column: 1;
+.slab__box[open] .slab__caret {
+  transform: rotate(180deg);
 }
 
 .entries {
@@ -2498,13 +2802,36 @@ a.btn:hover {
  * contract column folds into a disclosure, at and above it the column sits beside the work it
  * comments on. `tests/styles.test.mts` pins the two copies of that number to each other, because
  * drift either way is invisible in a screenshot of one width.
+ *
+ * The number is the queue's, not the columns'. Three columns fitted from 62rem, but at that width
+ * what was left for the middle was 259px against a marking row's 424px, so every row in the class
+ * overflowed its card — measured, in the built page, at 62rem exactly. See `src/ui/useOneColumn.ts`.
  */
-@media (min-width: 62rem) {
+@media (min-width: 78rem) {
   .app__cols {
     display: grid;
     grid-template-columns: 322px minmax(0, 1fr) 357px;
   }
 
+  /* The two cells the narrow row gave up. 26px holds "14", 96px holds the longest alias, and the
+     preview takes what is left of the middle column — 111px of answer at 1280, 271px at 1440. */
+  .line__head {
+    grid-template-columns: 26px 96px minmax(0, 1fr) 42px 44px 126px 18px;
+  }
+
+  .line__folio,
+  .line__peek {
+    display: block;
+  }
+
+  /**
+   * The policy column is the shortest of the three, so the left third of the page is empty below it
+   * once the audit fills. It was made `position: sticky` to follow the reader and put back, on
+   * purpose: the evidence frames in `docs/evidence/` are full-page captures, and a sticky element in
+   * one of those renders at its viewport position with the rest of the column — border and all —
+   * simply absent. Live it was an improvement; in the artifact a judge actually reads it looked like
+   * the page had lost a column. An empty column that is still drawn is the honest of the two.
+   */
   .rail {
     grid-column: 1;
     grid-row: 1;
@@ -2531,43 +2858,30 @@ a.btn:hover {
     padding-right: 26px;
   }
 
-  /* The focused answer's head in one row: name group, total, reason. The spacer column may not close
-     below 12px, and the reason may not grow past 250px — a sentence set wider than that stops being a
-     caption on the number and starts being a paragraph competing with the answer underneath it. */
-  .focus__head {
-    grid-template-columns: 30px auto auto minmax(12px, 1fr) auto minmax(0, 250px);
+  /* Wide, the band is one row: the claim, the spine, the figures. Narrow, the claim takes the whole
+     first line and the spine drops under it, because fourteen cells in a 320px row are stripes. */
+  .band__said {
+    flex: none;
+    max-width: 14rem;
   }
 
-  .focus__label {
-    grid-column: 5;
-    grid-row: 1;
-    margin-top: 0;
+  /* Wide, the strip shares the band's second track with the figures instead of taking a line. */
+  .cells {
+    flex: 1;
   }
 
-  .focus__score {
-    grid-column: 5;
-    grid-row: 2;
-  }
-
-  .focus__verdict {
-    grid-column: 6;
-    grid-row: 1 / span 2;
-    align-self: center;
-    margin-top: 0;
-  }
-
-  /* The focused answer's two halves, side by side with a rule between them. The rule is the right
+  /* The rubric panel's two halves, side by side with a rule between them. The rule is the right
      half's left border, so there is no separate element to keep aligned. */
-  .focus__split {
+  .split {
     grid-template-columns: 1fr 1fr;
     gap: 0;
   }
 
-  .focus__split > .focus__half {
+  .split > .split__half {
     padding-right: 20px;
   }
 
-  .focus__half--right {
+  .split__half--right {
     padding: 0 0 0 20px;
     border-top: 0;
     border-left: 1px solid var(--line);

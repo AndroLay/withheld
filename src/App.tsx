@@ -9,13 +9,16 @@ import {
   requestRelease,
   setMarkingEmphasis,
   type Emphasis,
+  type HoldReason,
   type Outcome,
 } from "./domain/session.ts";
+import { agentVisibleHolds } from "./domain/views.ts";
 import { ActionBar } from "./ui/ActionBar.tsx";
 import { AgentPanel } from "./ui/AgentPanel.tsx";
 import { Audit } from "./ui/Audit.tsx";
 import { Compare } from "./ui/Compare.tsx";
 import { Intro } from "./ui/Intro.tsx";
+import { type Lens } from "./ui/lens.tsx";
 import { Rail } from "./ui/Rail.tsx";
 import { Stack } from "./ui/Stack.tsx";
 import { TopBar } from "./ui/TopBar.tsx";
@@ -40,18 +43,26 @@ import { useOneColumn } from "./ui/useOneColumn.ts";
  * agent's view of the same session so the two can be read against each other. That projection lives
  * in `src/domain/views.ts` and has no total, no pass mark and no distance in it.
  *
+ * The band's toggle turns that same projection on the other two columns. In `lens === "agent"` the
+ * page is redrawn from what a tool would return: totals, point values, the pass mark and the band are
+ * absent rather than covered, and the three answers held for sitting inside the band are not held any
+ * more, because the agent is never told they are. The black column does not change under the toggle,
+ * and that is the point of it — it was already the agent's view.
+ *
  * The page is fully usable with no agent present, which is not a fallback so much as the base case:
  * no natural-language model has driven these tools here; the local CDP harness is a transport check,
  * not an agent replay. A teacher can tick rubric lines by hand and get exactly the same holds.
  */
 export function App() {
-  const { session, apply, readLatest, installation, retryInstallation, demoFindings } = useMarkingSession();
+  const { session, apply, readLatest, installation, retryInstallation, activity, demoFindings } =
+    useMarkingSession();
 
   // Layout is the page's business, not the panel's: the contract column folds into a disclosure when
   // there is only one column to put it in. Read here and passed down, so the shape is decided in the
   // one place that knows the grid.
   const oneColumn = useOneColumn();
   const [notice, setNotice] = useState<string | null>(null);
+  const [lens, setLens] = useState<Lens>("yours");
 
   const gateHeading = useRef<HTMLHeadingElement | null>(null);
   const wasStaged = useRef(false);
@@ -59,6 +70,22 @@ export function App() {
   const holds = holdsFor(session);
   const heldReason = new Map(holds.map((hold) => [hold.answerId, hold.reason]));
   const ready = releasableAnswerIds(session);
+
+  /**
+   * The holds as the reader in front of the page is allowed to see them.
+   *
+   * In the agent's view this is not the same map with a class on it: it is rebuilt from
+   * `agentVisibleHolds`, the function `list_held_answers` returns. An answer held for sitting inside
+   * the boundary band is not in it at all, so every component downstream — the strip in the band, the
+   * row in the queue, the entry in the audit rail — draws that answer as what the agent believes it
+   * is: marked, and ready to send. The count above stays whole, because the count is the one thing the
+   * agent is told. That gap between five held and two named is the page's argument, and here it is one
+   * `Map` rather than a paragraph.
+   */
+  const shownReason: Map<string, HoldReason> =
+    lens === "agent"
+      ? new Map(agentVisibleHolds(session).map((hold) => [hold.answerId, hold.reason]))
+      : heldReason;
 
   /**
    * Every write the teacher makes goes through the same refusal path the agent's do. A stale
@@ -93,10 +120,16 @@ export function App() {
   }, [isStaged]);
 
   return (
-    <div className="app">
+    <div className="app" data-view={lens}>
       <TopBar session={session} />
 
-      <Intro session={session} held={holds.length} />
+      <Intro
+        session={session}
+        held={holds.length}
+        heldReason={shownReason}
+        lens={lens}
+        onLens={setLens}
+      />
 
       <div className="app__cols">
         <main className="work">
@@ -108,7 +141,8 @@ export function App() {
 
           <Stack
             session={session}
-            heldReason={heldReason}
+            heldReason={shownReason}
+            lens={lens}
             onSave={(answerId, foundLineIds, expectedRevision) =>
               // Read from the ref-backed session. A native form submit can arrive between an
               // external tool write and React's next committed render; the expected revision must
@@ -118,9 +152,9 @@ export function App() {
             onMark={() => commit(proposeMarks(session, demoFindings, session.revision))}
           />
 
-          <Audit session={session} holds={holds} />
+          <Audit session={session} holds={holds} lens={lens} />
 
-          <Compare session={session} />
+          <Compare session={session} lens={lens} />
 
           <footer className="footnote">
             <p>
@@ -145,6 +179,7 @@ export function App() {
         <AgentPanel
           session={session}
           installation={installation}
+          activity={activity}
           oneColumn={oneColumn}
           onRetry={retryInstallation}
         />

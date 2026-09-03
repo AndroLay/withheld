@@ -7,6 +7,11 @@
  * distance from it, no tool that sends a mark — and an absence cannot be demonstrated by a screenshot
  * of something working. It has to be readable.
  *
+ * The four payloads sit behind disclosures rather than open on arrival. What each one leaves out is
+ * stated in words on the closed summary, so the claim is readable at a glance and checkable in one
+ * click; open, they were six hundred pixels of pretty-printed JSON standing between a first-time
+ * reader and the sentence at the foot of this column, which is the part that matters most.
+ *
  * Nothing here is a mock. `toolSurfaceFacts` builds the real registrations and `agentFacingPayloads`
  * calls the same payload builders the tools call, through the same boundary guard, so a field added to
  * a tool result appears on this page whether or not anyone remembered to update it.
@@ -18,11 +23,19 @@
 
 import { type ReactNode } from "react";
 
-import { holdsFor, type Session } from "../domain/session.ts";
-import { agentVisibleHolds } from "../domain/views.ts";
-import { agentFacingPayloads, toolSurfaceFacts, type Installation } from "../tools/webmcp.ts";
+import { holdsFor, type Receipt, type Session } from "../domain/session.ts";
+import { agentVisibleHolds, receiptProvenance } from "../domain/views.ts";
+import {
+  agentFacingPayloads,
+  toolSurfaceFacts,
+  type Dispatch,
+  type Installation,
+} from "../tools/webmcp.ts";
 import { Icon } from "./Icon.tsx";
 import { ACTION_WORDING } from "./wording.ts";
+
+/** What has arrived at the tool surface, and how much of it the list below still holds. */
+export type Activity = { total: number; recent: readonly Dispatch[] };
 
 /** What each projection leaves out. One line, in the same words the tool description uses. */
 const OMITS: Record<string, string | undefined> = {
@@ -53,9 +66,11 @@ const NEVER_CROSSES: readonly (readonly [string, string])[] = [
  */
 function Connection({
   installation,
+  activity,
   onRetry,
 }: {
   installation: Installation | null;
+  activity: Activity;
   onRetry?: () => void;
 }) {
   const box = (
@@ -144,7 +159,11 @@ function Connection({
         </>
       ) : null}
     </>,
-    "None of them can send a mark to a student.",
+    // The count, not the claim. "Offered" is a fact about registration; whether anything has been
+    // called is a different fact, and the page should be the one saying which of the two it knows.
+    activity.total === 0
+      ? "No call has arrived yet. None of them can send a mark to a student."
+      : `${activity.total} ${activity.total === 1 ? "call has" : "calls have"} arrived, listed below. None of them could send a mark to a student.`,
     installation.failures.length > 0 && installation.retry && onRetry ? (
       <a
         className="conn__act"
@@ -195,6 +214,84 @@ function Tools() {
 }
 
 /**
+ * Every call that has arrived, in arrival order, whether the page answered it or refused it.
+ *
+ * The revision timeline below this is the session's own history and only accepted writes are in it.
+ * This list is the other half: a read that changed nothing, and a refusal that was recorded nowhere,
+ * both still happened, and a reader who wants to know whether the surface is being used cannot learn
+ * it from a timeline of things that worked. A refusal leaving no trace in the session is the correct
+ * behaviour and a bad way to find out what an agent tried.
+ *
+ * Three columns and no fourth: the sequence number, the tool, and what the page did. No arguments —
+ * an argument may carry student text, and this is a record of the page's side of the exchange. No
+ * wall time either, for the same reason the timeline has none.
+ */
+function Activity({ activity }: { activity: Activity }) {
+  const trimmed = activity.total - activity.recent.length;
+
+  return (
+    <>
+      <p className="lab" id="act-title">
+        Calls that have arrived
+      </p>
+
+      <ol className="act" aria-labelledby="act-title">
+        {activity.recent.map((dispatch, index) => {
+          const seq = trimmed + index + 1;
+          const refused = dispatch.code !== null;
+
+          return (
+            <li
+              key={`${seq}-${dispatch.tool}`}
+              className={`act__row act__row--${refused ? "refused" : dispatch.moved ? "wrote" : "read"}`}
+            >
+              <span className="act__seq num">{String(seq).padStart(2, "0")}</span>
+              <code className="act__tool">{dispatch.tool}</code>
+              <span className="act__what">
+                {refused ? (
+                  <>refused · {dispatch.code}</>
+                ) : dispatch.moved ? (
+                  <>
+                    revision <span className="num">{String(dispatch.revision).padStart(2, "0")}</span>
+                  </>
+                ) : (
+                  "read, nothing moved"
+                )}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="act__note">
+        {trimmed > 0 ? (
+          <>
+            The most recent <span className="num">{activity.recent.length}</span> of{" "}
+            <span className="num">{activity.total}</span>.{" "}
+          </>
+        ) : null}
+        A refusal changes nothing in the session, so this list is the only place one is kept.
+      </p>
+    </>
+  );
+}
+
+/**
+ * Which caller a receipt is asking about.
+ *
+ * Only the three agent-callable actions. A teacher can mark by hand, raise the care level and stage a
+ * release, so for those three "who did this?" has two possible answers and the page should say which.
+ * The two human release actions have exactly one possible answer and their wording already gives it —
+ * a tag reading "by hand" under "release confirmed by human" would be the page repeating itself.
+ */
+function callerOf(receipt: Receipt): string | null {
+  if (receipt.action === "human_release_confirmed") return null;
+  if (receipt.action === "human_release_declined") return null;
+
+  return receiptProvenance(receipt) === "tool" ? "by a tool call" : "by hand";
+}
+
+/**
  * Every accepted state-changing action, in the order it happened, numbered by the exact revision
  * stored on its receipt. Human confirmation and decline are deliberately visible here as page-owned
  * audit events, even though neither action exists on the agent's tool surface.
@@ -225,6 +322,7 @@ function Timeline({ session }: { session: Session }) {
             <span className="tl__dot" aria-hidden="true" />
             <p className="tl__rev">
               revision <span className="num">{String(receipt.revision).padStart(2, "0")}</span>
+              {callerOf(receipt) ? <span className="tl__who">{callerOf(receipt)}</span> : null}
             </p>
             <p className="tl__what">
               {ACTION_WORDING[receipt.action]}
@@ -250,11 +348,14 @@ function Timeline({ session }: { session: Session }) {
 export function AgentPanel({
   session,
   installation,
+  activity = { total: 0, recent: [] },
   oneColumn = false,
   onRetry,
 }: {
   session: Session;
   installation: Installation | null;
+  /** Optional so a render test can draw the column without inventing a call history. */
+  activity?: Activity;
   oneColumn?: boolean;
   onRetry?: () => void;
 }) {
@@ -276,9 +377,19 @@ export function AgentPanel({
   // shells, one body: a phone gets a panel it opens, a wide screen gets a region that is simply there.
   const body = (
     <>
-      <Connection installation={installation} onRetry={onRetry} />
+      <Connection installation={installation} activity={activity} onRetry={onRetry} />
 
       <Tools />
+
+      {/* Only when there is something to list. A heading over an empty list would be a section
+          explaining that nothing has happened, on a page that is already long enough; the box
+          above says it in one clause. */}
+      {activity.total > 0 ? (
+        <>
+          <div className="contract__rule" />
+          <Activity activity={activity} />
+        </>
+      ) : null}
 
       <div className="contract__rule" />
 
@@ -313,9 +424,14 @@ export function AgentPanel({
 
       <p className="lab">What a tool actually returns</p>
 
+      <p className="proj__why">
+        Four of the nine, verbatim. Each one opens on the object the tool hands over — the interesting
+        part of every one of them is what is not in it.
+      </p>
+
       <div className="proj">
-        {shown.map((entry, index) => (
-          <details key={entry.tool} className="proj__box" open={index === 0}>
+        {shown.map((entry) => (
+          <details key={entry.tool} className="proj__box">
             <summary className="proj__head">
               <code className="proj__tool">{entry.tool}</code>
               <span className="proj__what">{OMITS[entry.tool] ?? "a redacted projection"}</span>

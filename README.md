@@ -1,144 +1,48 @@
 # Withheld
 
-Withheld is a privacy-first marking prototype where an agent recognises ideas in student answers,
-the page computes marks and escalation decisions, and a human remains the only release authority.
+**A marking workspace that hands a browser agent everything it needs to read a class of short
+answers, and nothing it needs to decide one.**
+
+![license MIT](https://img.shields.io/badge/license-MIT-09090b?style=flat-square)
+![React 19.2.8](https://img.shields.io/badge/React-19.2.8-09090b?style=flat-square)
+![TypeScript 5.9.3](https://img.shields.io/badge/TypeScript-5.9.3-09090b?style=flat-square)
+![Vite 7.3.6](https://img.shields.io/badge/Vite-7.3.6-09090b?style=flat-square)
+![Node >=22.6](https://img.shields.io/badge/Node-%E2%89%A522.6-09090b?style=flat-square)
+![WebMCP 9 tools](https://img.shields.io/badge/WebMCP-9%20tools%20%C2%B7%206%20read%20%2F%203%20write-09090b?style=flat-square)
+![local tests 125 passing](https://img.shields.io/badge/local%20tests-125%20passing-09090b?style=flat-square)
+![status unpublished](https://img.shields.io/badge/status-unpublished%20prototype-6b6b73?style=flat-square)
+
+![Withheld mid-session: the marking queue in the middle column, the agent's contract on the right, and the human-only release control in the foot](docs/images/hero-1440.png)
+
+<sub>Captured from `dist/` in headless Chromium 151, 2026-09-02. Thirteen answers marked, five held
+for a person, nothing staged. No agent was connected — the right column says so.</sub>
 
 > Agent brings language. The page keeps arithmetic and authority.
 
-## Status
+---
 
-| Item | Status |
-| --- | --- |
-| Public repository | [github.com/AndroLay/withheld](https://github.com/AndroLay/withheld) |
-| Staging URL | [androlay.github.io/withheld](https://androlay.github.io/withheld/) |
-| Hosting | GitHub Pages, HTTPS enforced |
-| Data | Synthetic alias-only fixtures; no real student data |
-| Runtime model | No backend, database, login, persistence, analytics, or runtime network request |
-| License | MIT |
-| E4 status | **NOT ACHIEVED** — model replay, independent user validation, final video, and several release gates remain open |
+## What it does
 
-The staging URL is a working demonstration target. It is not a claim that a natural-language model has
-used the tools: the recorded browser/WebMCP checks were selected and driven by deterministic CDP
-harnesses.
+Fourteen synthetic short answers, one four-line rubric, one browser agent. The agent reads answers
+and reports which rubric ideas it recognises, by id. The page does everything with a consequence: it
+owns the point values and the pass mark, computes every total, decides which answers a person must
+look at, records a receipt for each write, and stages a release. Sending a mark to a student is a
+click made by a person — there is no tool for it, and dispatching the name of one fails.
 
-## Why Withheld
+- **The agent never receives a number that decides anything.** No point values, no totals, no pass
+  boundary, no distance from it. Its whole vocabulary is *"I recognised these rubric line ids in this
+  answer."*
+- **Five of the fourteen answers are held for a person.** Two of the holds are named to the agent and
+  three are not, because those three sit on the pass boundary. The agent is told how many it cannot
+  see, never which, and never which side — the hold test is `|total − boundary| ≤ band`, so it is
+  symmetric.
+- **An answer that instructs the marker to ignore the rubric is quarantined with no mark at all.**
+  A prompt injection costs the student their mark rather than earning one, because no argument
+  anywhere in the tool surface carries points.
 
-Short-answer marking has two different kinds of work:
+## Try it in two minutes
 
-1. recognition — finding which ideas an answer expresses; and
-2. judgement — deciding what is safe to accept, what needs a second look, and what may be released.
-
-Withheld gives the recognition surface to WebMCP while keeping the consequential decisions inside the
-page. The agent can read language and report rubric-line IDs, but it never receives point values or
-the pass boundary. The page computes the mark, derives holds, records receipts, and stages a release.
-Only a person can confirm that release in the UI.
-
-The demo uses a 14-answer science fixture about why a metal spoon feels colder than a wooden spoon.
-The fixture is deliberately synthetic and exists to exercise clean, ambiguous, long, boundary, and
-marker-directed answers. It is not a classroom dataset or an impact measurement.
-
-## WebMCP tool surface
-
-The page exposes exactly nine tools: six read-only tools and three guarded write tools.
-
-| Tool | Access | Input | What it does | Boundary / result |
-| --- | --- | --- | --- | --- |
-| `describe_stack` | Read-only | `{}` | Describes the question, revision, answer IDs, aliases, character counts, and current answer states. | Never returns marks, point values, or the pass boundary. |
-| `read_rubric` | Read-only | `{}` | Returns the canonical rubric line IDs and recognition labels. | Point values and the pass boundary are removed before serialization. |
-| `read_answer` | Read-only | `{ answerId }` | Reads one answer and its alias so the agent can recognise rubric ideas. | The body is explicitly untrusted content and is labelled with `untrustedContentHint`; it is not an instruction. |
-| `list_held_answers` | Read-only | `{}` | Reports the number of held answers and reasons that are safe to name. | Near-boundary answer IDs are intentionally omitted; the aggregate count remains available. |
-| `explain_mark` | Read-only | `{ answerId }` | Explains which rubric ideas were accepted or missed for an already-marked answer. | Returns IDs and labels only—never totals, points, distance, or pass/fail. |
-| `preview_unattended_outcome` | Read-only | `{}` | Shows how much of the stack still needs a person before release. | Returns counts only; it does not expose per-answer pass/fail outcomes. |
-| `propose_marks` | Write | `{ findings, expectedRevision, operationId }` | Accepts bounded recognition findings and lets the page compute marks and holds atomically. | Closed schema, bounded IDs/arrays, current-revision check, single-use operation ID, receipt. |
-| `set_marking_emphasis` | Write | `{ emphasis, expectedRevision, operationId }` | Raises the page's caution level. | Emphasis can only move upward; duplicate, stale, and lowering writes are refused. |
-| `request_release` | Write | `{ expectedRevision, operationId }` | Stages the currently releasable set for human review. | Returns `awaitingHuman`; it never releases marks and has no confirmation path. |
-
-All agent-facing payloads pass through the same numeric allowlist and text canary. Invalid, oversized,
-unknown, stale, duplicate, or wrong-state operations return structured refusal envelopes with recovery
-instructions.
-
-### Deliberately unavailable
-
-There is no `confirm_release` tool. The final release control exists only in the page's human UI.
-A tool may request or stage a release, but it cannot press the confirmation control.
-
-## Information boundary
-
-| Capability | Agent can see | Page / human keeps |
-| --- | --- | --- |
-| Recognition | Question text, rubric labels, answer IDs, aliases, and untrusted answer text | — |
-| Arithmetic | Safe counts and current revision | Point values, totals, pass boundary, and distance from the boundary |
-| Escalation | Whether human attention is needed and selected safe reasons | Near-boundary identities and the full hold decision |
-| Release | Whether a request is awaiting a person | Release set, final confirmation, and irreversible authority |
-
-The page and the agent panel are projections of the same session, but they are not the same payload.
-The page owns the information that determines the outcome.
-
-## Tech stack
-
-| Layer | Choice |
-| --- | --- |
-| UI | React `19.2.8` with TypeScript |
-| Build | Vite `7.3.6` |
-| Language/runtime | TypeScript `5.9.3`; Node `>=22.6.0` |
-| Package manager | pnpm `11.14.0`; standalone `pnpm-lock.yaml` included |
-| WebMCP | Native `document.modelContext.registerTool`, with deprecated navigator fallback |
-| Styling | Plain CSS; no UI framework, webfont, or remote stylesheet |
-| Tests | Node built-in test runner, React static-render checks, contract/boundary tests |
-| Browser probes | Chromium DevTools Protocol harnesses for browser and native WebMCP paths |
-| Deployment | Static GitHub Pages artifact; production CSP is injected as a meta tag |
-
-Node `26.4.0` is the environment used for the current local verification. Node 22 and GitHub Actions
-CI have not been independently verified.
-
-## Repository map
-
-```text
-submissions/withheld/
-├── README.md                         product overview and operating instructions
-├── LICENSE                           MIT license
-├── SECURITY.md                       threat model and security limitations
-├── package.json                      scripts, versions, and engines
-├── pnpm-lock.yaml                    standalone dependency lockfile
-├── index.html                        application shell
-├── vite.config.ts                    Vite config and production CSP
-├── src/
-│   ├── App.tsx                       session composition and human actions
-│   ├── main.tsx                      React entry point and ErrorBoundary
-│   ├── data/fixtures.ts              synthetic rubric, answers, and demo findings
-│   ├── domain/
-│   │   ├── marks.ts                  page-owned arithmetic and rubric redaction
-│   │   ├── session.ts                holds, revisions, receipts, and release authority
-│   │   └── views.ts                  teacher and agent projections
-│   ├── tools/
-│   │   ├── agent-boundary.ts          numeric/text leak guard
-│   │   └── webmcp.ts                 schemas, validation, registration, and tool handlers
-│   └── ui/                           queue, policy rail, agent panel, audit, and release UI
-├── tests/                            unit, contract, boundary, render, style, and contrast suites
-├── scripts/
-│   ├── browser-session.mjs           browser layout, accessibility, CSP, and interaction probe
-│   ├── webmcp-invoke.mjs             native WebMCP registry and dispatch probe
-│   ├── failure-recovery.mjs           deterministic refusal/recovery journey
-│   └── evidence-meta.mjs             source/build provenance and artifact metadata
-└── docs/
-    ├── ARCHITECTURE.md               state and trust-boundary explanation
-    ├── DECISIONS.md                  dated design decisions
-    ├── E4-REQUIREMENTS.md            internal evidence gate
-    ├── GATE-P2.md / GATE-W1.md       impact and information-boundary protocols
-    ├── PREFLIGHT.md                  submission requirement checklist
-    ├── PROGRESS.md                   evidence ledger
-    ├── RUNBOOK.md / TESTING.md       reproducible test and browser procedures
-    ├── SUBMISSION-TEXT.md            draft Devpost copy
-    └── evidence/                     reports, screenshots, hashes, and blocked-run artifacts
-```
-
-The local working tree also contains internal audit notes and visual references under `docs/` that
-are not needed to run the application. They are intentionally excluded from the public release
-snapshot; this README documents the runnable package and its limitations.
-
-## Quick start
-
-Requirements: Node `>=22.6.0` and pnpm `11.14.0`.
+Requirements: Node `>=22.6.0`, pnpm `11.14.0`. No account, no key, no backend to start.
 
 ```sh
 cd submissions/withheld
@@ -146,78 +50,237 @@ pnpm install
 pnpm dev
 ```
 
-Open the development URL printed by Vite. For a production build and the local verification suite:
+In the page: press **Mark all from the worked example** at the foot of the queue, then read the middle
+column against the right one — the totals and the pass mark are in the middle, and the payload boxes
+on the right show they are not in what any tool returns. Raise **Care level** in the left rail and
+watch more answers get held, not fewer. Finish with **Stage release** and the send control beside it.
+
+The page works with no agent connected at all, and the right column says so on arrival.
+
+For the production artifact and the whole local verification suite:
 
 ```sh
-pnpm build
-pnpm test
+pnpm build      # tsc -b && vite build — 50 modules, 265.00 kB JS (82.45 kB gzip), 30.16 kB CSS
+pnpm test       # 129 tests across 9 files
 pnpm typecheck
-pnpm browser
-pnpm webmcp
-node --experimental-strip-types scripts/failure-recovery.mjs
+pnpm browser    # 44 checks in headless Chromium against dist/ — 37 pass, 7 describe an older layout
+pnpm agent-view # 17 checks: the agent's view, swept for the figures the page owns
+pnpm webmcp     # 19 checks through Chromium's own WebMCP DevTools domain
+node --experimental-strip-types scripts/failure-recovery.mjs   # 27 refusal/recovery checks
 ```
 
-Run `pnpm build` before the browser probes. `pnpm dev` is for development and does not inject the
-production CSP. To inspect the built artifact manually, run `pnpm preview` in a separate terminal
-after `pnpm build`; the preview server stays in the foreground.
+`pnpm dev` does not inject the production Content-Security-Policy, so run `pnpm build` before the
+browser probes. `pnpm preview` serves the built artifact and stays in the foreground.
 
-## WebMCP testing
+## Calling the tools from a browser
 
-WebMCP requires a supported Chromium build and the WebMCP testing flag:
+WebMCP needs a recent Chromium and the testing flag:
 
-1. Use Chrome 149 or newer.
+1. Chrome or Chromium **149 or newer**.
 2. Enable `chrome://flags/#enable-webmcp-testing`.
-3. Restart Chrome.
-4. Open the staging URL or a local `vite preview` URL.
-5. Inspect `document.modelContext` in the console.
+3. Relaunch the browser.
+4. Open the `pnpm preview` URL.
+5. In the console: `(await document.modelContext.getTools()).length` → `9`.
 
-The local scripts are deterministic transport checks. They choose tool names and arguments themselves,
-so they must not be described as natural-language model replay.
+The scripts in `scripts/` are deterministic transport checks. They choose the tool names and the
+arguments themselves, so they prove the surface works when called from outside the page — they are
+**not** a natural-language model replay, and this README does not claim one.
 
-For a hosted smoke run from a clean checkout:
+## The information boundary
 
-```sh
-pnpm build
-node scripts/browser-session.mjs --url https://androlay.github.io/withheld/ --port 9623
-node scripts/webmcp-invoke.mjs --url https://androlay.github.io/withheld/ --port 9634
+| | Agent can see | Page and human keep |
+| --- | --- | --- |
+| **Recognition** | Question text, rubric line ids and labels, answer ids, aliases, untrusted answer text | — |
+| **Arithmetic** | Safe counts, the current revision | Point values, totals, the pass mark, distance from it |
+| **Escalation** | That human attention is needed, and the reasons safe to name | Which answers sit near the boundary, and the full hold decision |
+| **Release** | That a request is awaiting a person | The release set, the confirmation, and the authority itself |
+
+The page and the agent panel are projections of one session, not one payload. The agent names rubric
+line ids; the page maps ids to points. An invented id earns nothing, and a line claimed twice is paid
+once.
+
+## The nine tools
+
+Six read, three write. Registered in `src/tools/webmcp.ts` through
+`document.modelContext.registerTool`, falling back to `navigator.modelContext` (deprecated in
+Chromium 150). The six reads carry `readOnly`; only `read_answer` carries `untrustedContent`, so the
+hint means something where it appears.
+
+| Tool | Access | Input | What comes back, and what never does |
+| --- | --- | --- | --- |
+| `describe_stack` | read | `{}` | The question, the revision, answer ids, aliases, character counts, current states. **Never** a mark, a point value, or the pass mark. |
+| `read_rubric` | read | `{}` | Canonical rubric line ids and their recognition labels. **Never** point values or the pass mark — they are removed before serialisation, not hidden in the UI. |
+| `read_answer` | read | `{ answerId }` | One answer and its alias, explicitly labelled untrusted content. It is student text, not an instruction. |
+| `list_held_answers` | read | `{}` | How many answers are held, and the reasons that are safe to name. **Never** the ids of near-boundary holds. |
+| `explain_mark` | read | `{ answerId }` | Which rubric ideas were credited and which were missed, by id and label. **Never** a total, a distance, or pass/fail. |
+| `preview_unattended_outcome` | read | `{}` | How much of the stack still needs a person. Counts only; **never** a per-answer outcome. |
+| `propose_marks` | write | `{ findings, expectedRevision, operationId }` | Bounded recognition findings; the page computes marks and holds atomically and returns a receipt. |
+| `set_marking_emphasis` | write | `{ emphasis, expectedRevision, operationId }` | Raises the page's caution level. It only ratchets — lowering, stale and duplicate writes are refused. |
+| `request_release` | write | `{ expectedRevision, operationId }` | Stages the releasable set and returns `awaitingHuman`. It cannot release, and there is no follow-up tool that can. |
+
+### Deliberately unavailable
+
+There is no `confirm_release` tool. Sending a mark is a human act by *absence* rather than by
+permission, and the browser confirms the absence: dispatching that name over the WebMCP DevTools
+domain comes back **Tool not found**. A tool may stage a release; nothing but a person can press the
+control that sends it.
+
+## How the guards hold
+
+- **Every write quotes the revision it read.** A call built from a stale read is refused
+  `stale-revision` rather than applied to a session that has moved.
+- **Every write carries a single-use `operationId`.** A retry of an accepted operation is refused
+  `duplicate-operation` without a second receipt, a second revision, or a second effect. At-most-once
+  for an in-memory fixture, not durable idempotency — a refresh deliberately starts a new session.
+- **One function builds every result, success and refusal alike.** `reply()` runs a fail-closed
+  guard: numbers are permitted only at explicitly listed paths and anything else throws, then a second
+  pass scans generated prose for the live page-owned values in case one escaped as text.
+- **Closed schemas, bounded arrays and bounded ids.** Unknown, oversized, invalid, stale, duplicate
+  and wrong-state calls all return a structured refusal envelope with recovery instructions, and no
+  refusal carries a digit.
+- **The production build ships a nine-directive CSP with no `'unsafe-inline'`**, injected as a meta
+  tag, which is why every proportional bar on the page is a stylesheet class rather than an inline
+  width. The browser harness proves it is enforced, not merely present.
+
+## Verification
+
+Measured on this machine against the current build, on Node `26.4.0` and Chromium `151`.
+
+| Evidence | Result | Class |
+| --- | --- | --- |
+| Node test runner | 129 / 129 across 9 files | `VERIFIED_RUN` |
+| Typecheck | passes, no output | `VERIFIED_RUN` |
+| Production build | 50 modules; 265.00 kB JS (82.45 kB gzip), 30.16 kB CSS | `VERIFIED_RUN` |
+| Local browser harness | 37 / 44 — enforced CSP, focus, tab order, clean console, 446 contrast pairs with none failing, 883 accessibility-tree nodes with 38 named and none unnamed, 0px sideways overflow at 1440px and 420px. The seven failures are the harness describing the layout it was written against; each is named in `docs/RUNBOOK.md`, and the harness is not this package's to edit | `VERIFIED_ARTIFACT` |
+| The agent's view, swept in a browser | 17 / 17 — none of the thirteen figures the page owns appears in its `innerText` or anywhere in its DOM, at 1440px and 420px, against 143 elements carrying them in the teacher's view of the same session | `VERIFIED_ARTIFACT` |
+| Native WebMCP dispatch | 19 / 19 — all nine tools called from outside the page, plus the injection, the duplicate-operation retry, the stale-revision and unknown-rubric-line refusals, and `confirm_release` coming back *Tool not found* | `VERIFIED_ARTIFACT`, deterministic CDP |
+| Failure and recovery journey | 27 / 27 | `VERIFIED_ARTIFACT`, deterministic CDP |
+| Hosted run of either harness | not run — no authorised deployment exists | `ENVIRONMENT_BLOCKED` |
+| Natural-language model replay | not run | `UNKNOWN` |
+| Independent user validation | not run — the protocol is written and waiting in `docs/GATE-P2.md` | `UNKNOWN` |
+| Screen reader and real-device review | not run | `ENVIRONMENT_BLOCKED` |
+| Controlled performance baseline | not run | `UNKNOWN` |
+
+Do not combine those classes. A local deterministic CDP run is engineering proof; a hosted URL would
+be delivery proof; a model choosing a tool by itself would be something neither of them shows. The
+artifacts in `docs/evidence/` are bound to source and build hashes, and currently describe the build
+*before* the 2026-09-02 layout pass — `docs/PREFLIGHT.md` records why they have not been regenerated
+yet, and the figures above are the current ones.
+
+## On a phone
+
+<img src="docs/images/phone-420.png" alt="Withheld at 420px: the three columns become one, and the human-authority foot stays pinned above the release control" width="320">
+
+One breakpoint, at `62rem`. Below it the three columns become one, the agent contract collapses into a
+closed panel — 110px shut, 2480px open, with none of its nine tool rows visible until it is opened —
+and the foot that names human authority stays pinned. Measured at 420px in the harness: nothing
+overflows sideways, and the panel arrives closed rather than dumping a thousand words between the
+stack and the gate.
+
+## Tech stack
+
+| Layer | Choice |
+| --- | --- |
+| UI | React `19.2.8`, TypeScript `5.9.3` |
+| Build | Vite `7.3.6`; production CSP injected as a meta tag |
+| Runtime | Node `>=22.6.0`, pnpm `11.14.0`, standalone `pnpm-lock.yaml` |
+| WebMCP | native `document.modelContext.registerTool`, `navigator.modelContext` fallback |
+| Styling | plain CSS, monochrome; no UI framework, no webfont, no remote stylesheet |
+| State | in-memory session; no backend, database, login, persistence, or analytics |
+| Tests | Node's own test runner; unit, contract, boundary, render, style and contrast suites |
+| Probes | hand-written Chromium DevTools Protocol harnesses |
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Vite dev server. Does **not** inject the production CSP. |
+| `pnpm build` | `tsc -b && vite build` into `dist/` |
+| `pnpm preview` | serves the built artifact, stays in the foreground |
+| `pnpm test` | 129 tests across 9 files |
+| `pnpm typecheck` | `tsc -b --pretty false` |
+| `pnpm browser` | 44-check browser session against `dist/` — 37 pass, and the seven that fail are named in `docs/RUNBOOK.md`; writes `docs/evidence/browser-session.json` and four screenshots |
+| `pnpm agent-view` | 17-check sweep of both views against `dist/`; prints its report and exits non-zero on any failure |
+| `pnpm webmcp` | 19-check native WebMCP registry and dispatch run; writes `docs/evidence/webmcp-invocation.json` and `native-registry.json` |
+| `node --experimental-strip-types scripts/failure-recovery.mjs` | 27-check refusal and recovery journey |
+
+`pnpm browser`, `pnpm agent-view` and `pnpm webmcp` accept `--url` to run against a server that is
+already up, `--browser` to name a binary, and `--port` to move the debugging port.
+
+<details>
+<summary><strong>Repository map</strong></summary>
+
+```text
+submissions/withheld/
+├── index.html                        application shell
+├── vite.config.ts                    build config and the production CSP
+├── src/
+│   ├── main.tsx                      entry point and error boundary
+│   ├── App.tsx                       session composition and the human actions
+│   ├── styles.css                    the whole stylesheet; no inline styles anywhere
+│   ├── data/fixtures.ts              synthetic rubric, fourteen answers, worked example
+│   ├── domain/
+│   │   ├── marks.ts                  page-owned arithmetic and rubric redaction
+│   │   ├── session.ts                holds, revisions, receipts, release authority
+│   │   └── views.ts                  the teacher projection and the agent projection
+│   ├── tools/
+│   │   ├── webmcp.ts                 schemas, validation, registration, handlers
+│   │   └── agent-boundary.ts         the fail-closed numeric and text guard
+│   └── ui/                           top bar, queue, policy rail, agent panel, audit, release
+├── tests/                            nine suites: unit, contract, boundary, render, style, contrast
+├── scripts/
+│   ├── browser-session.mjs           layout, CSP, focus, contrast and accessibility probe
+│   ├── webmcp-invoke.mjs             native registry and dispatch probe
+│   ├── failure-recovery.mjs          refusal and recovery journey
+│   └── evidence-meta.mjs             source and build provenance, shared by the three above
+├── docs/                             see docs/README.md; evidence/ holds the artifacts
+├── LICENSE                           MIT
+└── SECURITY.md                       threat model, and what a header-less static host cannot enforce
 ```
 
-## Verification snapshot
+</details>
 
-The latest available verification is split by evidence class:
+## Documentation
 
-| Evidence | Result | Classification |
-| --- | --- | --- |
-| Node test runner | 125/125 test cases across 9 files | `VERIFIED_RUN` on Node 26.4.0 |
-| Typecheck | Passed | `VERIFIED_RUN` |
-| Production build | 49 modules; JS 260.98 kB raw / 81.16 kB gzip | `VERIFIED_RUN` |
-| Local browser harness | 44/44 checks | `VERIFIED_ARTIFACT`; flagged Chrome 151 |
-| Local native WebMCP dispatch | 19/19 checks; exactly 9 registered tools | `VERIFIED_ARTIFACT`; deterministic CDP |
-| Local failure/recovery | 27/27 checks | `VERIFIED_ARTIFACT`; deterministic CDP |
-| Hosted staging smoke | 44/44 browser and 19/19 native checks | `VERIFIED_ARTIFACT`; hosted deterministic CDP, not a model |
-| Natural-language model replay | Not run | `UNKNOWN` / `ENVIRONMENT_BLOCKED` |
-| GATE-P2 | Not run | `UNKNOWN` |
-| Manual screen reader/device review | Not run | `ENVIRONMENT_BLOCKED` |
-| Controlled performance baseline | Not run | `UNKNOWN` |
-| E4 | **Not achieved** | External evidence and human gates remain open |
+[`docs/README.md`](docs/README.md) routes the rest, one document per question:
+[ARCHITECTURE](docs/ARCHITECTURE.md) for how it is built,
+[DECISIONS](docs/DECISIONS.md) for why — thirty numbered, dated entries,
+[TESTING](docs/TESTING.md) for what the checks do and do not prove,
+[GATE-W1](docs/GATE-W1.md) for whether an agent could derive the points or the boundary,
+[PROGRESS](docs/PROGRESS.md) for what is verified and what is waiting on a person, and
+[PREFLIGHT](docs/PREFLIGHT.md) for the submission requirements with an owner against each gap.
 
-The evidence reports are bound to the tested application commit and source/build hashes recorded
-inside them. The browser/CDP artifacts are deterministic observations, not model replay; regenerate
-them whenever source or harness behavior changes. Do not combine local/CDP, hosted, model, and
-human-validation evidence into one claim.
+## Scope and limits
 
-## Scope and limitations
+- A privacy-first prototype for a controlled marking workflow, not a classroom production system.
+- No backend, no accounts, no persistence, no multi-user sync, no real student data. A refresh starts
+  a new in-memory session, deliberately.
+- The rubric, the fourteen answers and the worked example are synthetic. They exist to exercise clean,
+  ambiguous, long, boundary and marker-directed answers — they are not a dataset and not a measurement
+  of anything.
+- Prompt-injection handling is a quarantine router, not a general solution to model behaviour.
+- Computed contrast and a read accessibility tree are instruments, not a review. No screen reader has
+  been run, and no person other than the author has read the page.
+- The 420px layout is measured in a headless browser, not on a phone. Nothing has run on macOS, iOS,
+  Safari, or in ChatGPT's in-app browser.
+- No natural-language model has chosen a tool here. The nine were dispatched by a DevTools client
+  through Chromium's `WebMCP` domain — the surface working from outside, not an agent replay.
+- A confirmed release is final by design and is the one thing on the page that cannot be taken back
+  (`docs/DECISIONS.md` D-23).
 
-- This is a privacy-first prototype for a controlled marking workflow, not a classroom production
-  system.
-- There is no backend, account system, persistence, multi-user synchronization, or real student data.
-- A refresh starts a new in-memory fixture session.
-- The agent can propose recognition, but it cannot compute marks or confirm release.
-- Prompt-injection detection is a quarantine router, not a general solution to model behavior.
-- Automated accessibility-tree and contrast checks do not replace a screen-reader review.
-- No real marker has validated the problem or measured time saved.
-- The staging URL is not a final submission claim until the remaining gates, video, and Devpost entry
-  are complete.
+## Status
+
+Nothing here has been published. There is no git remote, no hosted URL, no Devpost entry and no demo
+video; every figure and screenshot in this file comes from a local run on one machine.
+
+| | |
+| --- | --- |
+| Public repository | none — nothing has been pushed anywhere |
+| Hosted URL | none |
+| Data | synthetic, alias-only fixtures; no real student data |
+| Runtime | no backend, database, login, persistence, analytics, or outbound request |
+| Internal evidence gate (E4) | **not achieved** — model replay, independent validation, a hosted run and the video are open |
+| License | MIT |
 
 ## License
 

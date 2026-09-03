@@ -1,6 +1,6 @@
 # Progress ledger
 
-**As of 2026-09-02 16:09 UTC — 2026-09-03 early WITA.** Submission deadline: 2026-09-04 04:00
+**As of 2026-09-02 19:55 UTC — 2026-09-03 early WITA.** Submission deadline: 2026-09-04 04:00
 WITA (2026-09-03 20:00 UTC).
 
 This file separates three things that are easy to blur: what has been verified, what has been
@@ -13,15 +13,20 @@ Each of these was checked by running it, on 2026-09-02, on Node 26.4.0. That ver
 any of it has run on: `package.json` asks for `>=22.6.0` because that is where
 `--experimental-strip-types` appeared, which is reasoning and not a measurement. See `docs/TESTING.md`.
 
-- `pnpm test` — 125 tests, 125 pass, 0 fail across 9 files.
+- `pnpm test` — 129 tests, 129 pass, 0 fail across 9 files.
 - `pnpm typecheck` — exit 0, no output.
 - **`GATE-W1` was run and is recorded in `docs/GATE-W1.md`.** It found one real leak — the
   release receipt handed back every releasable answer id, which is the held set by subtraction —
   and that is fixed, with a regression test that fails if any stack id reappears in a
   `request_release` result. Two inference channels are named in the record rather than closed.
   The gate was driven by tests and by reading the source; no agent was involved.
-- `pnpm build` — clean, 49 modules transformed. JS 260.98 kB raw / 81.16 kB gzipped, CSS 27.88 kB
-  raw / 5.52 kB gzipped, `index.html` 0.99 kB / 0.51 kB gzipped.
+- `pnpm build` — clean, 50 modules transformed. JS 265.00 kB raw / 82.45 kB gzipped, CSS 30.16 kB
+  raw / 5.98 kB gzipped, `index.html` 0.99 kB / 0.51 kB gzipped.
+- **`pnpm agent-view` — 17 checks, 17 pass, 0 fail.** Both views, at 1440px and at 420px, swept for the
+  thirteen figures this page owns: none in the agent's view's `innerText`, none anywhere in its DOM, and
+  0 elements whose own text is one of them against 143 in the teacher's view of the same session. The
+  teacher's column is the control — the run fails if the teacher's view is clean. `docs/DECISIONS.md`
+  D-33 records the choice; `docs/RUNBOOK.md` says how to run it.
 - The CSP meta tag is present at `dist/index.html:4`, the referrer policy at :5, and the first
   script tag at :14 — the policy precedes the script it governs.
 - No inline style or inline script in `dist/`, and no `style={` or `dangerouslySetInnerHTML`
@@ -31,27 +36,34 @@ any of it has run on: `package.json` asks for `>=22.6.0` because that is where
   `main.tsx`, `App.tsx`, `AgentPanel.tsx`, `Rail.tsx`, `useMarkingSession.ts`, `webmcp.ts` and
   `styles.css` all return 200.
 - **The whole page renders, and that is now a test rather than a script I remembered to run.**
-  `tests/render.test.mts` builds twenty-two renders through Vite's SSR module loader on every
+  `tests/render.test.mts` builds thirty-one renders through Vite's SSR module loader on every
   `pnpm test`, and none of them throws. The top bar: two anchors and no button, and the revision read
   off the session rather than typed. The band, in both of its states: four figures — answers, marked,
   held, staged — every one of them the session's own, no button, no anchor, no `h1`, and a live region
   that is in the markup before it has anything to say. The left rail, in three states: the four-step
   flow with exactly one step marked current (`aria-current="step"`, and the words "you are here" rather
   than emphasis alone), a "look at" pointer on each, the three care rows, none disabled at the standard
-  setting. The queue against a session marked from the worked example: exactly one answer open in full,
-  three rows paged out of fourteen with the foot's "Showing 1–3 of 14" agreeing with the rows above it,
-  a mark form in every row and in the card, four rubric checkboxes on each, **no proportional bar at
-  all** — the audit owns the only bars on the page — and 13 of the 14 marked, because `ans-11` is
-  quarantined. The policy comparison: 3 columns, exactly one badged "Selected", 5 measure rows. The
-  audit rail: 5 entries for 5 holds, the first one open, 5 causal chains, 8 rails for the 4 held answers
-  that have a mark — credited and pass mark, one pair each — and 16 rubric-line cells of which 10 are
-  em-dashes and none is a `0`.
-- **Every count in that test is derived, not typed in.** The foot's range is checked against the rows
-  the queue actually paged, the checkbox count is the rows on screen plus the open card times the four
-  rubric lines, 5 audit entries because `holdsFor` returns 5, one projection per entry
+  setting. The queue against a session marked from the worked example: all fourteen answers as fourteen
+  rows, the head's "14 of 14" agreeing with the rows under it, four tabs and four panels on every row
+  with exactly one of the four arriving checked, a mark form in every row and four rubric checkboxes on
+  each, **no proportional bar at all** — the audit owns the only bars on the page — and 13 of the 14
+  marked, because `ans-11` is quarantined. The policy comparison: 3 columns, exactly one badged
+  "Selected", 5 measure rows. The audit rail: 5 entries for 5 holds, the first one open, 5 causal
+  chains, 8 rails for the 4 held answers that have a mark — credited and pass mark, one pair each — and
+  16 rubric-line cells of which 10 are em-dashes and none is a `0`.
+- **Every count in that test is derived, not typed in.** The head's count is checked against the rows
+  the queue rendered, the checkbox count is the rows times the four rubric lines and the tab count is
+  the rows times four, 5 audit entries because `holdsFor` returns 5, one projection per entry
   `agentFacingPayloads` returns, and the read/write split is counted off `toolSurfaceFacts()`. A fixture
   change moves the expectation with the page instead of failing for no reason, which is the difference
   between a test and a snapshot.
+- **The agent's view is asserted, not asserted about.** Six of those renders draw the page through the
+  agent's lens, and two tests read them: the first derives the thirteen figures the page owns from the
+  fixture and requires all four agent-view renders to contain none of them, with the teacher's marked
+  render as a control that must leak more than four; the second requires the three near-boundary holds to
+  be absent by name, present in the count, and the "nothing your agent can name" case to render as prose
+  rather than as an empty list. Figures at or below the class size are excluded and the doc comment says
+  why: a `4` is the band and also the rubric-line count.
 - **The action bar renders in both states.** Idle: the send slot is present, locked, disabled, and
   carries the lock glyph, and it is the only disabled control in the bar. Staged: `bar--waiting`,
   the heading is focusable, nothing is disabled, and the decline button has appeared.
@@ -96,7 +108,7 @@ any of it has run on: `package.json` asks for `>=22.6.0` because that is where
   column contains no `<button>` at all: its foot names the human-only action and links to the gate.
   `App` renders as one tree with one of each region, three slabs below the fold, one current step, one
   `h1` — still the queue's — and the band above the columns.
-- **No inline `style` attribute in any of the twenty-two renders**, and every class name they ask for
+- **No inline `style` attribute in any of the thirty-one renders**, and every class name they ask for
   has a rule in `src/styles.css`. That pair is what keeps every bar honest under
   `style-src 'self'`: a computed width would be dropped by the browser, so the width comes from a
   class instead. Both halves are assertions in the render test, with a floor under the class count so
@@ -110,15 +122,17 @@ any of it has run on: `package.json` asks for `>=22.6.0` because that is where
   every glyph inline SVG. The scheme was permission the page never exercised. Kept at `'self'`
   rather than `'none'` so an implicit `/favicon.ico` request is a 404 and not a console violation.
 - **Both directions of the stylesheet are now swept by a test.** Every `className` the page renders
-  has a rule in `styles.css`, asserted by `tests/render.test.mts` over all twenty-two renders — the
+  has a rule in `styles.css`, asserted by `tests/render.test.mts` over all thirty-one renders — the
   direction that matters under `style-src 'self'`. The reverse direction, a rule with no user, was a
   hand check until 2026-09-01 and is now the same test read backwards. It found fourteen rules nothing
   rendered, and almost none of them were dead: a sent answer, a locked policy row, a browser with no
-  agent in it, a scrolled-away stack. The fix was six new renders rather than an excuse, and three names
+  agent in it, a scrolled-away stack. The fix was six new renders rather than an excuse, and five names
   are excused in writing — the quantised `bars__fill--N` stops, which `tests/styles.test.mts` proves
-  reachable instead; `notice`, which only a handler sets; and `delta--on`, which needs a total
-  exactly on the pass mark that no subset of this rubric's points can reach. That last claim is itself
-  a test, so if the fixtures change the excuse fails rather than quietly persisting.
+  reachable instead; `notice`, which only a handler sets; `delta--on`, which needs a total
+  exactly on the pass mark that no subset of this rubric's points can reach; `error-state`, which needs
+  a render to have thrown; and `tick__conflict`, which needs a write to land under an open form with
+  ticks in it. That third claim is itself a test, so if the fixtures change the excuse fails rather
+  than quietly persisting.
 - **The quantised classes are a test, not a check I remembered to run.** `tests/styles.test.mts`
   walks every total from 0 to 200 against six rubric ceilings, collects every stop `gaugeStop()` can
   emit, and asserts all 21 `bars__fill--N` rules exist — the audit draws both of its rails from that one
@@ -150,15 +164,25 @@ any of it has run on: `package.json` asks for `>=22.6.0` because that is where
 
 The page has been opened in a browser. `pnpm browser` (`scripts/browser-session.mjs`) serves
 `dist/` with `vite preview`, launches an isolated headless Chromium with a throwaway profile, and
-drives it over the DevTools Protocol. The latest run, on 2026-09-02 at 16:08 UTC against
-Chrome/151.0.7922.137, reported **44 passed, 0 failed**. The record is
+drives it over the DevTools Protocol. The latest run, on 2026-09-03 at 05:51 UTC against
+Chrome/151.0.7922.137, reported **37 passed, 7 failed**. The record is
 `docs/evidence/browser-session.json`, with four screenshots beside it. **The script serves `dist/` and
 never builds it**, so every run of it has to follow a `pnpm build` or it is measuring the last bundle
 rather than the current source.
 
+**The seven failures are the script's expectations, not the page's behaviour, and the script belongs to
+another worker.** Two encode the band before the view toggle and the queue before the pager was removed;
+one requires the narrowest paragraph on the page to clear 80px without filtering for visibility, and the
+84 paragraphs now reporting 0px are all inside a shut row and an unchecked tab, invisible to
+`checkVisibility()`; four click the by-hand checkbox at viewport coordinates, which is a `0×0` rect now
+that the row's panels sit behind tabs. `docs/RUNBOOK.md` names each, cites the line, and gives the
+one-line fix. The by-hand and conflict behaviour those four cover was re-checked in the same browser on
+the same build and holds: revision `01` → `02` with a total of `17` and provenance "named by hand", and a
+stale draft that shows its conflict, disables its save, and changes nothing when pressed.
+
 What that run established, and what nothing before it could:
 
-- **The layout holds, and it is the one the visual brief describes.** Three tracks at 1440px —
+- **The layout holds, and it is the one the target image draws.** Three tracks at 1440px —
   `322px 761px 357px`: the policy rail, the work, the agent's contract — and one track at 420px.
   The foot bar computes to `position: sticky`. Nothing spills sideways at either width: `scrollWidth`
   equals `clientWidth` at 1440 and at 420.
@@ -185,7 +209,7 @@ What that run established, and what nothing before it could:
 - **A concurrent marking draft is blocked rather than merged silently.** The script submits another
   form while the focused form is open, observes the conflict alert and disabled save, then reloads
   the current mark to recover.
-- **Every colour pair the page actually composes clears its WCAG threshold.** 443 visible text nodes
+- **Every colour pair the page actually composes clears its WCAG threshold.** 446 visible text nodes
   walked, each measured against the background the cascade really gave it rather than the one the rule
   intended — ancestors composited, alpha included, `background-image` bailed out of rather than
   guessed at. The worst pair on the page is 4.8:1 on `p.ifnobody__note`; the threshold is 4.5 for body
@@ -195,11 +219,14 @@ What that run established, and what nothing before it could:
   the row's own grey — and `tests/contrast.test.mts` guards the palette by arithmetic so the page and
   the sheet are checked separately.
 - **What a screen reader would be handed is now read, not assumed.** The full accessibility tree —
-  with every control and heading arriving named (43 named regions and controls), no unnamed node in any role
+  with every control and heading arriving named (38 named regions and controls), no unnamed node in any role
   that must have one, a heading outline in document order with one level 1 and no level skipped (18
   headings, at levels 1, 2 and 3), and the page's landmarks: banner, main, three complementary regions,
   and the live region
-  arriving as a `status`. There is deliberately no `contentinfo`: the footnote is a note about the
+  arriving as a `status`. The tree is smaller since the disclosure redesign — 883 nodes and 38 named
+  where the committed sheet reports 1107 and 43 — because a shut `<details>` does not expose its
+  contents to the tree; the outline, the landmarks, the live region and the empty unnamed set are all
+  unchanged. There is deliberately no `contentinfo`: the footnote is a note about the
   work and sits inside `main`, where HTML-AAM does not expose a nested `<footer>` as one. This says
   what the tree contains. It does not say the page was listened to — see the standing list below.
 - **On a phone the contract column is a panel, and pressing it works.** At 420px the column is a
@@ -266,16 +293,17 @@ quote. See the next section for what that leaves open.
 - **No model has ever driven these tools.** The tools have now been invoked — by a DevTools Protocol
   client, which is the same path an agent's host uses, and the page moved. What no run in this
   workspace shows is a *model* finding the page, choosing among nine tools, or composing arguments for
-  one. Those are different claims, and the five classes of evidence are kept apart on purpose:
+  one. Those are different claims, and the classes of evidence are kept apart on purpose:
 
   | class | what it establishes | where | state |
   | --- | --- | --- | --- |
-  | the source | the functions do what they say | 125 tests, twenty-two renders | green |
-  | the artefact in a browser | layout, contrast, the AX tree, CSP enforced, focus, console, human release path | `pnpm browser` — 44 checks | green |
+  | the source | the functions do what they say | 129 tests, thirty-one renders | green |
+  | the artefact in a browser | layout, contrast, the AX tree, CSP enforced, focus, console, human release path | `pnpm browser` — 44 checks | 37 green, 7 outgrown |
+  | what the artefact withholds | no page-owned figure in the agent's view, in the live DOM | `pnpm agent-view` — 17 checks | green |
   | the browser's registry | the API exists, nine tools registered | both scripts | green |
   | dispatch through it | a call from outside reaches the handler, and the page moves | `pnpm webmcp` — 19 checks | green |
   | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
-  | a hosted URL | a stranger can open it | [androlay.github.io/withheld](https://androlay.github.io/withheld/) — HTTPS Pages staging, clean flagged Chrome 151 smoke 44/44 and native 19/19 | **verified for staging** |
+  | a hosted URL | a stranger can open it | nothing | **absent** |
 
   Anything that reads a green run as evidence of the last two rows is wrong, and this file exists to
   make that mistake hard.
@@ -286,10 +314,9 @@ quote. See the next section for what that leaves open.
   read it at all. Those are the gaps; the arithmetic does not close them.
 - CI is pinned to Node 22 and has never run. Every local run was on Node 26.4.0, so the floor in
   `package.json` is inferred from when `--experimental-strip-types` shipped rather than observed.
-- Hosted browser/dispatch now has a clean flagged Chrome 151 staging smoke result: 44/44 browser
-  checks and 19/19 native WebMCP dispatch checks. Natural-language model replay, GATE-P2, manual
-  screen-reader review, and controlled performance baseline remain explicitly blocked or not-run;
-  their runbooks are stored under `docs/evidence/` rather than represented as passes.
+- Hosted browser/dispatch, natural-language model replay, GATE-P2, manual screen-reader review,
+  and controlled performance baseline remain explicitly blocked or not-run; their runbooks are
+  stored under `docs/evidence/` rather than represented as passes.
 
 
 ## What exists, file by file
@@ -305,12 +332,12 @@ quote. See the next section for what that leaves open.
 | `src/ui/useMarkingSession.ts` | one session, two callers | none — no effects in a render |
 | `src/ui/useOneColumn.ts` | whether the page is in one column, so the contract can fold | 1, against the sheet's own breakpoint |
 | `src/ui/wording.ts` | hold wording, and the quantised bar stop | 6, via the sheet |
-| `src/ui/Icon.tsx` | every glyph on the page, as inline SVG | via the twenty-two renders |
+| `src/ui/Icon.tsx` | every glyph on the page, as inline SVG | via the thirty-one renders |
 | `src/ui/Chain.tsx` | why an answer was held, as three links | via the audit and the queue renders |
 | `src/ui/TopBar.tsx` | the bar across the top: the name, the revision, two anchors | 1, rendered |
 | `src/ui/Intro.tsx` | the band: the claim, and four counted figures | 2, rendered twice |
 | `src/ui/Rail.tsx` | the care setting, the boundary, the four steps, the ledger | 1, rendered three times |
-| `src/ui/Stack.tsx` | the whole class, paged, with a mark form in each row | 1, rendered five times |
+| `src/ui/Stack.tsx` | the whole class as fourteen rows, four panels behind each | 1, rendered six times |
 | `src/ui/AgentPanel.tsx` | the third column: the surface and four payloads, as the agent gets them, folded into a panel when there is one column | 5 via `webmcp.ts`, 5 rendered |
 | `src/ui/Compare.tsx` | the same stack under all three care settings | 1, rendered twice |
 | `src/ui/Audit.tsx` | what was held back, why, and what cannot be known | 1, rendered |
@@ -330,25 +357,24 @@ is verified by the browser's negative registry probe rather than shown as a row 
 
 The counts above are per test file. `tests/boundary-inference.test.mts` adds six more that cut
 across three source files at once, because what it tests is a property of the surface as a whole
-  rather than of any one function: see `docs/GATE-W1.md`. `tests/render.test.mts` adds twenty-two the same
+  rather than of any one function: see `docs/GATE-W1.md`. `tests/render.test.mts` adds twenty-five the same
 way: four of them sweep every render at once — in both directions, since one asks whether the sheet
 has a rule for every class the page uses and another asks whether the page reaches every class the
 sheet defines — one is an arithmetic guard standing behind a written excuse in that reverse sweep, and
 the other sixteen take one part of the page each.
 
-## Owner-only gates
+## Blocked on the owner
 
 Not started, and not mine to start:
 
-- **The final outward-facing submission.** The public repository and HTTPS staging URL are
-  available, but the owner must still complete eligibility, record the video, and submit the
-  Devpost form.
+- **Publication.** No git remote, no push, no GitHub Pages, no Devpost entry. The decision to
+  publish is reserved.
 
 Settled since this file was first written:
 
 - **A local browser session.** The owner granted the permission on 2026-09-01 and it has been
-  carried out; the last run reported 44 passed / 0 failed. See "Verified in a browser" above, and
-  `docs/RUNBOOK.md` for what the earlier runs found.
+  carried out; the last run reported 37 passed / 7 failed, and the seven are named above.
+  See "Verified in a browser", and `docs/RUNBOOK.md` for what the earlier runs found.
   What still needs a person rather than a launch is `GATE-P2`, which asks someone who did not build
   the page to read it.
 - **The name on the licence.** `LICENSE` now exists in this package, MIT, with the same
@@ -363,8 +389,7 @@ Settled since this file was first written:
   stays an anchor — and the only frame that can honestly be compared against the mockup is
   `docs/evidence/browser-fold-1487.png`, because a full-page capture paints the sticky foot across the
   middle of the document.
-- No demo video and no review by anyone other than the author. The hosted staging URL is live
-  and has passed the smoke checks recorded above.
+- No demo video, no hosted URL, no review by anyone other than the author.
 - `GATE-P1` is closed the honest way rather than the strong way: no primary source on marking
   workload was read, so `README.md` now states in as many words that the size of the problem was
   not measured here. The gate allowed either; this is the weaker half of it.
@@ -373,17 +398,26 @@ Settled since this file was first written:
   The instrument now exists — `docs/GATE-P2.md` has the four questions, the protocol, the rules the
   observer has to follow, and an empty Result section — so what is left is twenty minutes and one
   person. The page opens in a browser now, so nothing technical is in the way.
-- The public repository is now published under `AndroLay/withheld`, with package/evidence on `main`
-  and the application at Pages commit `abd0c71`, built from application commit `53cc3cf`. The
-  hosted-origin evidence harness fix is included in that application snapshot;
-  model replay, GATE-P2, and the video remain open.
+- Twelve commits exist for this work: the first builds the package, the second records the browser
+  session and the layout fix it found, the third rebuilds the page to the first target images, the
+  fourth adds the invocation run and the submission paperwork, the fifth opens the page with a band that
+  states the claim, the sixth measures contrast and the accessibility tree and folds the contract
+  column on a phone, and the seventh redraws the page to the refined monochrome target. The eighth
+  commits the reliability hardening — the revision guard, the operation receipts, the fail-closed
+  number check and the tests that hold them — and the four after it are paperwork on the staged
+  candidate: the evidence re-run, the documentation sync, a corrected checksum, and the provenance
+  wording in `docs/E4-REQUIREMENTS.md`. The disclosure redesign of the page, and the figures it
+  moved, remain in the working tree until they are reviewed and committed. None has been pushed
+  anywhere.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
   list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
-  judge's instructions — with the staging URL and repository URL filled in. It remains a draft until
-  the owner completes final form review, model replay if available, and the video.
+  judge's instructions — with the live URL and the repository URL still written as placeholders,
+  because neither exists, and with no sentence in it checked against a hosted page.
 
 ## Note on scope
 
-The active scope of this standalone public repository is Withheld only. Older design references
-and candidate names are historical provenance, not additional submissions, and must not be reused
-in the public submission copy.
+The active submission scope is limited to this package and `submissions/flowline/`.
+`prototypes/decision-receipt-room/` and the older candidate documents under
+`docs/research/` are historical provenance, not additional submissions. See
+`docs/research/44-active-submission-scope.md` for the authoritative scope; old candidate
+names must not be reused in the public submission copy.

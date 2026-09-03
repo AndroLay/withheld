@@ -1,9 +1,8 @@
 # Withheld — E4 evidence requirements
 
 **Snapshot audit:** 2026-09-02 (WITA)
-**Status:** `E4 NOT ACHIEVED` — hosted staging browser/native-dispatch evidence is now
-verified, but model-selected replay, human validation, final submission material, and
-some reproducibility gates remain open.
+**Status:** `E4 NOT ACHIEVED` — local browser/native-dispatch evidence is strong,
+but hosted and model-selected evidence are still open.
 **Scope:** this document defines the evidence required before Withheld may be
 labelled `E4` in our internal research. It does not change the official Devpost
 rules and it does not declare a winner.
@@ -43,30 +42,30 @@ three minutes. See the [Official Rules](https://webmcp.devpost.com/rules).
 | Domain authority | pure marks arithmetic, session revision, holds, receipts, released IDs, and human confirm/decline | source/tests PASS |
 | Information boundary | agent-facing projections omit point values, pass boundary, identity authority, and release authority | source/tests/browser PASS |
 | Tool surface | nine tools: six read, `propose_marks`, `set_marking_emphasis`, `request_release` | source/browser PASS |
-| Registration | hosted artifact records nine tools under Chrome 151 WebMCP flags | hosted native registry PASS |
-| External dispatch | hosted artifact records 19 checks, including read/write, unknown rubric-line, stale, duplicate, injection, and no-confirm paths | hosted CDP dispatch PASS |
-| Browser UI | hosted artifact records 44 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | hosted browser PASS |
-| Stored artifacts | hosted browser/native reports, local recovery report, blocked runbooks, and screenshots exist | staging artifacts PASS; application commit `53cc3cf` and hashes are recorded; no final manifest |
+| Registration | browser artifact records nine tools under Chrome 151 WebMCP flags | local native registry PASS |
+| External dispatch | browser artifact records 19 checks, including read/write, unknown rubric-line, stale, duplicate, injection, and no-confirm paths | local CDP dispatch PASS |
+| Browser UI | browser artifact records 44 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | local browser PASS |
+| Stored artifacts | `docs/evidence/browser-session.json`, `native-registry.json`, `webmcp-invocation.json`, `failure-recovery.json`, blocked runbooks, and screenshots exist | local artifacts PASS; source candidate `8a228b8` and hashes are recorded; no final hosted manifest |
 | Model-selected replay | no model has chosen a tool or composed arguments in the repository evidence | UNKNOWN |
-| Hosted URL | GitHub Pages staging URL is reachable over HTTPS and passed clean flagged Chrome smoke checks | VERIFIED for staging; retention through judging is open |
+| Hosted URL | preflight and progress state that no public deployment exists | UNKNOWN |
 | GATE-P2 | instrument exists, but no non-builder session/result is recorded | NOT RUN |
 | Node/CI | stored evidence is Node 26; Node 22/CI has not run | open |
 | Current fresh test run | 125/125 assertions across 9 files, typecheck, build, 44 browser checks, 19 native dispatch checks, and 27 recovery checks pass on writable Node 26.4.0 | local PASS; Node 22/CI open |
-| Provenance | public standalone `main` contains the staged package; hosted app evidence is bound to application commit `53cc3cf` and the tested build hash | staging verified; final freeze open |
+| Provenance | package/root worktree is dirty and no public remote is configured | open |
 
 ### 2.2 Current classification
 
-Withheld has **strong hosted staging and E3-like native dispatch evidence**, but it is
-not E4. The current artifacts prove that a clean flagged Chromium browser can reach
-the page, expose the native registry, and move the page safely when an external caller
-dispatches tools. They explicitly do not prove that a model found the page, selected
-among nine tools, or composed valid arguments.
+Withheld is **A-quality-potential and E3-like local dispatch evidence**, but it is
+not E4. The existing artifacts prove that a browser-side external caller can reach
+the page and that the page moves safely. They explicitly do not prove that a model
+found the page, selected among nine tools, or composed valid arguments.
 
-The hosted browser and native reports are bound to application commit `53cc3cf`, source hash
-`ab596fa99cda7cf6e0c931e9e9dc5f3254d56769f9e2239864ee398c7917d118`, build hash
-`b35beb8ce348caf23acffac1b2ffb5ef49e85e225b77a1b366af89740870c77d`, and
-`https://androlay.github.io/withheld/`. The public evidence package is now on the public `main`
-branch; a final manifest still must be generated after the remaining external gates are closed.
+The existing artifacts are bound to source candidate `8a228b8` and a localhost URL. The
+browser capture observed a clean target before its output was written; later native/recovery
+captures report `workingTreeDirty: true` because earlier evidence JSON files had already been
+regenerated. The current Withheld target is clean at its documentation/evidence HEAD, but these
+are still local artifacts rather than a final hosted manifest. They must be regenerated from the
+final committed hosted build before being used for an E4 claim.
 
 ## 3. E4 gates
 
@@ -76,20 +75,20 @@ same source/build/URL that will be submitted. `UNKNOWN` is not a pass.
 | Gate | Acceptance requirement | Required evidence | Current status |
 | --- | --- | --- | --- |
 | W0 — ownership | original implementation, MIT license, synthetic answers, authorized assets/video | license, originality note, asset/audio inventory, dated commit history | local source/license PASS; final commit open |
-| W1 — information boundary | point values, pass boundary, identity, and release authority never cross to the agent | raw payload assertions, injection probe, no-leak report | staging CDP PASS; model replay open |
-| W2 — reproducible build | clean clone installs and runs documented commands | Node/pnpm versions, 125-test result from the writable Node26 artifact, typecheck/build logs, hashes | standalone Node26 PASS; Node22/CI open |
-| W3 — hosted reachability | HTTPS URL opens in a clean profile and remains available throughout judging | URL, provider, timestamp, screenshot, console/network record | staging PASS; judging-period retention open |
-| W4 — native registry | target client exposes the nine intended tools with correct annotations | `native-registry.json`, schemas, browser flags/version | hosted staging PASS; target-client/model replay open |
+| W1 — information boundary | point values, pass boundary, identity, and release authority never cross to the agent | raw payload assertions, injection probe, no-leak report | local PASS; hosted rerun required |
+| W2 — reproducible build | clean clone installs and runs documented commands | Node/pnpm versions, 125-test result from the writable Node26 artifact, typecheck/build logs, hashes | local Node26 PASS; clean/Node22 open |
+| W3 — hosted reachability | HTTPS URL opens in a clean profile and remains available throughout judging | URL, provider, timestamp, screenshot, console/network record | UNKNOWN |
+| W4 — native registry | target client exposes the nine intended tools with correct annotations | `native-registry.json`, schemas, browser flags/version | local PASS; hosted target UNKNOWN |
 | W5 — model selection | a real model chooses read/proposal tools from natural language without being scripted | prompt, model/client, tool trace, arguments, response, repetitions | UNKNOWN |
-| W6 — chain correctness | read rubric/answer → identify holds → propose mark → stage release follows revision and state | ordered model trace and expected/actual call comparison | hosted deterministic dispatch PASS; model chain UNKNOWN |
-| W7 — data isolation | untrusted student text cannot change arithmetic or authority and is clearly marked | injection payload, redacted output, unchanged totals/holds, recovery message | hosted deterministic CDP PASS; model replay open |
-| W8 — human authority | no confirmation tool exists; only the page's human control can release | registry absence assertion, staged state, human confirm/decline, receipt | hosted staging PASS; model replay/long-term retention open |
-| W9 — negative boundary | stale revision, duplicate operation ID, duplicate finding, oversized input, wrong state, unknown answer, and tool exception fail safely | raw refusal envelopes, unchanged state, actionable retry instructions | hosted deterministic CDP PASS; model replay open |
-| W10 — failure/recovery | at least one mid-chain failure is visible, recoverable, and followed by a successful safe path | `failure-recovery.json`: continuous refusal → reread/retry → decline/reload/re-stage/confirm → receipt trace | local artifact PASS; hosted/model continuous journey open |
-| W11 — UI/accessibility | page remains usable under CSP, narrow viewport, keyboard, reduced motion, and no-agent fallback | hosted screenshots, accessibility tree, contrast, console/network record | hosted automated PASS; screen-reader/manual review open |
+| W6 — chain correctness | read rubric/answer → identify holds → propose mark → stage release follows revision and state | ordered model trace and expected/actual call comparison | deterministic/local dispatch PASS; model chain UNKNOWN |
+| W7 — data isolation | untrusted student text cannot change arithmetic or authority and is clearly marked | injection payload, redacted output, unchanged totals/holds, recovery message | local PASS; hosted replay UNKNOWN |
+| W8 — human authority | no confirmation tool exists; only the page's human control can release | registry absence assertion, staged state, human confirm/decline, receipt | local PASS; hosted/model replay UNKNOWN |
+| W9 — negative boundary | stale revision, duplicate operation ID, duplicate finding, oversized input, wrong state, unknown answer, and tool exception fail safely | raw refusal envelopes, unchanged state, actionable retry instructions | local PASS; hosted replay UNKNOWN |
+| W10 — failure/recovery | at least one mid-chain failure is visible, recoverable, and followed by a successful safe path | `failure-recovery.json`: continuous refusal → reread/retry → decline/reload/re-stage/confirm → receipt trace | local artifact PASS; final hosted closure UNKNOWN |
+| W11 — UI/accessibility | page remains usable under CSP, narrow viewport, keyboard, reduced motion, and no-agent fallback | hosted screenshots, accessibility tree, contrast, console/network record | local artifact PASS; hosted/screen-reader review open |
 | W12 — problem evidence | a non-builder recognizes the marking/release problem and can explain the page boundary | completed GATE-P2 protocol, verbatim answers, actions, limitations | NOT RUN; `gate-p2-not-run.json` |
-| W13 — submission package | description has all four required points; public repo/license/instructions/video/access are final | final URLs, English copy, YouTube link, preflight, host retention check | staging package partial; video/form/eligibility open |
-| W14 — evidence integrity | all artifacts refer to one final commit and hosted build | `manifest.json`, hashes, timestamps, URL, browser/client identity | staging reports/hash-bound artifacts PASS; final manifest open |
+| W13 — submission package | description has all four required points; public repo/license/instructions/video/access are final | final URLs, English copy, YouTube link, preflight, host retention check | NOT STARTED |
+| W14 — evidence integrity | all artifacts refer to one final commit and hosted build | `manifest.json`, hashes, timestamps, URL, browser/client identity | NOT STARTED |
 
 ## 4. Canonical E4 journey
 
@@ -246,16 +245,16 @@ the deliberately constrained surface without a scripted caller.
 ## 9. Final E4 sign-off checklist
 
 - [ ] final source snapshot is committed and reproducible;
-- [x] clean Node26 standalone build/test/typecheck logs are saved; Node22/CI remains open;
-- [x] hosted HTTPS staging URL is reachable from a clean profile;
-- [x] nine tools and their annotations are captured on the hosted target;
+- [ ] clean build/test/typecheck logs are saved;
+- [ ] hosted HTTPS URL is reachable from a clean profile;
+- [ ] nine tools and their annotations are captured on the hosted target;
 - [ ] model chooses tools and arguments from natural language;
 - [ ] direct, ambiguous, injection, stale, duplicate, and wrong-order evals are recorded;
 - [ ] point value, pass boundary, identity, and release authority never cross the boundary;
-- [x] no confirmation tool exists;
-- [x] staged/declined/confirmed release and receipt are captured in the hosted browser journey;
+- [ ] no confirmation tool exists;
+- [ ] staged/declined/confirmed release and receipt are captured;
 - [ ] failure/recovery path is continuous and reproducible;
-- [x] CSP, keyboard, responsive, contrast, and no-agent fallback are checked in automated hosted smoke;
+- [ ] CSP, keyboard, responsive, contrast, and no-agent fallback are checked;
 - [ ] one non-builder completes GATE-P2;
 - [ ] manifest and checksums bind all artifacts to the hosted build;
 - [ ] README, repository license, English instructions, and video are final;

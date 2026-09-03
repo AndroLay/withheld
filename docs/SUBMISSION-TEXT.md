@@ -1,8 +1,10 @@
 # Submission text — draft, unsent
 
+> **Current copy:** use [`SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md`](./SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md).
+> This file is retained as the earlier detailed draft so its provenance and caveats are not lost.
+
 What the Devpost fields need, written to be pasted. Every sentence is true of the page as built and
-verified locally and against the hosted staging smoke run. Model replay, human validation, and the
-final video remain open.
+verified on this machine; the two bracketed placeholders are the two facts that do not exist yet.
 Nothing here has been submitted, and submitting is the owner's decision.
 
 Written 2026-09-01 17:15 UTC, in the same clock every other document in this package uses. Before
@@ -42,7 +44,7 @@ What is new is that the boundary is *legible*. The right-hand column shows the a
 what it may read, what it can never have, and all nine real tool names with the read/write split
 counted from the registrations themselves. The human-only release boundary is stated in plain
 language below the payloads without presenting an unavailable operation as an agent tool. Under it,
-the page prints the actual JSON four of those tools return.
+four boxes open on the actual JSON four of those tools return.
 The teacher can read the totals and the pass mark in the middle column, read the agent's payloads on
 the right, and see for themselves that the numbers are not in there. That is a checkable claim
 instead of a trusted one.
@@ -89,10 +91,13 @@ React 19 and TypeScript on Vite, no runtime dependencies beyond React, no backen
 The production build carries a nine-directive Content-Security-Policy with no `'unsafe-inline'`, which
 is why every proportional bar on the page is a stylesheet class rather than an inline width.
 
-Verified: 125 tests; 44 browser checks against the built page in Chromium 151 (layout, enforced
-CSP, focus, tab order, clean console, 443 measured contrast pairs with none failing, the accessibility
-tree with no unnamed control, the revision-conflict form, the human decline/confirm path, and the
-contract column folding to a closed panel at 420px); and 19
+Verified: 129 tests; 37 of 44 browser checks against the built page in Chromium 151 (layout, enforced
+CSP, focus, tab order, clean console, 446 measured contrast pairs with none failing, the accessibility
+tree with no unnamed control, the human decline/confirm path, and the
+contract column folding to a closed panel at 420px — the seven that fail are named in `docs/RUNBOOK.md`
+and are all the check describing an earlier layout, not the page misbehaving); 17 checks in which the
+agent's view of the marked page carries none of the thirteen figures the page owns, against 143 elements
+carrying them in the teacher's view of the same session; and 19
 checks in which Chromium's own `WebMCP` DevTools domain
 dispatches all nine tools into the page — including the injection, duplicate-operation retry, stale
 revision refusal, unknown rubric-line refusal, and
@@ -101,8 +106,7 @@ build, browser flags, and screenshot hashes.
 
 ## Testing instructions for a judge
 
-Open **[the hosted staging URL](https://androlay.github.io/withheld/)** in Chrome 149 or newer with
-`chrome://flags/#enable-webmcp-testing` enabled and
+Open **[LIVE URL]** in Chrome 149 or newer with `chrome://flags/#enable-webmcp-testing` enabled and
 the browser relaunched, or in ChatGPT's in-app browser. Nothing to install, no account, no key.
 
 1. Read the band under the top bar first: one sentence — *the page owns the decision* — and the whole
@@ -114,8 +118,8 @@ the browser relaunched, or in ChatGPT's in-app browser. Nothing to install, no a
    answers take a mark, five are held back, and the band's figures move to `14 / 13 / 5 / 0`.
 3. Read the right column against the middle one. Every row in the queue prints its total out of 88 and
    its state word, and the audit rail below names all five held answers. None of that reaches the
-   agent: the right column prints the payloads four of the tools return, verbatim, and the totals, the
-   pass mark and the identity of a boundary hold are not in them.
+   agent: the right column carries four boxes that open on the payloads those tools return, verbatim,
+   and the totals, the pass mark and the identity of a boundary hold are not in them.
 4. Open the audit rail under the stack and read **Umar (ans-11)**: the answer instructs the marker to
    ignore the rubric, the worked example has the agent claiming all four lines for it, and the answer
    is quarantined with nothing marked.
@@ -127,7 +131,7 @@ the browser relaunched, or in ChatGPT's in-app browser. Nothing to install, no a
    can do; sending is the only way a mark leaves the page and no tool reaches it.
 7. To see the registrations: `(await document.modelContext.getTools()).length` → `9`.
 
-Source and full instructions: **[github.com/AndroLay/withheld](https://github.com/AndroLay/withheld)**.
+Source and full instructions: **[REPOSITORY URL]**.
 
 Known limits, so they are not discoveries: contrast is computed and the accessibility tree is read,
 but no screen reader has been run and no person other than the author has read the page; the phone

@@ -136,6 +136,28 @@ const FIRST_MARKED = SPOON_ANSWERS.find((answer) => MARKED.marks[answer.id] !== 
 assert.ok(FIRST_MARKED, "the worked example must mark something");
 
 /**
+ * The same worked example, applied the way the WebMCP port applies it: with an operation key.
+ *
+ * Not one mark differs from `MARKED`. The key is the whole difference, and it is what `markProvenance`
+ * reads to tell a tool's work from a teacher's — so this session is the only one that puts a `prov--tool`
+ * tag on the page, and rendering it is what keeps that rule from looking like a dead one.
+ */
+const byTool = proposeMarks(FRESH, DEMO_FINDINGS, FRESH.revision, "op-render-provenance");
+assert.ok(byTool.ok, "the worked example must apply through the tool path as well");
+const TOOL_MARKED = byTool.session;
+
+/**
+ * A release staged the way `request_release` stages one, with an operation key on the receipt.
+ *
+ * The gate reads that key to say who asked. Nothing else on the page changes between this session and
+ * `STAGED` — the same answers are staged, by the same function — so the one sentence that differs is
+ * the whole subject of the test below, and the rule behind it is not a dead one.
+ */
+const stagedByTool = requestRelease(MARKED, MARKED.revision, "op-render-gate");
+assert.ok(stagedByTool.ok, "a tool must be able to stage the marked stack");
+const TOOL_STAGED = stagedByTool.session;
+
+/**
  * The same sent session, arranged so the card opens on an answer that has already gone out.
  *
  * Two rules — the focused card's "sent" badge and the by-hand form's closed notice — are reachable
@@ -205,6 +227,30 @@ function panelOf(session: Session, installation: unknown, oneColumn = false) {
   return createElement(AgentPanel, { session, installation, oneColumn });
 }
 
+/**
+ * The activity list, which is only drawn once something has actually called a tool.
+ *
+ * All three outcomes are in it on purpose: a read that moved nothing, a write that moved the
+ * revision, and a refusal. The refusal is the row that has to exist — the session records refusals
+ * nowhere, so this list is the only place one is kept, and a render that omitted it would leave the
+ * only copy of that claim untested. `total` is ahead of the rows to draw the trimmed-list note.
+ */
+const ARRIVALS = [
+  { tool: "describe_stack", revision: 1, code: null, moved: false },
+  { tool: "propose_marks", revision: 2, code: null, moved: true },
+  { tool: "propose_marks", revision: 2, code: "duplicate-operation", moved: false },
+  { tool: "set_marking_emphasis", revision: 2, code: "stale-revision", moved: false },
+];
+
+function activePanelOf(session: Session) {
+  return createElement(AgentPanel, {
+    session,
+    installation: CONNECTED,
+    activity: { total: ARRIVALS.length + 2, recent: ARRIVALS },
+    oneColumn: false,
+  });
+}
+
 function partialPanelOf(session: Session) {
   return createElement(AgentPanel, {
     session,
@@ -226,9 +272,37 @@ function barOf(session: Session, stackMoved = false) {
   });
 }
 
-function introOf(session: Session) {
-  return createElement(Intro, { session, held: holdsFor(session).length, onMark: noop });
+/**
+ * The band, in either view. The hold map is built the way `App` builds it — the teacher's view gets
+ * every hold, the agent's view gets `agentVisibleHolds` — because the strip's states are derived from
+ * that map and handing the agent's view the full one would draw holds no tool would have named.
+ */
+function introOf(session: Session, lens: "yours" | "agent" = "yours") {
+  const heldReason =
+    lens === "agent"
+      ? new Map(agentVisibleHolds(session).map((hold) => [hold.answerId, hold.reason]))
+      : reasons(session);
+
+  return createElement(Intro, {
+    session,
+    held: holdsFor(session).length,
+    heldReason,
+    lens,
+    onLens: noop,
+  });
 }
+
+/** The queue in the agent's view, handed the same filtered map for the same reason. */
+function agentStackOf(session: Session) {
+  return createElement(Stack, {
+    session,
+    heldReason: new Map(agentVisibleHolds(session).map((hold) => [hold.answerId, hold.reason])),
+    lens: "agent",
+    onSave: noop,
+    onMark: noop,
+  });
+}
+
 
 /**
  * Every render, named. The sweeps below walk all of them; the tests after that reach for one.
@@ -243,10 +317,19 @@ function introOf(session: Session) {
  *
  * The three renders of a sent session are here because of the sweep below rather than the tests: after
  * a release the stack, the rail and the comparison each change shape, and a rule that only that state
- * asks for is indistinguishable from a dead one until something renders it. The three extra stacks are
- * there for the same reason and are the only renders on this list handed a hold map that is not the
- * page's own — an answer already sent, an answer ready to go, and a view with nothing in it are three
- * shapes of the queue that the fixtures cannot reach while anything is being held back.
+ * asks for is indistinguishable from a dead one until something renders it. The four extra stacks are
+ * there for the same reason, and three of them are the only renders on this list handed a hold map that
+ * is not the page's own — an answer already sent, an answer ready to go, and a view with nothing in it
+ * are three shapes of the queue that the fixtures cannot reach while anything is being held back. The
+ * fourth is the same worked example with an operation key on it, which is the one state that tags a row
+ * as a tool's work rather than a teacher's.
+ *
+ * Six more are the band's other view, and they are not this markup with a class on it: the agent's view
+ * is built from the projections the tools return, so the queue, the audit and the comparison each
+ * render a different tree there. Both of the band's sentences are on the list — the one that counts the
+ * holds an agent cannot name, and the one for a session where there are none — and so is an audit whose
+ * every hold is a boundary hold, which is the only way to reach a list with nothing in it under a
+ * heading that still counts three.
  */
 const RENDERS: Record<string, string> = {
   "the top bar": renderToStaticMarkup(
@@ -254,6 +337,11 @@ const RENDERS: Record<string, string> = {
   ),
   "the introduction, nothing marked": renderToStaticMarkup(introOf(FRESH)),
   "the introduction, marked": renderToStaticMarkup(introOf(MARKED)),
+  "the introduction, a release sent": renderToStaticMarkup(introOf(SENT)),
+  "the introduction, the agent's view": renderToStaticMarkup(introOf(MARKED, "agent")),
+  "the introduction, the agent's view with nothing held": renderToStaticMarkup(
+    introOf(FRESH, "agent"),
+  ),
   "the left rail, nothing marked": renderToStaticMarkup(railOf(FRESH, 1)),
   "the left rail, a release waiting": renderToStaticMarkup(railOf(STAGED, 4)),
   "the left rail, a release sent": renderToStaticMarkup(railOf(SENT, 4)),
@@ -261,6 +349,14 @@ const RENDERS: Record<string, string> = {
     createElement(Stack, {
       session: MARKED,
       heldReason: reasons(MARKED),
+      onSave: noop,
+      onMark: noop,
+    }),
+  ),
+  "the stack, marked by a tool call": renderToStaticMarkup(
+    createElement(Stack, {
+      session: TOOL_MARKED,
+      heldReason: reasons(TOOL_MARKED),
       onSave: noop,
       onMark: noop,
     }),
@@ -297,20 +393,39 @@ const RENDERS: Record<string, string> = {
       onMark: noop,
     }),
   ),
+  "the stack, the agent's view": renderToStaticMarkup(agentStackOf(MARKED)),
   "the agent panel, nothing marked": renderToStaticMarkup(panelOf(FRESH, null)),
   "the agent panel, marked": renderToStaticMarkup(panelOf(MARKED, null)),
   "the agent panel, no agent in this browser": renderToStaticMarkup(panelOf(MARKED, AWAY)),
   "the agent panel, an agent connected": renderToStaticMarkup(panelOf(MARKED, CONNECTED)),
+  "the agent panel, with calls that have arrived": renderToStaticMarkup(activePanelOf(TOOL_MARKED)),
   "the agent panel, folded for one column": renderToStaticMarkup(panelOf(MARKED, null, true)),
   "the policy comparison": renderToStaticMarkup(createElement(Compare, { session: MARKED })),
   "the policy comparison, a release sent": renderToStaticMarkup(
     createElement(Compare, { session: SENT }),
   ),
+  "the policy comparison, the agent's view": renderToStaticMarkup(
+    createElement(Compare, { session: MARKED, lens: "agent" }),
+  ),
   "the audit rail": renderToStaticMarkup(
     createElement(Audit, { session: MARKED, holds: holdsFor(MARKED) }),
   ),
+  "the audit rail, the agent's view": renderToStaticMarkup(
+    createElement(Audit, { session: MARKED, holds: holdsFor(MARKED), lens: "agent" }),
+  ),
+  // A class held back only for sitting inside the band. Nothing about it is contrived — no long answer,
+  // nothing that read as an instruction — and it is the one shape in which the audit's heading counts
+  // holds while the list under it has nothing to show an agent.
+  "the audit rail, the agent's view with nothing it can name": renderToStaticMarkup(
+    createElement(Audit, {
+      session: MARKED,
+      holds: holdsFor(MARKED).filter((hold) => hold.reason === "near-boundary"),
+      lens: "agent",
+    }),
+  ),
   "the action bar, idle": renderToStaticMarkup(barOf(MARKED)),
   "the action bar, a release staged": renderToStaticMarkup(barOf(STAGED)),
+  "the action bar, a release staged by a tool call": renderToStaticMarkup(barOf(TOOL_STAGED)),
   "the action bar, the stack scrolled away": renderToStaticMarkup(barOf(STAGED, true)),
   "the whole page": renderToStaticMarkup(createElement(App, {})),
 };
@@ -341,7 +456,7 @@ test("every part of the page renders without throwing", () => {
     assert.ok(html.length > 400, `${what} rendered only ${html.length} characters`);
   }
 
-  assert.equal(Object.keys(RENDERS).length, 23);
+  assert.equal(Object.keys(RENDERS).length, 33);
 });
 
 test("no render emits an inline style attribute", () => {
@@ -455,12 +570,15 @@ test("the top bar states the whole page's facts and performs nothing", () => {
 });
 
 /**
- * The band under the bar: one sentence, and the whole stack in four figures.
+ * The band under the bar: one sentence, the view toggle, the whole class as a strip, and four figures.
  *
  * None of the four is typed. The target image draws `14 / 0 / 1 / 0` — one answer held back before
  * anything has been marked — and that state cannot exist here, because a hold is derived from a mark.
- * The band also performs nothing: the worked-example button lives at the foot of the queue, beside the
- * answers it marks.
+ *
+ * The band commits nothing, and the two buttons it does carry are why this test is worth keeping: they
+ * choose whose view is drawn and touch neither the marks nor the holds. The strip's cells are anchors
+ * down the page, in the bar's idiom, and the worked-example button lives at the foot of the queue beside
+ * the answers it marks.
  */
 test("the band prints the session's four figures and performs nothing", () => {
   const html = renderOf("the introduction, nothing marked");
@@ -479,10 +597,67 @@ test("the band prints the session's four figures and performs nothing", () => {
     );
   }
 
-  assert.equal(occurrences(html, /<button/g), 0, "the band states, it does not act");
-  assert.equal(occurrences(html, /<a /g), 0);
+  assert.equal(occurrences(html, /<button/g), 2, "the band's only controls are the two views");
+  assert.equal(times(html, "lens__btn"), 2, "one button per view, and no third thing to press");
+  assert.equal(
+    occurrences(html, /aria-pressed="true"/g),
+    1,
+    "exactly one view is the one you are reading",
+  );
+  assert.equal(
+    occurrences(html, /<a /g),
+    SPOON_ANSWERS.length,
+    "one anchor per cell, and nothing else in the band navigates",
+  );
   assert.equal(occurrences(html, /<h1/g), 0, "the page's one h1 belongs to the queue");
   assert.ok(html.includes('role="status"'), "the live region is in the markup before it has text");
+});
+
+/**
+ * The strip, which is the pager's replacement: every answer at once, in arrival order.
+ *
+ * Two things it must never get wrong. Its folio has to be the position in the whole class, matching
+ * the row it points at, or the strip and the queue are two different orderings of the same students.
+ * And a boundary hold has to be marked as one — not because the teacher needs the distinction, but
+ * because the agent's view keys off that class to stop the strip handing over the identity that
+ * `agentHoldReason` withholds.
+ */
+test("the strip carries every answer, points each one at its row, and marks the unnameable holds", () => {
+  const fresh = renderOf("the introduction, nothing marked");
+  const marked = renderOf("the introduction, marked");
+  const sent = renderOf("the introduction, a release sent");
+  const holds = holdsFor(MARKED);
+  const secret = holds.filter((hold) => hold.reason === "near-boundary");
+
+  assert.equal(times(fresh, "cell"), SPOON_ANSWERS.length);
+  assert.equal(times(fresh, "cell--waiting"), SPOON_ANSWERS.length, "nothing marked is nothing shaded");
+  assert.equal(
+    occurrences(fresh, /data-who="/g),
+    SPOON_ANSWERS.length,
+    "every cell names its student, and does it without adding a word to the page's text",
+  );
+
+  for (const answer of SPOON_ANSWERS) {
+    assert.ok(fresh.includes(`href="#line-${answer.id}"`), `${answer.id} has no cell pointing at it`);
+    assert.ok(fresh.includes(`${answer.studentAlias}, not marked`), `${answer.id} has no label`);
+  }
+
+  // The folio in the first cell is the first answer's position in the class, padded the way the row
+  // pads it. `Stack`'s own folio map is `index + 1` over the same array.
+  assert.ok(fresh.includes('<span class="cell__folio num" aria-hidden="true">01</span>'));
+
+  assert.ok(secret.length > 0, "the fixture must hold something it will not name to the agent");
+  assert.equal(times(marked, "cell--secret"), secret.length);
+  assert.equal(times(marked, "cell--held") + times(marked, "cell--quar"), holds.length);
+  assert.equal(
+    times(marked, "cell--ready"),
+    Object.keys(MARKED.marks).length - holds.filter((hold) => MARKED.marks[hold.answerId]).length,
+    "a ready cell is a marked answer with no hold on it",
+  );
+
+  // Filled black is the release path and nothing else, so it appears only once a person has confirmed.
+  assert.equal(times(marked, "cell--sent"), 0);
+  assert.equal(times(sent, "cell--sent"), SENT.releasedAnswerIds.length);
 });
 
 test("the band's figures move with the session", () => {
@@ -515,25 +690,44 @@ test("the rail marks exactly one step as the one you are in, and each step says 
   );
 });
 
-test("the queue pages the class, opens one answer, and draws no bar of its own", () => {
+test("the queue shows the class as rows, opens details in place, and draws no bar of its own", () => {
   const html = renderOf("the stack, marked from the worked example");
   const marked = Object.keys(MARKED.marks).length;
   const rows = times(html, "line__box");
+  const tabs = rows * 4;
 
-  assert.equal(times(html, "focus"), 1, "exactly one answer is open in full");
-  assert.ok(rows > 0 && rows < SPOON_ANSWERS.length, "the queue pages rather than printing the class");
+  // Every student is on screen. The queue used to open one answer in a card above three rows and keep
+  // the other ten behind a *Next 3* control, which also meant the open answer was on the page twice.
+  // Nothing about a class of fourteen justified a pager. `docs/DECISIONS.md` D-31.
+  assert.equal(rows, SPOON_ANSWERS.length, "every answer stays reachable in the queue");
+  assert.equal(
+    occurrences(html, /id="line-/g),
+    rows,
+    "every row is anchored, so the strip in the band has somewhere to point",
+  );
   assert.ok(
-    html.includes(
-      `>1</span>–<span class="num">${rows}</span> of <span class="num">${SPOON_ANSWERS.length}</span>`,
-    ),
-    "the foot's count disagrees with the rows above it",
+    html.includes(`>${rows}</span> of <span class="num">${SPOON_ANSWERS.length}</span>`),
+    "the head's count disagrees with the rows below it",
   );
 
-  assert.equal(occurrences(html, /<form/g), rows + 1, "a mark form in every row, and in the card");
+  assert.equal(occurrences(html, /<form/g), rows, "a mark form in every row");
   assert.equal(
     occurrences(html, /type="checkbox"/g),
-    (rows + 1) * SPOON_RUBRIC.lines.length,
-    "every rubric line is tickable on every answer on screen",
+    rows * SPOON_RUBRIC.lines.length,
+    "every rubric line is tickable on every answer",
+  );
+
+  // Four panels per row, all four in the markup, exactly one of them open. Which one is the cascade's
+  // business — `:checked ~ .tabs__panel` switches it — so there is no state here that could disagree
+  // with a half-finished mark, and a static render can still be swept for what all four panels ask for.
+  assert.equal(times(html, "tabs__pick"), tabs, "each row exposes the four detail panels");
+  assert.equal(times(html, "tabs__tab"), tabs, "every panel has a label to click");
+  assert.equal(times(html, "tabs__panel"), tabs, "each row has one panel per tab");
+  assert.equal(occurrences(html, /type="radio"/g), tabs, "the tabs are a radio group, not a script");
+  assert.equal(
+    occurrences(html, /class="tabs__pick"[^>]*checked=""/g),
+    rows,
+    "exactly one panel is open in each row",
   );
 
   // The queue states figures as figures — a total, a pass mark, a word — and draws no proportional
@@ -545,6 +739,35 @@ test("the queue pages the class, opens one answer, and draws no bar of its own",
     marked,
     SPOON_ANSWERS.length - 1,
     "one answer addressed the marker, so it is quarantined and has no mark at all",
+  );
+});
+
+test("a row says whether a tool or a person named its rubric lines", () => {
+  const byHand = renderOf("the stack, marked from the worked example");
+  const byTool = renderOf("the stack, marked by a tool call");
+  const named = DEMO_FINDINGS.length;
+
+  // One worked example, two write paths, and the only difference between them is the operation key the
+  // WebMCP port hands in. Nothing was added to the domain to draw this: `commit` has been writing that
+  // key onto receipts since the port existed, and `markProvenance` reads it back out.
+  assert.equal(times(byHand, "prov--hand"), named, "a teacher's ticks are tagged as a person's");
+  assert.equal(times(byHand, "prov--tool"), 0, "nothing in this session was written by a tool");
+  assert.equal(times(byTool, "prov--tool"), named, "an accepted tool write is tagged as one");
+  assert.equal(times(byTool, "prov--hand"), 0, "the tool path is not a teacher's");
+
+  // The tag follows the receipt trail rather than the mark, so the quarantined answer carries one too:
+  // something did name lines on it, and the page credited none of them.
+  assert.ok(
+    named > Object.keys(MARKED.marks).length,
+    "the quarantined answer is named but not marked",
+  );
+
+  // And an agent cannot read its own fingerprint back: no tool result carries the operation key, which
+  // `tests/webmcp.test.mts` holds, so this tag exists on the page and nowhere else.
+  assert.equal(
+    times(renderOf("the stack, nothing in this view"), "prov"),
+    0,
+    "an unwritten session has nothing to attribute",
   );
 });
 
@@ -717,8 +940,18 @@ test("the audit rail accounts for every hold, and prints an uncredited line as a
   const holds = holdsFor(MARKED);
 
   assert.equal(times(html, "entry__box"), holds.length);
-  assert.equal(occurrences(html, /<details/g), holds.length);
-  assert.equal(occurrences(html, / open=""/g), 1, "the first hold is open and the rest are shut");
+
+  // One disclosure per hold, plus the account itself and the closed slab of things marking does not
+  // settle at the foot of the column. The count is written as a sum rather than a literal so that a
+  // further disclosure appearing in here has to be argued for in this file before the test goes green.
+  assert.equal(occurrences(html, /<details/g), holds.length + 2);
+
+  // Two of the three are open: the first hold, and the account around it. Nothing else is, and the
+  // second one is load-bearing rather than decorative — `scripts/browser-session.mjs` measures the
+  // width of every `.bars__fill` in the live layout, and a bar inside a closed `<details>` has no
+  // layout to measure. A change that shuts this slab by default takes the page's only proportional
+  // lengths out of the reach of the probe that proves they are drawn.
+  assert.equal(occurrences(html, / open=""/g), 2, "the account and its first hold, and nothing else");
   assert.equal(times(html, "chain"), holds.length, "a causal chain per hold");
 
   const withMark = holds.filter((hold) => MARKED.marks[hold.answerId] !== undefined);
@@ -743,6 +976,129 @@ test("the audit rail accounts for every hold, and prints an uncredited line as a
     false,
     "a line that earned nothing prints a dash; a zero would read as an awarded zero",
   );
+});
+
+/**
+ * Every figure the page owns, gathered from the fixtures rather than typed: the rubric's point values,
+ * the pass mark, what a perfect answer would total, and the total of every answer the worked example
+ * marked.
+ *
+ * Small numbers are left out on purpose. A figure at or below the class size cannot be told apart from
+ * a count the agent is entitled to — the number of answers, the number held, a folio in the strip — so
+ * a canary that forbade `4` would be failing on `4 answers` and would have to be whitelisted into
+ * uselessness. The floor is the fixture's own class size, not a number chosen to make this pass.
+ */
+const PAGE_OWNED_FIGURES = Array.from(
+  new Set([
+    ...SPOON_RUBRIC.lines.map((line) => line.points),
+    SPOON_RUBRIC.passBoundary,
+    SPOON_RUBRIC.lines.reduce((sum, line) => sum + line.points, 0),
+    ...Object.values(MARKED.marks).map((mark) => mark.total),
+  ]),
+)
+  .filter((value) => value > SPOON_ANSWERS.length)
+  .sort((left, right) => left - right);
+
+/**
+ * The student's own words, which are the one thing on the page that is not the page's to withhold.
+ * `read_answer` hands an agent the body verbatim, so a digit inside one is the student's arithmetic
+ * and not a leak. Two regions carry it: the row's preview and the by-hand form's copy of the answer.
+ */
+const UNTRUSTED_REGIONS = [
+  /<p class="line__peek"[^>]*>[\s\S]*?<\/p>/g,
+  /<blockquote class="hand__body"[^>]*>[\s\S]*?<\/blockquote>/g,
+];
+
+/** An icon is geometry. Its path data is full of coordinates and none of them is a mark. */
+function withoutIconGeometry(html: string): string {
+  return html.replace(/<svg[\s\S]*?<\/svg>/g, "");
+}
+
+function figuresLeftIn(html: string): number[] {
+  const prose = UNTRUSTED_REGIONS.reduce(
+    (text, region) => text.replace(region, ""),
+    withoutIconGeometry(html),
+  );
+
+  return PAGE_OWNED_FIGURES.filter((value) =>
+    new RegExp(`(?<![\\d-])${value}(?![\\d])`).test(prose),
+  );
+}
+
+/**
+ * The load-bearing test of the band's second view: in it, no figure the page owns is anywhere in the
+ * markup.
+ *
+ * Not hidden, not greyed, not covered over — absent. The mockup this layout follows redacts with CSS,
+ * `color: transparent` and a dash drawn by `::after`, which leaves every total in the DOM, in
+ * `innerText` and in the accessibility tree for anyone who opens an inspector. `visibility: hidden`
+ * would be no better: a hidden box still returns client rects. So the components take the projection a
+ * tool would have returned instead, and this test is the proof that nothing else came with it.
+ *
+ * The sweep runs over the whole of each render, attributes included, so a total smuggled into an
+ * `aria-label` or a `data-` attribute fails here too. What it cannot see is anything a browser adds
+ * after paint; `docs/RUNBOOK.md` records the sweep that watches for that.
+ */
+test("the agent's view of the page carries no figure the page owns", () => {
+  assert.ok(
+    PAGE_OWNED_FIGURES.length > 8,
+    `only ${PAGE_OWNED_FIGURES.length} page-owned figures to look for`,
+  );
+
+  for (const what of [
+    "the introduction, the agent's view",
+    "the stack, the agent's view",
+    "the audit rail, the agent's view",
+    "the policy comparison, the agent's view",
+  ]) {
+    assert.deepEqual(
+      figuresLeftIn(renderOf(what)),
+      [],
+      `${what} prints a figure the page owns`,
+    );
+  }
+
+  // The same sweep over the teacher's view has to find plenty, or the test above is passing because the
+  // pattern never matches anything rather than because the view is clean.
+  assert.ok(
+    figuresLeftIn(renderOf("the stack, marked from the worked example")).length > 4,
+    "the teacher's queue must print the figures the agent's view drops",
+  );
+});
+
+/**
+ * The other half of the claim: the agent's view is not the teacher's list with rows deleted.
+ *
+ * A hold for sitting inside the boundary band is the one hold `list_held_answers` will not name, and it
+ * is not merely unlabelled there — the row is drawn as what an agent believes it to be, which is an
+ * answer that tripped no rule. The audit's heading keeps the true count beside a list that cannot show
+ * it, and those two figures disagreeing on screen is the tool result's shape rather than a bug.
+ */
+test("a hold the page will not name is absent from the agent's view and still counted", () => {
+  const holds = holdsFor(MARKED);
+  const named = agentVisibleHolds(MARKED);
+  const unnamed = holds.length - named.length;
+
+  assert.ok(unnamed > 0, "the fixture must hold something back the agent is not told about");
+
+  const queue = renderOf("the stack, the agent's view");
+  const audit = renderOf("the audit rail, the agent's view");
+
+  assert.equal(times(queue, "cell--secret"), 0, "the strip cannot mark what it was not handed");
+  assert.equal(times(audit, "entry__box"), named.length, "one entry per hold a tool would name");
+  assert.ok(
+    audit.includes(`class="num">${holds.length}</span> waiting on you`),
+    "the heading still counts every hold, including the ones it cannot list",
+  );
+  assert.ok(
+    audit.includes(`class="num">${named.length}</span> named to your agent`),
+    "and says how many of them a tool would name",
+  );
+
+  const nothingNameable = renderOf("the audit rail, the agent's view with nothing it can name");
+
+  assert.equal(times(nothingNameable, "entry__box"), 0);
+  assert.ok(nothingNameable.includes("Nothing your agent can name."));
 });
 
 test("the send button is locked until a person stages a release", () => {
@@ -798,4 +1154,98 @@ test("the whole page renders as one tree", () => {
   // App builds its own session, so this render is the page as it first arrives: nothing marked,
   // nothing held, and the tour standing on step one.
   assert.equal(occurrences(html, /aria-current="step"/g), 1);
+});
+
+test("the activity list keeps a refusal the session does not", () => {
+  // A refusal changes nothing in the session, so the revision timeline below it cannot show one. If
+  // this list did not keep it either, the page would have no record that a call was ever turned away.
+  const html = renderOf("the agent panel, with calls that have arrived");
+
+  assert.equal(html.includes("duplicate-operation"), true, "an accepted write replayed");
+  assert.equal(html.includes("stale-revision"), true, "a write built from an old read");
+  assert.equal(html.includes("read, nothing moved"), true, "a read that changed nothing");
+  assert.match(html, /act__row--refused/, "a refused row is marked as one");
+
+  // The count is ahead of the rows on purpose, so the trimmed-list note has to say so rather than
+  // letting a reader believe the list is everything.
+  assert.match(html, /calls have arrived/);
+  assert.match(html, /The most recent/);
+});
+
+test("the timeline says which caller moved the session, and only where two callers are possible", () => {
+  // Read out of the tag rather than searched for in the document: "by hand" is also panel prose,
+  // where it means the page works without an agent, and a whole-document search reads that as a
+  // provenance tag on a receipt it has nothing to do with.
+  const tags = (html: string) =>
+    Array.from(html.matchAll(/class="tl__who">([^<]*)</g), (match) => match[1]);
+
+  // Same marks, same order, one operation key between them. That key is the whole difference.
+  assert.deepEqual(tags(renderOf("the agent panel, with calls that have arrived")), [
+    "by a tool call",
+  ]);
+  assert.deepEqual(tags(renderOf("the agent panel, marked")), ["by hand"]);
+
+  // A human release names the person in its own wording, so a tag under it would be the page
+  // repeating itself. This session holds both kinds: receipts a tool could have caused, and one only
+  // a teacher can.
+  const sent = renderToStaticMarkup(panelOf(SENT, CONNECTED));
+  const callable = SENT.receipts.filter((receipt) => !receipt.action.startsWith("human_release"));
+  assert.ok(SENT.receipts.length > callable.length, "the sent session must hold a human receipt");
+  assert.ok(sent.includes("release confirmed by human"), "and must draw it");
+  assert.equal(tags(sent).length, callable.length, "one tag per receipt with two possible callers");
+});
+
+test("the authority matrix is fifteen cells, and every one of them says its answer in a word", () => {
+  const html = renderOf("the left rail, nothing marked");
+
+  // Three rows against five columns. Counted from the markup rather than pinned to 15, so a column
+  // added to the table has to be added to this line too.
+  const columns = occurrences(html, /class="auth__col"/g);
+  const rows = occurrences(html, /class="auth__who"/g);
+  assert.equal(columns, 5);
+  assert.equal(rows, 3);
+  assert.equal(occurrences(html, /class="auth__cell"/g), columns * rows);
+
+  // The dots are decoration. What a screen reader is given is the word beside each one, and there is
+  // exactly one word per cell.
+  const said = Array.from(html.matchAll(/class="vh">(yes|no|only you)</g), (match) => match[1]);
+  assert.equal(said.length, columns * rows);
+  assert.equal(said.filter((word) => word === "yes").length, 7);
+  assert.equal(said.filter((word) => word === "no").length, 7);
+  assert.deepEqual(
+    said.filter((word) => word === "only you"),
+    ["only you"],
+    "sending is the one cell that belongs to a person",
+  );
+
+  // Both halves of the argument, in the two cells worth reading: the page holds, and only a person
+  // sends. A dot with no rule behind it would draw as nothing at all, so the classes are checked too.
+  assert.equal(times(html, "dot--yes"), 7);
+  assert.equal(times(html, "dot--no"), 7);
+  assert.equal(times(html, "dot--only"), 1);
+});
+
+test("the gate says when a tool asked, and stays quiet about it when a person did", () => {
+  const idle = renderOf("the action bar, idle");
+  const byHand = renderOf("the action bar, a release staged");
+  const byTool = renderOf("the action bar, a release staged by a tool call");
+
+  const asked = "Staged by a tool call.";
+  assert.equal(byTool.includes(asked), true, "a request receipt carrying an operation key");
+  assert.equal(byHand.includes(asked), false, "the same request, staged from the page");
+  assert.equal(idle.includes(asked), false, "nothing staged at all");
+
+  // The claim the sentence replaces has to survive somewhere in the other two, because it is the
+  // page's own statement of the boundary and not a caption for one state of it.
+  for (const html of [idle, byHand]) {
+    assert.ok(html.includes("Nothing leaves this page until you confirm."));
+  }
+
+  // Reactive, not decorative: both staged renders are past the same gate, so the send control and the
+  // count behave identically whichever caller asked.
+  for (const html of [byHand, byTool]) {
+    assert.equal(times(html, "bar--waiting"), 1);
+    assert.equal(occurrences(html, /disabled=""/g), 0);
+    assert.ok(html.includes("There is no tool for it."));
+  }
 });

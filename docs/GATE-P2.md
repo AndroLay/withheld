@@ -47,8 +47,9 @@ gets recorded as a failure to communicate. A gate that the observer can talk the
 the observer.
 
 Running step 2 needs the page open in a browser, and that prerequisite is now met: `pnpm build &&
-pnpm browser` opens `dist/` in a headless Chromium and reports 44 checks green, so the page lays out
-and responds. What this gate still needs is a person who did not build it — twenty minutes of one,
+pnpm browser` opens `dist/` in a headless Chromium and reports 37 of its 44 checks green — the seven
+that fail are the script describing an older layout, each named in `docs/RUNBOOK.md` — so the page lays
+out and responds. What this gate still needs is a person who did not build it — twenty minutes of one,
 which is not something code can supply.
 
 The page has since grown an introduction whose whole purpose is to say, in the first ten seconds, what

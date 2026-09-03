@@ -390,14 +390,14 @@ bar from a broken one is the only version of that check worth having.
 **Superseded by D-27, and kept as a dated record rather than corrected.** Everything below describes the
 two-hue mockups of 2026-09-01 and the page built to them: 256/776/336px tracks, an amber and grey text
 pair, one bar with the pass mark ticked. A monochrome mockup replaced both drawings the next day —
-An earlier monochrome visual target was 1487×1058, and the two blue-and-amber SVGs this entry was written
-against are no longer retained as public design references. The current palette, the current tracks and the current
+`withheld-v3-monochrome-refined.png`, 1487×1058 — and the two blue-and-amber SVGs this entry was written
+against are no longer in `docs/target-images/`. The current palette, the current tracks and the current
 count of departures are D-27's, not this entry's. The three
 departures named here still hold in substance — contrast beat fidelity, the tool names stayed whole, and
 the top bar's release control is still an anchor to the gate rather than a second button that could send —
 but their figures are the old drawing's.
 
-**2026-09-01.** Two deterministic visual mockups — 1440×900 and 390×844 — guided the interface, and
+**2026-09-01.** `docs/target-images/` holds two deterministic mockups — 1440×900 and 390×844 — and
 the page was rebuilt to them: a bar across the top, three columns, a sticky foot. The layout is now
 measured rather than asserted: 256px of policy, 776px of work, 336px of contract at 1440px, and one
 column at 420px, both recorded in `docs/evidence/browser-session.json`.
@@ -431,7 +431,7 @@ credited, which is one fact drawn twice — the track a fill does not cover *is*
 is one bar now, with the pass mark ticked on the same axis, and the percentages a sighted reader gets
 from the tick's position are spelled out for a screen reader beside it.
 
-**The omission this entry used to record is now done.** The design brief asks that on a
+**The omission this entry used to record is now done.** `docs/target-images/README.md` asks that on a
 phone the contract column become a panel that can be opened rather than small text that is always
 there. It is one: below 62rem the whole third column is a `<details class="fold">` that arrives closed,
 with the column's own `h2` as its summary, and above that width it is a plain region with no summary at
@@ -478,11 +478,12 @@ including by me, which is why the separation is now structural:
 
 | class | what it establishes | where it lives | state |
 | --- | --- | --- | --- |
-| the source | the functions do what they say, and no tree throws | **HISTORICAL_LOCAL:** 110 tests, twenty-three renders; **VERIFIED_RUN:** current writable run is 125 tests | green for the current run |
-| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | **HISTORICAL_LOCAL:** `pnpm browser`, 37 checks; **VERIFIED_RUN:** current 44 checks | green for the current run |
+| the source | the functions do what they say, and no tree throws | **HISTORICAL_LOCAL:** 110 tests, twenty-three renders; **VERIFIED_RUN:** current writable run is 129 tests, thirty-one renders | green for the current run |
+| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | **HISTORICAL_LOCAL:** `pnpm browser` when it carried 37 checks; **VERIFIED_RUN:** current run is 37 of 44 | green except seven the script has outgrown, each named in `docs/RUNBOOK.md` |
 | the browser's registry | the API exists and nine tools registered | both scripts | green |
 | dispatch through that registry | a call from outside reaches the handler, and the page moves | **HISTORICAL_LOCAL:** `pnpm webmcp`, 18 checks; **VERIFIED_RUN:** current 19 checks | green for the current run |
 | failure and recovery | one refusal/retry/release journey remains consistent across native dispatch and page UI | **VERIFIED_RUN:** `failure-recovery.mjs`, 27 checks | green locally; hosted/model open |
+| what the artefact withholds | the agent's view carries no page-owned figure — in the live DOM, not merely in the markup | **VERIFIED_RUN:** `pnpm agent-view`, 17 checks | green for the current run |
 | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
 
 The fourth is new and it is the one this entry adds. It closes the part of the agent story that was
@@ -549,10 +550,10 @@ reasons specific to this submission, not out of taste:
 - **The form takes one live URL.** A judge who lands on a marketing page has to click again to reach
   the thing being judged, and every extra click is a place to lose them. The workspace *is* the
   argument, so the argument has to be on it.
-- **A hub existed in the original workspace and is not part of this package.** Its deploy workflow
-  copied `.github/pages-index.html` to `site/index.html` and this package to `site/withheld/`. The
-  standalone public snapshot intentionally contains no hub or deployment workflow. A second
-  landing page inside the package would be a third page nobody asked for.
+- **A hub already exists and is not mine.** The repository's deploy workflow copies
+  `.github/pages-index.html` to `site/index.html` and this package to `site/withheld/`. A second
+  landing page inside the package would be a third page nobody asked for, in a file owned by other
+  work.
 - **Two documents drift.** A separate page repeats the counts, the tool names and the claim, and the
   copy on it is not reachable by any test. Every figure in the band is derived from the session the
   page runs on: the answers it was given, the marks that exist, the holds `holdsFor()` computes, and
@@ -592,8 +593,9 @@ rewritten in `rgb()` would leave every sweep above silently measuring a smaller 
 
 What arithmetic cannot know is composition — which pair meets which pixel after the cascade has run —
 so the browser session walks every rendered text node instead, reads the background it resolves to, and
-picks the threshold from the computed size and weight. 423 pairs, none failing, the thinnest at 4.8:1 on
-the note in the contract column. The two instruments are complements and neither replaces the other: a
+picks the threshold from the computed size and weight. 446 pairs, none failing, the thinnest at 4.8:1 on
+the note under the comparison table — `--muted` on `--band`, which is the same pair `contrast.test.mts`
+pins as the thinnest margin the lit side of the palette allows itself. The two instruments are complements and neither replaces the other: a
 palette can be sound and still be composed into an unreadable page, and a page can measure clean today
 and regress the moment a token moves.
 
@@ -602,7 +604,7 @@ rubric-line mark drawn in a tone that had only ever been used against white and 
 row's own grey. Nothing in the suite could have caught it, and reading the sheet had not.
 
 **The accessibility tree is read, and that is not listening.** `Accessibility.getFullAXTree` answers
-questions no render can: 1001 nodes, 32 named regions and controls, none unnamed, and the landmarks
+questions no render can: 883 nodes, 38 named regions and controls, none unnamed, and the landmarks
 the page means to expose — one `banner`, one `main`, three `complementary`, one live `status`. Two
 things it does not answer. It does not report reading order, so the heading outline is read from
 `document.querySelectorAll` and checked for a skipped level separately. And it says nothing about what
@@ -641,8 +643,8 @@ sheet and the page argue with each other automatically instead of at whatever po
 
 ## D-27 — The page was rebuilt to a monochrome mockup, and departs from it in eleven places
 
-**2026-09-01.** A third monochrome visual target arrived at 1487×1058 and grey end to end. The page
-was rebuilt to it, and this entry is the list of what did not come across,
+**2026-09-01.** A third target arrived: `docs/target-images/withheld-v3-monochrome-refined.png`, 1487×1058
+and grey end to end. The page was rebuilt to it, and this entry is the list of what did not come across,
 because a redesign that records only its successes is a redesign nobody can check.
 
 **What the mockup settled.** The greyscale is now the whole palette, not a restraint on top of one —
@@ -768,3 +770,177 @@ intentionally clears the session and its receipt history because Withheld has no
 The key is not part of the agent-facing receipt payload. It is a caller correlation value, not a
 new fact the page needs to disclose, and keeping it out preserves the existing numeric and answer-id
 boundaries. Manual page writes omit it because they do not cross a retrying transport boundary.
+
+## D-30 — Depth is bought with disclosures, and filled black is reserved for release
+
+**2026-09-02.** The page had grown to where its own thoroughness worked against it. On a fresh load at
+1440 it ran 2795px, and on a 420px phone 4797px, most of it explaining things that had not happened
+yet. Three changes, all to presentation; no tool, refusal, boundary or number moved.
+
+**Everything that is context rather than the work is now a closed `<details>`.** The projection panels,
+the flow of a mark from proposal to release, the comparison box and the slab of what marking does not
+settle all arrive shut and open where they are read, using one idiom throughout: `summary` carries the
+existing head, a trailing caret span holds the icon, and `[open]` rotates it. Fresh load is now 2495px
+at 1440 and 3416px at 420; the marked stack is 3004px and a staged phone 5190px. The audit rail's
+count is asserted as `holds.length + 1` in `tests/render.test.mts` rather than as a literal, so the
+next disclosure added in there has to be argued for in that file first.
+
+**A fresh answer is described once, in terms of what would make it move.** Five sentences about
+absent marks became one about the two ways a rubric line gets named — `propose_marks`, or the worked
+example at the foot of the queue — and the verdict line beside the NOT MARKED pill stopped restating
+the pill and now names the boundary the answer will be judged against, which is a fact no tool holds.
+
+**Filled black now means only that a mark can leave the page.** The pointer to the gate, **Stage
+release** and the send control carry it; nothing else does. The manual save button was demoted to the
+quiet variant, `.btn--go` was deleted outright rather than left as an unrendered rule, and the retry
+button in `src/ui/ErrorBoundary.tsx` became a plain `.btn` — a filled control on the error screen
+would have made the rule false in the one place a reader arrives without context. The selected care
+level stays filled and is the single exception, because it reports a state rather than offering an act.
+The stylesheet says so where `.btn--send` is defined, so the rule is discoverable from the code.
+
+**A sticky left rail was built, looked correct in the browser, and was withdrawn.** The evidence PNGs
+are full-page captures taken with `captureBeyondViewport`, in which a sticky element paints once at the
+top and its right border stops after one viewport — the artifact would have shown a page that appeared
+to lose a column two thirds of the way down. The live reading is not worth an artifact that misreports
+the layout, and the capture is not ours to change.
+
+**This adds a departure from the mockup, and D-27 is not retrofitted.** That entry's eleven
+differences were written on 2026-09-01, before any of this; the panels arriving shut is a twelfth,
+recorded here rather than folded back into a list with an earlier date on it.
+
+**The counterfactual disclaimer is left in two places on purpose.** It appears in the audit rail's
+explanation and again in the comparison box, because those sit in different columns and a reader may
+open either one without the other; a sentence that says nobody yet knows what an unwatched release
+would have cost has to travel with each of them.
+
+## D-31 — The class is one list of fourteen rows, and the pager is gone
+
+**2026-09-03.** The queue showed three answers at a time behind `PAGE = 3`, a focused card above them
+and a pager with walk buttons below. Eleven of the fourteen answers were a click away at any moment,
+and the one claim the page exists to make — this many were marked, these were held, and here is where
+each of them stands — was the one thing the layout would not let a reader see. All fourteen rows are
+now on the page at once, and nothing was hidden to make room.
+
+**A row is one line, and it opens.** `<details>` per answer, `summary` carrying seven cells — folio,
+alias, one clipped line of the answer, who named its rubric lines, the total, the state as a word,
+and a caret. Opening it reveals four panels: the answer in full, the rubric split into what was
+credited and what was not, the decision with its chain, and the by-hand form. The focused card that
+used to hold all of that for one answer at a time is deleted, along with `PAGE`, the pager and the
+walk buttons.
+
+**The tabs are a radio group, switched by the sheet.** Four `input.tabs__pick`, four labels and four
+`section.tabs__panel` as flat siblings, selected with `input:nth-of-type(n):checked ~ section:nth-of-type(n)`.
+No handler, no state, no JavaScript on the path — which also means every panel of every row stays in
+static markup where `tests/render.test.mts` can sweep it, and the browser supplies arrow-key movement
+between the tabs for free. Verified in the built page over CDP: opening a row and clicking each tab in
+turn leaves exactly one panel with a rendered box, four times out of four.
+
+**The marked page got shorter while showing eleven more answers.** At 1440 it was 3004px with three
+answers visible (D-30's own measurement); it is 2609px with fourteen. A fresh load is unchanged at
+2495px. The word count went up rather than down — 1300 on arrival, 1474 marked — because every row
+now carries its answer's full text in the markup and the sheet clips it to one line; a body cut short
+in JavaScript is a body a screen reader cannot get back.
+
+**Each row says whether a tool or a person named its rubric lines.** `markProvenance` reads the
+distinction out of the receipt trail rather than out of the mark, because `Receipt.operationId` is
+written only for an accepted WebMCP write. The tag follows the receipt, so the quarantined answer is
+tagged too: something named lines there and the page credited none of them, which is exactly the
+asymmetry worth showing. Nothing was added to the domain to draw it, no tool result carries it, and
+`tests/render.test.mts` renders a tool-written session next to a hand-written one to hold both halves.
+
+**Fourteen forms are mounted from the first paint, so the revision guard was made narrower.** A closed
+`<details>` keeps its children in the document, and the guard as written turned every revision change
+into a conflict — one tool call would have left fourteen untouched forms demanding to be reloaded, and
+a guard that fires that often reads as noise rather than as protection. An untouched form now adopts
+the new mark, which is the mark it would have shown had the row been opened a second later; a form with
+ticks in it still refuses and says so. The rule being defended is that nobody's work is overwritten
+without being told, and a draft nobody made is not work. Verified in the built page: zero conflict
+boxes after the worked example writes all fourteen marks.
+
+## D-32 — The three-column breakpoint is the queue's width, not the columns'
+
+**2026-09-03.** Fourteen rows made the layout answer a question three rows never asked: how much room
+a marking row actually needs. Measured in the built page, a row's tail wants 424px before its answer
+preview is one character wide. The three-column grid started at 62rem, where what was left for the
+middle column after 322px of policy and 357px of contract was 259px — so at every width from 992px to
+about 1157px, all fourteen rows overflowed their own cards. The `auto` columns the row used before hid
+nothing: they had the same minimum and the same spill.
+
+**Three fixes, all measured rather than chosen.**
+
+The row's last four cells are fixed at 42px, 44px and 126px plus the caret, taken from the widest
+string each can hold (39px for the provenance chip, 38px for `88 / 88`, 120px for "addressed the
+marker"). With `auto`, every row sized its own tail and a held row's longer tag pushed its chip and
+score left of the row above — fourteen ragged edges, and nothing for the eye to run down. All fourteen
+now share one x for the state word and one right edge for the score.
+
+The breakpoint moved to 78rem, in `src/styles.css` and in `MANY_COLUMNS` together, which
+`tests/styles.test.mts` already pinned to each other. Below it the page is one column, the queue has
+the whole width, and the contract folds into the disclosure it was built to fold into. A 1280px window
+clears 78rem with a scrollbar out; anything narrower gets the shape that fits it.
+
+The narrow row drops the folio number and the answer preview rather than squeezing them, and the
+spine's fourteen cells take a line of their own instead of the third of a phone's width left over
+beside the four figures — at 130px those cells are 6px wide and their folio numbers collide. Both
+dropped cells come back at 78rem. The answer is still one tap down in the row's own panel.
+
+**Verified across eight widths in the built page**: at 420, 992, 1200, 1248, 1280, 1366, 1440 and 1920
+a row head's `scrollWidth` equals its `clientWidth` — nothing spills at any of them. The three-column
+grid is present at 1248 and up and absent below. The evidence harness captures at 1440, 1487 and 420,
+so every frame in `docs/evidence/` still lands on the side of the breakpoint it was written for.
+
+## D-33 — The agent's view is a second render, not a stylesheet over the first
+
+**2026-09-03.** The page's whole claim is about an absence: the agent brings language, the page keeps the
+arithmetic, and nothing an agent receives contains a total, a point value, the pass mark or the width of
+the band. An absence is the one thing a screenshot cannot show and a paragraph is bad at. So the band
+now carries two buttons — **Your view** and **Agent's view** — and the second one draws the same session
+as the tools describe it.
+
+**It redacts by omission.** The v3 mockup does this with CSS: `color: transparent` and an em dash from
+`::after`. Measured in Chromium 151, that leaves all twenty-seven of its dashes rendering a box with the
+real value inside — the mockup's own `innerText`, in its agent view, reads back `4`, `50`,
+`17 19 23 29`, `88 71 52 48 46`. The band, the pass mark, every point value, every total, available to
+anyone who selects the text. `visibility: hidden` would be no better: a hidden box still returns client
+rects, and its text is still in the DOM. So the components take the projection a tool would have
+returned instead. `App` rebuilds the hold map from `agentVisibleHolds`, and each section re-reads the
+session through the same functions in `src/domain/views.ts` that the nine tools answer from. A judge who
+opens the inspector finds no total, because at that moment the page has not computed one to draw.
+
+**What stays is what an agent can already derive.** The four figures in the band, the revision, the
+folio numbers, the ledger's action counts, the ready and staged figures at the foot: every one of those
+is in a tool result already, so hiding them would be theatre. What goes is the total, the point values,
+the pass mark, the band, the distance from it, the pass and fail split, the provenance tag, and the
+identity of an answer held for sitting inside the band.
+
+**Two sections change shape rather than losing figures.** The audit keeps counting every hold in its
+heading while the list under it drops to what `list_held_answers` would return — five waiting on you,
+two named to your agent, disagreeing on screen exactly as they disagree across the boundary. And the
+comparison of care settings is replaced rather than redacted: no tool compares one setting with another,
+so in the agent's view that section is a paragraph saying it cannot ask. `set_marking_emphasis` can
+raise the setting and is refused if it tries to lower one, which means an agent can spend this page's
+caution without ever being able to read the price of it.
+
+**The toggle draws, it does not gate.** Writes still land in the agent's view; the marks, the holds and
+the revision are the same session either way. Sentence case for both buttons, because capitals on this
+page mean a control that acts on the marking. It sits in the band and not the top bar because that bar
+performs nothing at all and a test holds it to that, and because the claim it illustrates and the strip
+that visibly changes are both already there.
+
+**Verified twice, statically and in a browser.** `tests/render.test.mts` renders four agent-view trees
+and sweeps them for the thirteen figures the fixtures make page-owned, attributes included; the same
+sweep over the teacher's queue has to find several, so a passing run cannot be a pattern that never
+matches. In the production build, marked and at both 1440px and 420px, none of the thirteen appears in
+`innerText`, none anywhere in the live DOM once icon geometry and the students' own words are set aside,
+and the number of elements whose own text is one of them is 0 — against 143 in the teacher's view of the
+same session. Switching back restores all 143, so nothing is destroyed to hide it. The browser half is
+`pnpm agent-view` (`scripts/agent-view.mjs`), kept in the package rather than run once and deleted:
+17 checks, 0 failures on the run this entry was written from, and it exits non-zero if the teacher's view
+ever stops leaking, because a sweep that finds nothing everywhere proves nothing.
+
+**The sweep also found a defect that had nothing to do with the lens.** The strip's alias label is a
+`::after` drawn from `data-who`, and it was idle at `opacity: 0` — laid out, absolutely positioned, and
+therefore counted in the document's scrollable width. Fourteen 60px labels inside 24px cells made a
+420px page 18px wider than the phone holding it, on arrival, with nothing hovered. It is `display: none`
+until hover or focus now, and the last two labels hang from the right edge instead of straddling their
+cell. `documentElement.scrollWidth` is 420 at 420px in both views, hovered or not.

@@ -20,10 +20,11 @@ pnpm install
 pnpm dev          # dev server on http://127.0.0.1:4174
 pnpm build        # tsc -b, then the production bundle into dist/
 pnpm preview      # serve dist/ — this is the only way to exercise the CSP
-pnpm test         # 125 tests
+pnpm test         # 129 tests
 pnpm typecheck    # tsc -b, exit 0 expected
 pnpm browser      # after a build: drives dist/ in a headless Chromium (see below)
 pnpm webmcp       # after a build: invokes the nine tools through the browser's own registry
+pnpm agent-view   # after a build: sweeps both views for the figures the page owns (see below)
 ```
 
 The dev server binds to `127.0.0.1`, not `0.0.0.0`: it is not reachable from the network.
@@ -43,13 +44,16 @@ and at every width. The top bar and the band scroll away with the document.
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │ 🔒 WITHHELD│Marking workspace│revision 02│HELD FOR REVIEW ›  HUMAN RELEASE › │
 ├──────────────────────────────────────────────────────────────────────────────┤
-│ The page owns the decision.      14 answers · 0 marked · 0 held · 0 staged   │
+│ The page owns the decision.                     [ Your view │ Agent's view ] │
+│ ▮▮▨▨▨▮▮▮▮▨▨▮▮▮  one cell per answer, an anchor to its row                    │
+│ 14 answers · 0 marked · 0 held · 0 staged                                    │
 ├─ policy ────────┬─ work ───────────────────────┬─ agent contract ────────────┤
 │ Policy          │ Marking queue   14 of 14     │ ● No browser agent connected│
-│ Care level      │  ▾ 03 alias · rubric ticks   │                             │
-│  ○ Standard     │      nn / 88 · on the line   │ Tools an agent may call     │
-│  ○ Cautious     │  … 3 rows, a form in each    │  describe_stack       read  │
-│  ○ Most cautious│  Showing 1–3 of 14  Next 3 ⌄ │  propose_marks       write  │
+│ Care level      │  01 alias · answer… nn/88    │                             │
+│  ○ Standard     │  02 alias · answer… nn/88    │ Tools an agent may call     │
+│  ○ Cautious     │  ▾ 03 alias · on the line    │  describe_stack       read  │
+│  ○ Most cautious│   Answer·Rubric·Decision·…   │  propose_marks       write  │
+│                 │  … 11 more rows, one line    │                             │
 │ Who can do what │ Why the page held these      │  9 registrations counted    │
 │  agent │ page   │  ▾ alias · on the line       │ Revision timeline           │
 │                 │     chain → held for you     │                             │
@@ -67,23 +71,34 @@ and at every width. The top bar and the band scroll away with the document.
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Capitals in that sketch are not decoration: **on this page capitals mean a person can press it, and
-sentence case means this is a state.** The rule is enforced by eye rather than by test, and it has
-exactly one deliberate exception — the pager, which turns a page and is set in sentence case because
-it changes nothing about the stack. `docs/DECISIONS.md` D-27 records where the rule came from.
+Capitals in that sketch are not decoration, though the rule they follow is narrower than it first
+looks: **a state is never set in capitals.** A word in capitals is either a control a person can press
+or the name of a section; sentence case covers every state and also the page's quiet controls — the two
+view buttons in the band, the view select, the four tab labels in an opened row, and the row summary
+that opens it. The view buttons earn sentence case by a second rule as well: they change what is drawn
+and never what is held. That is the half of the rule worth enforcing, because a status word dressed as a
+control is the one mistake this page cannot afford. It is held by eye rather than by test.
+`docs/DECISIONS.md` D-27 records where the rule came from, D-31 the controls that replaced the pager it
+used to name as the exception, and D-33 the view toggle.
+
+The band is drawn on three lines above and is one row in the browser at 1440px: the claim, the toggle,
+the strip, then the four figures. Below 78rem the claim takes the first line on its own and the rest
+stack under it. In **Agent's view** a sentence appears under the toggle saying how many of the held
+answers are not named to an agent, which is the only line the band gains in that view.
 
 The measured tracks at 1440px are `322px 761px 357px` — the policy rail, the work, the agent's
 contract. The audit rail sits inside the work column, under the stack, because what the page held back
 is part of the work rather than a commentary on it; the third column belongs to the agent.
 
 The foot bar is `position: sticky`, and it is a sibling of the three columns rather than a fourth one,
-because a grid item's containing block is its own grid area — as a column it would never move. Below
-84rem (1344px) the contract column drops under the work column, not under the rail, because it is a
-reading of the work; below 62rem all three stack in source order — the stack, then the settings, then
-the contract. The bar stays put at every width.
+because a grid item's containing block is its own grid area — as a column it would never move. There is
+one breakpoint in the sheet: at and above 78rem (1248px) the three columns sit side by side, and below
+it they stack in source order — the stack, then the settings, then the contract. 78rem is the width at
+which a marking row fits rather than the width at which three columns fit; `docs/DECISIONS.md` D-32
+records the measurement. The bar stays put at every width.
 
 The top bar's two controls are anchors, not buttons. They move you to `#audit-title` and to
-`#gate-title`; neither performs anything. The visual brief draws the second one as a filled button that
+`#gate-title`; neither performs anything. The target image draws the second one as a filled button that
 looks like the send control, and this page does not, for the reason recorded in `docs/DECISIONS.md` as
 D-21: one control sends a mark, and it is at the foot. `tests/render.test.mts` asserts the bar renders
 no `<button>` at all.
@@ -111,11 +126,18 @@ create a second receipt. The two things that look like buttons are anchors: they
 and to the release gate, and neither does anything else. A page whose argument is that exactly one
 control releases a mark cannot afford a second one in its chrome.
 
-**2. The band under it.** One sentence — *the page owns the decision* — and the whole stack in four
+**2. The band under it.** One sentence — *the page owns the decision* — a two-button toggle reading
+**Your view / Agent's view**, the whole class as a strip of fourteen cells, and the same stack in four
 figures: answers, marked, held, staged. None of the four is typed. They are the session as it stands, so
 they read `14 / 0 / 0 / 0` on arrival and move together the moment anything is marked; the browser
 session reads them off the rendered page in both states, because a counter that reaches the screen and
-then fails to move is a worse lie than one that never rendered. There is no control in the band at all.
+then fails to move is a worse lie than one that never rendered. The strip is one cell per answer in
+arrival order, filled when a mark is ready, black when it has been sent, and hatched when the page is
+holding it — the heavier hatch is the quarantined answer, and a heavy bottom edge marks the holds an
+agent is counted and never named. Every cell is an anchor to its own row and nothing else: the band
+navigates and decides nothing. The toggle decides nothing either — it changes which of two projections
+the whole page is drawn from, and touches no mark and no hold. Step 11 is what to look for once it is
+pressed.
 
 **3. The status line, at the head of the contract column on the right.** With no browser agent
 connected it says so plainly and tells you nothing on the page needs one. That is the normal case
@@ -123,10 +145,17 @@ today. If a WebMCP-capable browser is present it reports how many tools were off
 separately — how many the browser refused, because "no agent" and "an agent that could not register"
 are different states and the page should not report one as the other.
 
-**4. "Mark all from the worked example", at the foot of the queue.** The one button that fills the
-stack in a single click. It applies a fixture from this page's own source. **It is not a recording
-of an agent**, and the page says so directly under the rows; the fixture exists so the holds are
-reproducible without one.
+**4. The marking queue, in the middle.** All fourteen answers, one line each, in arrival order and
+never sorted by total — a marking page that ranks a class is a leaderboard, which is a different
+product with a different effect on a teacher. A row says who wrote it, one clipped line of the answer,
+whether a tool call or a person named its rubric lines, the total out of 88, and what the page did with
+it. Opening a row reveals four panels behind tabs the stylesheet switches: the answer in full, the
+rubric split into what was credited and what was not, the decision with the chain that produced it, and
+a form for marking it by hand. The select at the head of the queue narrows the list to the held answers
+or the unmarked ones, and every answer is reachable under all three views. At the foot,
+**"Mark all from the worked example"** is the one button that fills the stack in a single click, by
+applying a fixture from this page's own source. **It is not a recording of an agent**, and the page says
+so directly under the rows; the fixture exists so the holds are reproducible without one.
 
 **5. The audit rail under the stack.** The rows themselves carry figures rather than graphics — a total
 out of 88 and a state word — because a bar in a list of fourteen is decoration. The audit below draws
@@ -149,7 +178,8 @@ agent may read, and what it cannot ever have — then the nine real tool names w
 counted from the registrations themselves. The human-only release boundary is described below the
 payloads rather than represented as an agent tool. Under them, five lines naming what no result can carry
 and what stops each one. Then the payloads
-themselves, pretty-printed: `read_rubric` with labels and no point values, `list_held_answers`,
+themselves, each in a box that arrives shut with the tool's name and what that result leaves out, and
+opens on the JSON pretty-printed: `read_rubric` with labels and no point values, `list_held_answers`,
 `explain_mark` for the first marked answer, and
 `preview_unattended_outcome`. Read them against the stack in the middle: the totals, the pass mark and
 the five held answers are all on screen, and none of them are in the JSON. The column ends on the one
@@ -195,6 +225,59 @@ is the only way a mark leaves this page, and no tool reaches it — the lock on 
 state waiting for a permission, it is the absence of a tool. If the stack changed after the request
 was staged, the bar says so and shows the current count rather than the requested one.
 
+**11. Press "Agent's view", with the stack marked.** The page is redrawn from the projections the nine
+tools answer from, so the figures it owns are not hidden — they are never built. Every total, point
+value, distance from the boundary, pass mark and band becomes a dashed box; the two bars in each open
+hold go with them, since a length is a figure drawn sideways; the `tool` / `hand` provenance tag goes,
+because who wrote a mark is the page's record and not the agent's; and three of the five holds lose their
+names, leaving the two the page will say out loud and a sentence counting the three it will not. The care
+comparison is the one section replaced rather than redacted: no tool compares one setting with another,
+so instead of a table of dashes it says so, and names the one tool that answers for the setting the page
+is on. What stays is what a tool would return anyway: the revision, the aliases, the folios, how many
+answers are held, and whether a release is staged.
+
+Press it back and the teacher's view returns unchanged. The toggle draws; it does not delete.
+
+Two things worth noticing while it is on. The agent's view is *taller* than the teacher's — 2697px
+against 2609px at 1440px, and 21 words shorter — because a dashed box is not smaller than the number it
+replaces. It is a proof, not a compression, and the prose it argues against is still on the page.
+`docs/DECISIONS.md` D-33 records the choice and what it cost.
+
+## The two-view sweep
+
+`pnpm agent-view` (`scripts/agent-view.mjs`) is step 11 done by script rather than by eye, and it exists
+because "the figure is not there" is the one claim a screenshot cannot support. Build first — like
+`pnpm browser` it serves `dist/`, and it refuses to start without one.
+
+It derives what to look for instead of being told: the four rubric point values, the pass mark, the
+maximum, and every total the worked example lands, read out of `src/data/fixtures.ts` — thirteen figures
+on the current fixture, `17 19 23 29 46 48 50 52 59 65 69 71 88`. Anything at or below the class size is
+dropped, because a `4` is the band and also the number of rubric lines, and a `14` is the class; neither
+can be attributed to the page from its own text. Then, in both views and at both widths, it reads
+`innerText`, the live `outerHTML` with `<svg>` stripped, and every element whose own text is exactly one
+of those figures, drawn or not. The students' own words are subtracted first: `read_answer` hands the
+body over verbatim, so a digit inside an answer is the student's.
+
+The last run, on 2026-09-03 against Chromium 151 and the current build, reported **17 passed, 0 failed**:
+
+| | teacher's view | agent's view |
+| --- | --- | --- |
+| figures in `innerText` | 12 of 13 | none |
+| figures anywhere in the DOM | 13 of 13 | none |
+| elements whose text is one | 143 | 0 |
+| holds named | 5 | 2 |
+| bars drawn | 8 | 0 |
+| horizontal overflow, 1440px and 420px | 0px | 0px |
+
+The teacher's column is the control: a sweep that finds nothing everywhere proves nothing, so the run
+fails if the teacher's view is clean. Twelve of thirteen rather than thirteen is the expected shape and
+not a miss — one point value exists only inside a row nobody has opened, and `innerText` does not reach
+into a closed `<details>`. `tests/render.test.mts` asserts the same asymmetry statically over four
+agent-view renders, so it cannot rot between browser runs; this script is what proves the stylesheet did
+not put back what the components left out.
+
+Flags match the browser session: `--url`, `--browser`, `--preview-port`, `--port`, `--keep`.
+
 ## The browser session
 
 `pnpm browser` is the answer to the largest gap in this package: every visual claim was a claim about
@@ -207,7 +290,7 @@ It checks what static markup cannot:
 
 - the grid, the pinned bar, and that nothing spills sideways at 1440px or at 420px — including that
   there are three tracks at 1440px and that they measure `322px 761px 357px`, which is the layout the
-  visual brief draws;
+  target images draw;
 - that the status band is still a band: above the columns rather than inside one, its four figures on a
   single row at 1440px, and under a height ceiling, since a band that grows tall pushes the work it
   introduces off the screen. It reads the four figures off the rendered page too, before and after the
@@ -223,7 +306,7 @@ It checks what static markup cannot:
   and therefore invisible to `renderToStaticMarkup`;
 - where the tab key actually lands, in order;
 - what the contrast actually is: every rendered text node against the background it resolves to after
-  the cascade, with the threshold taken from the computed size and weight. 443 pairs on the last run.
+  the cascade, with the threshold taken from the computed size and weight. 446 pairs on the last run.
   Only visible text is measured: a screen-reader-only span inside a figure once made a 60px number look
   like crushed prose, which was a defect in the probe and not in the page;
 - what the accessibility tree hands over: how many nodes carry a name, whether any interactive one
@@ -253,10 +336,12 @@ there. A run can no longer silently report someone else's layout as this one's. 
 your own, which is the point of passing it.
 
 The runs are not kept individually — `browser-session.json` holds only the latest, so the count below
-is a note from the session rather than something the evidence preserves. The last run, on 2026-09-02 at
-15:23 UTC against Chrome/151.0.7922.137, reported **44 passed, 0 failed** against the page as it now
-stands, band included. The evidence also records the base Git SHA, dirty-tree state, source/build
-SHA-256 values, browser flags, and screenshot hashes. The first two are worth knowing about, because between them they are the whole
+is a note from the session rather than something the evidence preserves. The last run, on 2026-09-03 at
+05:51 UTC against Chrome/151.0.7922.137, reported **37 passed, 7 failed**, and every one of the seven is
+the script describing the page it was written against rather than the page that is here now. That is
+recorded rather than hidden, and what it costs is set out in "Seven checks the script has outgrown"
+below. The evidence also records the base Git SHA, dirty-tree state, source/build
+SHA-256 values, browser flags, and screenshot hashes. The first two runs are worth knowing about, because between them they are the whole
 argument for looking:
 
 - Run 1 failed one check, and the check was wrong rather than the page: it demanded a non-zero width
@@ -272,9 +357,46 @@ argument for looking:
 
 Two later runs found real defects the same way. The contrast probe's first run failed with ten pairs at
 1.43:1 — a rubric-line mark drawn in a tone that had only ever been used on white — and the fold check's
-the **HISTORICAL_LOCAL** first run reported all ten tool rows drawn while the panel was shut, which was the check trusting
+first run (**HISTORICAL_LOCAL**, when the column listed ten rows) reported every tool row drawn while the
+panel was shut, which was the check trusting
 `getBoundingClientRect()` on a subtree that `content-visibility: hidden` had stopped painting but not
 stopped laying out.
+
+### Seven checks the script has outgrown
+
+`scripts/browser-session.mjs` belongs to another worker in this repository. I can run it and read it; I
+cannot edit it. So this is a report, not a fix, and it is written the way I would want to receive one:
+what fails, why, and what the failure does and does not prove. The seven are three separate causes.
+
+**Two assertions describe a page that two decisions replaced.** `:756` requires the band to hold no
+control, and the band now holds the two view buttons (D-33) — the same check reads the four figures off
+the page correctly in the same breath, `14/0/0/0`. `:775` requires three rows and a foot reading
+"Showing 1–3 of 14", and D-31 removed the pager, so `.queue__showing` no longer exists and the check
+reads `null`. Both are one-line expectations: two buttons rather than none, fourteen rows and no pager
+line.
+
+**One check measures every paragraph, including the ones nobody can see.** `:791` requires the narrowest
+`<p>` on the page to be at least 80px, which is how the crushed left-rail step was caught and is worth
+keeping. It filters on text length and not on visibility. On the current page 84 of 132 paragraphs report
+0px, and all 84 are inside a shut `<details>` *and* an unchecked tab panel — `checkVisibility()` is false
+for every one of them, and for none of the paragraphs a reader can actually see. The script already uses
+`checkVisibility()` for exactly this reason in the fold check at `:450`; the prose probe wants the same
+filter. Until it has one, this failure is noise: there is no crushed column on the page.
+
+**Four checks drive the by-hand form the way the form used to work.** They find the row, open it, then
+click its first checkbox at viewport coordinates. Since the row's four panels went behind tabs, that
+checkbox starts in a panel that is `display: none`, so its rect is `0×0` at `(0, 0)` and the click lands
+on the document. Every one of the four then reports a state that never happened. The path needs one more
+step — press the "Mark by hand" tab before reaching for the checkbox.
+
+**What those four were protecting is intact, and I checked it rather than assuming it.** Driving the same
+build through the tab, by CDP, at 1440px: open row `03`, press *Mark by hand*, tick one line, save —
+revision `01` → `02`, marked `0` → `1`, the row reads a total of `17` and its provenance tag reads "named
+by hand". Then the conflict: a draft ticked on row `04`, a save on row `05` moving the session to revision
+`03`, and row `04` comes back with its conflict notice shown and its save disabled. Pressing the disabled
+save changes nothing — still revision `03`, still no mark on `04`. That is the behaviour the four checks
+assert, observed in a browser, on the production build. What it lacks is a permanent home: it was a
+throwaway probe, and it belongs in the session script, whose owner is the one who can put it there.
 
 **It reads the WebMCP registry; it is not an agent, and it reads the accessibility tree rather than
 listening to a screen reader.** A green run does not make any claim about a
@@ -343,10 +465,8 @@ This deterministic local CDP harness records one continuous journey in
 `docs/evidence/failure-recovery.json`: clean read, safe refusals, bounded proposal, stale and
 duplicate recovery, stage, human decline, reload, re-stage, human confirm, receipt, and final
 reread. The latest run is 27/27. It deliberately uses synthetic alias-only data, stores no answer
-bodies, point values, or pass boundaries, and is not a model replay or a persistence test.
-The hosted browser and dispatch runs are recorded separately in `hosted-browser-session.json` and
-`hosted-webmcp-invocation.json`. Reload intentionally demonstrates the documented fixture-only
-fallback to a new in-memory session.
+bodies, point values, or pass boundaries, and is not a model replay or a persistence test. Hosted and model
+runs have separate blocked artifacts under `docs/evidence/`.
 
 ## Checking for WebMCP
 

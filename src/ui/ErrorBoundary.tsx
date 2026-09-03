@@ -31,7 +31,10 @@ export class ErrorBoundary extends Component<Props, State> {
           Nothing was sent. Reload this page to restore the local marking session and its human-only
           release control.
         </p>
-        <button type="button" className="btn btn--go" onClick={() => window.location.reload()}>
+        {/* Outlined, like every other control that is not a release. It is the only button on this
+            screen, so it does not need weight to be found, and a filled one here would make "black
+            means a mark can leave" false in the one place the page has nothing else to say. */}
+        <button type="button" className="btn" onClick={() => window.location.reload()}>
           Reload page
         </button>
       </main>

@@ -90,7 +90,10 @@ test("every computed class family in the UI has a rule", () => {
   for (const state of ["sent", "held", "marked", "waiting"]) {
     assertDefined(`line--${state}`, "Stack's Row()");
     assertDefined(`line__state--${state}`, "the row's state word");
-    assertDefined(`tagline--${state}`, "the focused card's badge");
+  }
+
+  for (const who of ["tool", "hand"]) {
+    assertDefined(`prov--${who}`, "the row's provenance tag");
   }
 
   for (const tone of ["on", "over", "under"]) {
@@ -101,12 +104,29 @@ test("every computed class family in the UI has a rule", () => {
     assertDefined(`step--${state}`, "the policy column's numbered steps");
   }
 
+  // The authority matrix answers in dots, and the three answers are three rules: filled, hollow, and
+  // a ring around a padlock. A missing rule here is the worst kind of missing rule on this page — an
+  // unstyled span draws nothing, and a cell that says "no" by drawing nothing looks like a cell that
+  // says "yes" by drawing nothing. The word beside each dot is the reason that is a bug and not a
+  // wrong answer, and `render.test.mts` counts those words.
+  for (const answer of ["yes", "no", "only"]) {
+    assertDefined(`dot--${answer}`, "the authority matrix");
+  }
+
   for (const look of ["wait", "none", "live"]) {
     assertDefined(`conn--${look}`, "the agent column's connection box");
   }
 
   for (const kind of ["read", "write"]) {
     assertDefined(`tool--${kind}`, "the tool list");
+  }
+
+  for (const outcome of ["read", "wrote", "refused"]) {
+    assertDefined(`act__row--${outcome}`, "the agent column's activity list");
+  }
+
+  for (const kind of ["sent", "ready", "held", "quar", "waiting"]) {
+    assertDefined(`cell--${kind}`, "the band's spine");
   }
 });
 

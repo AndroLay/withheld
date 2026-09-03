@@ -315,7 +315,12 @@ const SNAPSHOT = `
   };
   const prose = [...document.querySelectorAll("p")]
     .map((node) => ({ node, text: visible(node) }))
-    .filter((found) => found.text.length > 20)
+    .filter(
+      (found) =>
+        found.text.length > 20 &&
+        found.node.getClientRects().length > 0 &&
+        (typeof found.node.checkVisibility !== "function" || found.node.checkVisibility()),
+    )
     .map((found) => ({
       width: Math.round(found.node.getBoundingClientRect().width),
       text: found.text.slice(0, 40),
@@ -366,7 +371,7 @@ const SNAPSHOT = `
       slabs: count(".slab"),
     },
     rows: count(".line__box"),
-    showing: document.querySelector(".queue__showing")?.textContent?.replace(/\\s+/g, " ").trim() ?? null,
+    showing: document.querySelector(".queue__of")?.textContent?.replace(/\\s+/g, " ").trim() ?? null,
     checkboxes: count('input[type="checkbox"]'),
     toolRows: count(".tool"),
     auditEntries: count(".entry__box"),
@@ -749,11 +754,11 @@ async function main() {
   );
 
   // On arrival the class is unmarked, so three of the four figures are zero and the first is the whole
-  // stack. They are the session read live, which is why the band holds no control: the only thing to
-  // press up here would be a second way to mark, and marking belongs beside the answers.
+  // stack. The band also carries the two view buttons; they change only the projection and never mark
+  // an answer, so the worked-example control remains beside the queue.
   check(
-    "the band prints the session's own figures and holds no control",
-    JSON.stringify(band?.figures) === JSON.stringify(["14", "0", "0", "0"]) && band?.buttons === 0,
+    "the band prints the session's own figures and keeps view controls separate from marking",
+    JSON.stringify(band?.figures) === JSON.stringify(["14", "0", "0", "0"]) && band?.buttons === 2,
     `figures read ${(band?.figures ?? []).join("/")}, ${band?.buttons} buttons in the band`,
   );
 
@@ -768,11 +773,11 @@ async function main() {
     shape.length === 0 ? `5 regions, ${regions.slabs} slabs` : `wrong count: ${shape.join(", ")}`,
   );
 
-  // The queue pages the class rather than printing it: three rows and one open card, with the count at
-  // its foot saying so. A page of three that claims fourteen is the failure this pins down.
+  // The queue keeps every answer reachable in arrival order. The view select filters the rows without
+  // changing their folios, so the initial all-answers count is fourteen of fourteen.
   check(
-    "the queue shows one page of the class and says which",
-    fresh.rows === 3 && fresh.showing === "Showing 1–3 of 14",
+    "the queue shows the class and says how many rows are visible",
+    fresh.rows === 14 && fresh.showing === "14 of 14",
     `${fresh.rows} rows, foot reads "${fresh.showing}"`,
   );
   check("the action bar is pinned rather than in the flow", fresh.barPosition !== "static", fresh.barPosition);
@@ -825,201 +830,137 @@ async function main() {
   check("five accounts are in the audit rail", marked.auditEntries === 5, `${marked.auditEntries} entries`);
   check("the agent panel lists nine registered tools", marked.toolRows === 9, `${marked.toolRows} rows`);
 
-  // Two manual forms share the same session. Reset the drafts left stale by the worked-example
-  // write, then submit a different row while the focused answer is open. The second form is a
-  // controlled simulation of another caller moving the revision; the focused form must show a
-  // visible conflict and disable its save rather than overwrite the newer state.
-  const resetForms = await cdp.evaluate(`
-    const reloads = [...document.querySelectorAll(".tick__conflict .btn")];
-    reloads.forEach((button) => button.click());
-    return reloads.length;
-  `);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const resetState = await cdp.evaluate(SNAPSHOT);
-  check(
-    "manual drafts can be reset before a concurrent edit",
-    resetForms > 0 && resetState.focusConflict === false,
-    `${resetForms} drafts reset, focused conflict=${resetState.focusConflict}`,
-  );
+  // Every answer now owns a four-panel details element rather than a single focused card. Prepare a
+  // draft on row 03, commit a different row, and verify that the first draft is blocked until it
+  // reloads the newer revision. This is the same concurrency contract, exercised against the current
+  // queue shape rather than the retired pager selectors.
+  const openByHand = `
+    const openByHand = (folio) => {
+      const details = [...document.querySelectorAll(".line__box")].find((candidate) =>
+        candidate.querySelector(".line__folio")?.textContent?.trim() === folio
+      );
+      if (!details) return { ok: false };
+      if (!details.open) details.querySelector(":scope > summary")?.click();
+      const tab = [...details.querySelectorAll(".tabs__tab")].find((candidate) =>
+        candidate.textContent?.trim() === "By hand"
+      );
+      tab?.click();
+      return { ok: Boolean(tab), open: details.open };
+    };
+  `;
 
-  const otherInput = await cdp.evaluate(`
-    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-    const details = form?.closest("details");
-    const summary = details?.querySelector(":scope > summary");
-    const box = form?.querySelector("input[type=checkbox]");
-    if (!box || !details || !summary) return { ok: false };
-    if (!details.open) summary.click();
-    return { ok: true, before: box.checked, disabled: box.disabled, opened: details.open };
+  const draft = await cdp.evaluate(`
+    ${openByHand}
+    const opened = openByHand("03");
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const box = details?.querySelector(".tick input[type=checkbox]");
+    if (!box) return { ok: false, opened };
+    const before = box.checked;
+    box.click();
+    return { ok: true, opened, before, after: box.checked, disabled: box.disabled };
   `);
   await new Promise((resolve) => setTimeout(resolve, 300));
-  const otherInputPosition = await cdp.evaluate(`
-    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-    const box = form?.querySelector("input[type=checkbox]");
+  const draftReady = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const box = details?.querySelector(".tick input[type=checkbox]");
+    return { checked: box?.checked ?? null, disabled: box?.disabled ?? null, conflict: details?.querySelector(".tick__conflict") !== null };
+  `);
+
+  const external = await cdp.evaluate(`
+    ${openByHand}
+    return openByHand("04").ok;
+  `);
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const externalDraft = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "04");
+    const box = details?.querySelector(".tick input[type=checkbox]");
     if (!box) return { ok: false };
-    box.scrollIntoView({ block: "center", inline: "center" });
-    const rect = box.getBoundingClientRect();
-    return { ok: true, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const before = box.checked;
+    box.click();
+    return { ok: true, before, after: box.checked, disabled: box.disabled };
   `);
-  let otherFormPrepared = { ...otherInput, after: otherInput.before };
-  if (otherInput.ok && otherInputPosition.ok) {
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mousePressed",
-      x: otherInputPosition.x,
-      y: otherInputPosition.y,
-      button: "left",
-      clickCount: 1,
-    });
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mouseReleased",
-      x: otherInputPosition.x,
-      y: otherInputPosition.y,
-      button: "left",
-      clickCount: 1,
-    });
-    otherFormPrepared = await cdp.evaluate(`
-      const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-      const box = form?.querySelector("input[type=checkbox]");
-      return { ...${JSON.stringify(otherInput)}, ...${JSON.stringify(otherInputPosition)}, after: box?.checked ?? null };
-    `);
-  }
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const otherFormReady = await cdp.evaluate(`
-    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-    const box = form?.querySelector("input[type=checkbox]");
-    return { checked: box?.checked ?? null, disabled: box?.disabled ?? null };
-  `);
-  const otherSave = await cdp.evaluate(`
-    const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-    const save = form?.querySelector("button[type=submit]");
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  const externalSave = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "04");
+    const save = details?.querySelector(".tick button[type=submit]");
     if (!save) return { ok: false };
-    save.scrollIntoView({ block: "center", inline: "center" });
     const before = document.querySelector(".top__rev .num")?.textContent ?? null;
-    const rect = save.getBoundingClientRect();
-    return { ok: true, before, disabled: save.disabled, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    save.click();
+    return { ok: true, before, disabled: save.disabled };
   `);
-  let otherFormSubmitted = { ...otherSave, nativeSubmit: false, after: null, notice: null };
-  if (otherSave.ok) {
-    await cdp.evaluate(`
-      const form = [...document.querySelectorAll(".tick")].find((candidate) => candidate.closest(".line__box")?.querySelector(".line__folio")?.textContent?.trim() === "03");
-      if (form) form.addEventListener("submit", () => { window.__withheldNativeSubmit = true; }, { once: true });
-      window.__withheldNativeSubmit = false;
-      return true;
-    `);
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mousePressed",
-      x: otherSave.x,
-      y: otherSave.y,
-      button: "left",
-      clickCount: 1,
-    });
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mouseReleased",
-      x: otherSave.x,
-      y: otherSave.y,
-      button: "left",
-      clickCount: 1,
-    });
-    await new Promise((resolve) => setTimeout(resolve, 100));
-    otherFormSubmitted = await cdp.evaluate(`
-      return {
-        ...${JSON.stringify(otherSave)},
-        nativeSubmit: window.__withheldNativeSubmit === true,
-        after: document.querySelector(".top__rev .num")?.textContent ?? null,
-        notice: document.querySelector(".notice")?.textContent ?? null,
-        counts: [...document.querySelectorAll(".count__num")].map((node) => node.textContent?.trim() ?? null),
-        focus: document.querySelector(".focus__who")?.textContent?.trim() ?? null,
-      };
-    `);
-  }
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const conflictState = await cdp.evaluate(SNAPSHOT);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const conflictState = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    return {
+      revision: document.querySelector(".top__rev .num")?.textContent ?? null,
+      conflict: details?.querySelector(".tick__conflict") !== null,
+      saveDisabled: details?.querySelector(".tick button[type=submit]")?.disabled ?? null,
+    };
+  `);
   check(
-    "a concurrent manual write blocks a stale focused draft",
-    otherFormPrepared.ok === true && otherFormPrepared.after !== otherFormPrepared.before && otherFormSubmitted.ok === true && otherFormSubmitted.nativeSubmit === true && otherFormSubmitted.after !== otherFormSubmitted.before && otherFormSubmitted.focus === "Theo" && conflictState.focusConflict === true && conflictState.focusSaveDisabled === true,
-    `prepared=${JSON.stringify(otherFormPrepared)}, ready=${JSON.stringify(otherFormReady)}, submitted=${JSON.stringify(otherFormSubmitted)}, conflict=${conflictState.focusConflict}, save disabled=${conflictState.focusSaveDisabled}`,
+    "a concurrent manual write blocks a stale row draft",
+    draft.ok === true && draftReady.conflict === false && draft.after !== draft.before &&
+      external === true && externalDraft.ok === true && externalDraft.after !== externalDraft.before &&
+      externalSave.ok === true && conflictState.revision !== externalSave.before &&
+      conflictState.conflict === true && conflictState.saveDisabled === true,
+    `draft=${JSON.stringify(draft)}, external=${JSON.stringify(externalSave)}, state=${JSON.stringify(conflictState)}`,
   );
 
-  const reloadedFocused = await cdp.evaluate(`
-    const reload = document.querySelector(".focus .tick__conflict .btn");
+  const reloaded = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const reload = details?.querySelector(".tick__conflict .btn");
     if (!reload) return false;
     reload.click();
     return true;
   `);
   await new Promise((resolve) => setTimeout(resolve, 300));
-  const recovered = await cdp.evaluate(SNAPSHOT);
+  const recovered = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    return {
+      conflict: details?.querySelector(".tick__conflict") !== null,
+      saveDisabled: details?.querySelector(".tick button[type=submit]")?.disabled ?? null,
+    };
+  `);
   check(
-    "the focused form recovers only after reloading current state",
-    reloadedFocused === true && recovered.focusConflict === false && recovered.focusSaveDisabled === false,
-    `reload=${reloadedFocused}, conflict=${recovered.focusConflict}, save disabled=${recovered.focusSaveDisabled}`,
+    "the stale row recovers only after reloading current state",
+    reloaded === true && recovered.conflict === false && recovered.saveDisabled === false,
+    `reload=${reloaded}, recovered=${JSON.stringify(recovered)}`,
   );
 
-  // A successful save by the focused teacher form advances that form's own opened revision. It
-  // must not report its own commit as a conflict; only another caller's later revision should do so.
-  const ownInput = await cdp.evaluate(`
-    const details = document.querySelector(".focus .byhand");
-    const summary = details?.querySelector(":scope > summary");
-    const form = details?.querySelector(".tick");
-    const box = form?.querySelector("input[type=checkbox]");
-    if (!details || !summary || !box) return { ok: false };
-    if (!details.open) summary.click();
-    return { ok: true, before: box.checked, disabled: box.disabled };
-  `);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const ownInputPosition = await cdp.evaluate(`
-    const box = document.querySelector(".focus .tick input[type=checkbox]");
+  // Once the row has reloaded, a save by that same form advances its opened revision without creating
+  // a self-conflict. The first checkbox is toggled and submitted as a real user interaction.
+  const ownDraft = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const box = details?.querySelector(".tick input[type=checkbox]");
     if (!box) return { ok: false };
-    box.scrollIntoView({ block: "center", inline: "center" });
-    const rect = box.getBoundingClientRect();
-    return { ok: true, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    const before = box.checked;
+    box.click();
+    return { ok: true, before, after: box.checked, disabled: box.disabled };
   `);
-  if (ownInput.ok && ownInputPosition.ok) {
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mousePressed",
-      x: ownInputPosition.x,
-      y: ownInputPosition.y,
-      button: "left",
-      clickCount: 1,
-    });
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mouseReleased",
-      x: ownInputPosition.x,
-      y: ownInputPosition.y,
-      button: "left",
-      clickCount: 1,
-    });
-  }
-  await new Promise((resolve) => setTimeout(resolve, 300));
+  await new Promise((resolve) => setTimeout(resolve, 200));
   const ownSave = await cdp.evaluate(`
-    const form = document.querySelector(".focus .tick");
-    const save = form?.querySelector("button[type=submit]");
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    const save = details?.querySelector(".tick button[type=submit]");
     if (!save) return { ok: false };
-    save.scrollIntoView({ block: "center", inline: "center" });
     const before = document.querySelector(".top__rev .num")?.textContent ?? null;
-    const rect = save.getBoundingClientRect();
-    return { ok: true, before, disabled: save.disabled, x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    save.click();
+    return { ok: true, before, disabled: save.disabled };
   `);
-  if (ownSave.ok) {
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mousePressed",
-      x: ownSave.x,
-      y: ownSave.y,
-      button: "left",
-      clickCount: 1,
-    });
-    await cdp.command("Input.dispatchMouseEvent", {
-      type: "mouseReleased",
-      x: ownSave.x,
-      y: ownSave.y,
-      button: "left",
-      clickCount: 1,
-    });
-  }
   await new Promise((resolve) => setTimeout(resolve, 400));
-  const ownSaved = await cdp.evaluate(SNAPSHOT);
+  const ownSaved = await cdp.evaluate(`
+    const details = [...document.querySelectorAll(".line__box")].find((candidate) => candidate.querySelector(".line__folio")?.textContent?.trim() === "03");
+    return {
+      revision: document.querySelector(".top__rev .num")?.textContent ?? null,
+      conflict: details?.querySelector(".tick__conflict") !== null,
+      saveDisabled: details?.querySelector(".tick button[type=submit]")?.disabled ?? null,
+    };
+  `);
   check(
-    "a successful manual save does not conflict with its own form",
-    ownInput.ok === true && ownInput.disabled === false && ownInputPosition.ok === true && ownSave.ok === true && ownSave.disabled === false && ownSaved.revision !== ownSave.before && ownSaved.focusConflict === false && ownSaved.focusSaveDisabled === false,
-    `input=${JSON.stringify(ownInput)}, save=${JSON.stringify(ownSave)}, revision=${ownSaved.revision}, conflict=${ownSaved.focusConflict}`,
+    "a successful row save does not conflict with its own form",
+    ownDraft.ok === true && ownDraft.disabled === false && ownSave.ok === true &&
+      ownSave.disabled === false && ownSaved.revision !== ownSave.before &&
+      ownSaved.conflict === false && ownSaved.saveDisabled === false,
+    `draft=${JSON.stringify(ownDraft)}, save=${JSON.stringify(ownSave)}, state=${JSON.stringify(ownSaved)}`,
   );
 
   // Beside the work it is a region, not a panel. Asserted here as well as at 420px because "it folds

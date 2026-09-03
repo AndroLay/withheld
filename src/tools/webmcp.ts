@@ -45,6 +45,30 @@ import { assertAgentSafe } from "./agent-boundary.ts";
 export type SessionPort = {
   read: () => Session;
   write: (next: Session) => void;
+  /**
+   * Told about every arrival at the tool surface, accepted or refused. Optional, and never load
+   * bearing: the tools behave identically whether anything is listening, and an observer that
+   * throws cannot fail a tool call.
+   */
+  observe?: (dispatch: Dispatch) => void;
+};
+
+/**
+ * One arrival at the tool surface.
+ *
+ * This is the page counting calls rather than the page claiming an agent. A read leaves `revision`
+ * where it was and `moved` false; a refusal carries the code the agent was given and moves nothing.
+ * There is no wall time and no input in it — an argument may contain student text, and the point of
+ * this record is what the page did, not what was said to it.
+ */
+export type Dispatch = {
+  tool: string;
+  /** The revision the session stands at after the call. */
+  revision: number;
+  /** The refusal code handed back, or null when the call was answered. */
+  code: string | null;
+  /** Whether the session actually moved. Every refusal is false, and so is every read. */
+  moved: boolean;
 };
 
 export type ToolResult = {
@@ -595,24 +619,64 @@ function internalToolFailure(): ToolResult {
   };
 }
 
-function guardTool(tool: ToolRegistration): ToolRegistration {
+/**
+ * Reads the revision without letting a broken port take a tool down with it. The dispatch record is
+ * a courtesy to the page; the tool result is the contract.
+ */
+function revisionOrNull(port: SessionPort): number | null {
+  try {
+    const value = port.read().revision;
+    return typeof value === "number" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function reportDispatch(port: SessionPort, name: string, before: number | null, result: ToolResult) {
+  if (!port.observe) return;
+
+  const payload = result.structuredContent as { revision?: unknown; code?: unknown } | undefined;
+  const after = revisionOrNull(port);
+  const stated = typeof payload?.revision === "number" ? payload.revision : null;
+  const code = typeof payload?.code === "string" ? payload.code : null;
+
+  try {
+    port.observe({
+      tool: name,
+      revision: after ?? stated ?? 0,
+      code,
+      moved: before !== null && after !== null && after !== before,
+    });
+  } catch {
+    // An observer is a listener, not a participant. Whatever it did wrong, the agent still gets
+    // the result the page already built.
+  }
+}
+
+function guardTool(tool: ToolRegistration, port: SessionPort): ToolRegistration {
   return {
     ...tool,
     execute: async (input) => {
+      const before = revisionOrNull(port);
+      let result: ToolResult;
+
       try {
-        return await tool.execute(input);
+        result = await tool.execute(input);
       } catch {
         // A boundary assertion, a port failure, or an unexpected renderer error must not turn
         // into an unstructured exception containing source details or page-owned numbers.
-        return internalToolFailure();
+        result = internalToolFailure();
       }
+
+      reportDispatch(port, tool.name, before, result);
+      return result;
     },
   };
 }
 
 /** All nine, in a stable order. Static registration: no tool appears or vanishes at runtime. */
 export function buildWithheldTools(port: SessionPort): ToolRegistration[] {
-  return [...readTools(port), ...writeTools(port)].map(guardTool);
+  return [...readTools(port), ...writeTools(port)].map((tool) => guardTool(tool, port));
 }
 
 export type Installation = {

@@ -7,8 +7,15 @@ import { useSyncExternalStore } from "react";
  * asserts the sheet still has a media block behind it. Two copies of a breakpoint is a real hazard:
  * a page that folds a column the grid has already placed beside another is worse than a page that
  * never folded anything. The copies are held together by a test rather than by remembering.
+ *
+ * 78rem is measured, not chosen. Three columns leave the queue whatever is left after 322px and
+ * 357px, and a marking row needs 424px before its answer preview is even one character wide. Below
+ * this the row outgrew its own card — so the threshold is the width where the work fits, not the
+ * width where the columns do. A 1280px window clears it with a scrollbar out; anything narrower
+ * gets the single column, where the queue has the whole page and the contract folds into a
+ * disclosure under it. `docs/DECISIONS.md` D-32 records the move.
  */
-export const MANY_COLUMNS = "(min-width: 62rem)";
+export const MANY_COLUMNS = "(min-width: 78rem)";
 
 function subscribe(onChange: () => void): () => void {
   const query = window.matchMedia(MANY_COLUMNS);

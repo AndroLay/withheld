@@ -1,7 +1,34 @@
 import { type RefObject } from "react";
 
 import { type Session } from "../domain/session.ts";
+import { receiptProvenance, type MarkProvenance } from "../domain/views.ts";
 import { Icon } from "./Icon.tsx";
+
+/**
+ * Who staged the release now waiting, or `null` when nothing is waiting.
+ *
+ * Read off the newest `request_release` receipt rather than tracked as its own state: `requestRelease`
+ * writes one every time a request is staged, and only the WebMCP port hands in an operation key, so the
+ * answer has been in the trail since the port was written.
+ *
+ * The gate says it because the two cases are different sentences to be looking at. "You asked to send
+ * nine marks" is a reader continuing their own action; "a tool call asked to send nine marks" is a
+ * reader being asked to approve something they did not start — and this page moves focus to this
+ * heading when a request appears, so whoever is at the keyboard may be arriving without context.
+ */
+function stagedBy(session: Session): MarkProvenance | null {
+  if (session.releaseRequest === null) return null;
+
+  for (let index = session.receipts.length - 1; index >= 0; index -= 1) {
+    const receipt = session.receipts[index];
+    if (receipt === undefined) continue;
+    if (receipt.action !== "request_release") continue;
+
+    return receiptProvenance(receipt);
+  }
+
+  return null;
+}
 
 /**
  * The bar across the foot of the page, in three parts: whose authority this is, what staging does,
@@ -41,6 +68,7 @@ export function ActionBar({
 }) {
   const staged = session.releaseRequest !== null;
   const stagedCount = session.releaseRequest?.answerIds.length ?? 0;
+  const byTool = stagedBy(session) === "tool";
 
   return (
     <div className={staged ? "bar bar--waiting" : "bar"}>
@@ -53,8 +81,9 @@ export function ActionBar({
           {staged ? <span className="bar__wait"> — a release is waiting</span> : null}
         </h2>
         <p className="bar__gloss">
-          Only a person can hold answers and release marks. Nothing leaves this page until you
-          confirm.
+          {byTool
+            ? "Staged by a tool call. It reached the edge of what it may do and stopped there."
+            : "Only a person can release marks. Nothing leaves this page until you confirm."}
         </p>
       </div>
 
@@ -93,7 +122,7 @@ export function ActionBar({
         </button>
         <p className="bar__cap">
           {staged
-            ? "Nothing can press this for you. There is no tool for it."
+            ? `${ready} ${ready === 1 ? "mark is" : "marks are"} staged. Pressing this is the only way any of them leaves the page. There is no tool for it.`
             : "Disabled until a release is staged. No tool can press it either way."}
         </p>
       </div>

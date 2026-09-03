@@ -41,7 +41,7 @@ src/App.tsx                   the shell: a bar, a band, three columns and the ga
 ```
 
 `src/domain/` knows nothing about tools. `src/tools/` knows nothing about React. That is what makes
-103 of the 125 tests possible without React entering the process at all — and the other twenty-two render
+103 of the 129 tests possible without React entering the process at all — and the other twenty-six render
 every component to static markup, with no DOM anywhere. It is also why the domain can be re-read as a
 plain state machine by anyone auditing the claims in `SECURITY.md`.
 
@@ -303,7 +303,6 @@ tool.** Statements here about how the interface reads, as opposed to how it lays
 answers a call, remain statements about the source, checked by reading it and by test. See
 `docs/PROGRESS.md` for the ledger of what is verified and what is not, and
 `docs/evidence/browser-session.json`, `docs/evidence/native-registry.json`,
-`docs/evidence/webmcp-invocation.json`, and `docs/evidence/failure-recovery.json` for the recorded
-runs. The hosted browser/native staging artifacts are also present under the corresponding
-`hosted-*.json` names. Model-selected, screen-reader, performance, and non-builder evidence remain
-explicitly blocked or not-run.
+`docs/evidence/webmcp-invocation.json`, and `docs/evidence/failure-recovery.json` for what the
+local browser reported. The hosted, model-selected, screen-reader, performance, and non-builder
+evidence files remain explicitly blocked or not-run.

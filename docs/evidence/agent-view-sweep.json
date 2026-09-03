@@ -1,0 +1,285 @@
+{
+  "status": "VERIFIED_RUN",
+  "evidenceClass": "VERIFIED_ARTIFACT",
+  "scope": "local production build, both views swept in a live DOM; not hosted and not model-selected",
+  "ranAt": "2026-09-03T07:40:15.695Z",
+  "evidence": {
+    "gitSha": "d01cc2e2932331dc2cc203e0a69d782b1223b716",
+    "workingTreeDirty": true,
+    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
+    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "node": "v26.4.0",
+    "browserFlags": [
+      "--enable-experimental-web-platform-features",
+      "--enable-features=WebMCPTesting"
+    ],
+    "artifactSha256": {}
+  },
+  "browser": "Chrome/151.0.7922.137",
+  "protocol": "1.3",
+  "url": "http://127.0.0.1:4193/",
+  "passed": 17,
+  "failed": 0,
+  "figuresThePageOwns": [
+    17,
+    19,
+    23,
+    29,
+    46,
+    48,
+    50,
+    52,
+    59,
+    65,
+    69,
+    71,
+    88
+  ],
+  "figureRule": "rubric point values, the pass boundary, the rubric total, and every total the worked example produces, keeping only values above the class size",
+  "views": {
+    "teacher-1440": {
+      "view": "yours",
+      "pressed": 1,
+      "figuresInText": [
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "figuresInMarkup": [
+        17,
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "carriers": 143,
+      "carriersDrawn": 24,
+      "redactions": 0,
+      "secretCells": 3,
+      "heldEntries": 5,
+      "bars": 8,
+      "sidewaysOverflowPx": 0,
+      "heightPx": 2609,
+      "words": 1540
+    },
+    "agent-1440": {
+      "view": "agent",
+      "pressed": 1,
+      "figuresInText": [],
+      "figuresInMarkup": [],
+      "carriers": 0,
+      "carriersDrawn": 0,
+      "redactions": 132,
+      "secretCells": 0,
+      "heldEntries": 2,
+      "bars": 0,
+      "sidewaysOverflowPx": 0,
+      "heightPx": 2697,
+      "words": 1519
+    },
+    "teacher-1440-again": {
+      "view": "yours",
+      "pressed": 1,
+      "figuresInText": [
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "figuresInMarkup": [
+        17,
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "carriers": 143,
+      "carriersDrawn": 24,
+      "redactions": 0,
+      "secretCells": 3,
+      "heldEntries": 5,
+      "bars": 8,
+      "sidewaysOverflowPx": 0,
+      "heightPx": 2609,
+      "words": 1540
+    },
+    "teacher-420": {
+      "view": "yours",
+      "pressed": 1,
+      "figuresInText": [
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "figuresInMarkup": [
+        17,
+        19,
+        23,
+        29,
+        46,
+        48,
+        50,
+        52,
+        59,
+        65,
+        69,
+        71,
+        88
+      ],
+      "carriers": 143,
+      "carriersDrawn": 24,
+      "redactions": 0,
+      "secretCells": 3,
+      "heldEntries": 5,
+      "bars": 8,
+      "sidewaysOverflowPx": 0,
+      "heightPx": 3885,
+      "words": 744
+    },
+    "agent-420": {
+      "view": "agent",
+      "pressed": 1,
+      "figuresInText": [],
+      "figuresInMarkup": [],
+      "carriers": 0,
+      "carriersDrawn": 0,
+      "redactions": 132,
+      "secretCells": 0,
+      "heldEntries": 2,
+      "bars": 0,
+      "sidewaysOverflowPx": 0,
+      "heightPx": 3534,
+      "words": 723
+    }
+  },
+  "checks": [
+    {
+      "name": "the teacher's view holds every figure the page owns",
+      "passed": true,
+      "detail": "13/13 in the DOM, 143 elements"
+    },
+    {
+      "name": "and reads nearly all of them back",
+      "passed": true,
+      "detail": "12/13 legible, unopened: 17"
+    },
+    {
+      "name": "the agent's view reads back no figure at 1440px",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "the agent's view holds no figure in the DOM at 1440px",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "no element carries one at 1440px",
+      "passed": true,
+      "detail": "0 elements, 0 drawn"
+    },
+    {
+      "name": "the agent's view draws its redactions at 1440px",
+      "passed": true,
+      "detail": "132 boxes"
+    },
+    {
+      "name": "no held answer is identified at 1440px",
+      "passed": true,
+      "detail": "0 marked cells"
+    },
+    {
+      "name": "the page fits its width at 1440px",
+      "passed": true,
+      "detail": "0px of overflow"
+    },
+    {
+      "name": "the agent's view reads back no figure at 420px",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "the agent's view holds no figure in the DOM at 420px",
+      "passed": true,
+      "detail": "none"
+    },
+    {
+      "name": "no element carries one at 420px",
+      "passed": true,
+      "detail": "0 elements, 0 drawn"
+    },
+    {
+      "name": "the agent's view draws its redactions at 420px",
+      "passed": true,
+      "detail": "132 boxes"
+    },
+    {
+      "name": "no held answer is identified at 420px",
+      "passed": true,
+      "detail": "0 marked cells"
+    },
+    {
+      "name": "the page fits its width at 420px",
+      "passed": true,
+      "detail": "0px of overflow"
+    },
+    {
+      "name": "the teacher's view fits its width at 420px",
+      "passed": true,
+      "detail": "0px"
+    },
+    {
+      "name": "the agent's view names fewer holds than the teacher's",
+      "passed": true,
+      "detail": "2 of 5"
+    },
+    {
+      "name": "the toggle draws and does not destroy",
+      "passed": true,
+      "detail": "143 carriers back, 143 before"
+    }
+  ],
+  "notClaimed": "This is a DOM sweep of the built page in one local headless Chromium. It shows that no page-owned figure is present in the agent's view — not that a model read the page, not that a hosted deployment behaves the same, and not that a screen reader reaches the same conclusion."
+}

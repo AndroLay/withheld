@@ -8,6 +8,7 @@ import {
   buildWithheldTools,
   installWithheldTools,
   toolSurfaceFacts,
+  type Dispatch,
   type ModelContextLike,
   type SessionPort,
   type ToolRegistration,
@@ -512,4 +513,75 @@ test("the printed payloads carry no page-owned number, exactly as the tool resul
     assert.deepEqual(forbiddenNumericPaths(entry.payload), []);
     assert.deepEqual(forbiddenNumbersInText(entry.payload, PAGE_OWNED_NUMBERS), []);
   }
+});
+
+test("every call that arrives is reported once, reads and refusals included", async () => {
+  // The panel's activity list is the only record of a call that changed nothing, so the report has to
+  // arrive for reads and refusals too. A timeline of accepted writes cannot answer "was this used?".
+  const seen: Dispatch[] = [];
+  const port = makePort();
+  const tools = buildWithheldTools({ ...port, observe: (one) => seen.push(one) });
+
+  await byName(tools, "describe_stack").execute({});
+  await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: 1,
+    operationId: "activity-first",
+  });
+  await byName(tools, "propose_marks").execute({
+    findings: DEMO_FINDINGS,
+    expectedRevision: 2,
+    operationId: "activity-first",
+  });
+  await byName(tools, "set_marking_emphasis").execute({
+    emphasis: "cautious",
+    expectedRevision: 1,
+    operationId: "activity-stale",
+  });
+
+  assert.deepEqual(
+    seen.map((one) => [one.tool, one.code, one.moved]),
+    [
+      ["describe_stack", null, false],
+      ["propose_marks", null, true],
+      ["propose_marks", "duplicate-operation", false],
+      ["set_marking_emphasis", "stale-revision", false],
+    ],
+  );
+
+  // The revision on the record is where the session actually stands, not what the caller asked for:
+  // the refused pair report the revision the accepted write left behind.
+  assert.deepEqual(seen.map((one) => one.revision), [1, 2, 2, 2]);
+});
+
+test("a dispatch record carries four fields and none of them came from an argument", () => {
+  // An argument may contain student text. The record is what the page did, so its shape is closed:
+  // anything wider would make the activity list a second place answer text can surface.
+  const seen: Dispatch[] = [];
+  const port = makePort();
+  const tools = buildWithheldTools({ ...port, observe: (one) => seen.push(one) });
+
+  return byName(tools, "read_answer")
+    .execute({ answerId: SPOON_ANSWERS[0]?.id })
+    .then(() => {
+      assert.equal(seen.length, 1);
+      assert.deepEqual(Object.keys(seen[0] ?? {}).sort(), ["code", "moved", "revision", "tool"]);
+      assert.equal(seen[0]?.moved, false);
+    });
+});
+
+test("an observer that throws cannot fail a tool call", async () => {
+  // A listener is not a participant. If the page's own bookkeeping breaks, the agent still gets the
+  // result that was already built rather than an internal-error envelope it cannot act on.
+  const port = makePort();
+  const tools = buildWithheldTools({
+    ...port,
+    observe: () => {
+      throw new Error("the page's own bookkeeping is broken");
+    },
+  });
+
+  const payload = payloadOf(await byName(tools, "describe_stack").execute({}));
+  assert.equal(payload["refused"], undefined);
+  assert.equal(payload["revision"], 1);
 });

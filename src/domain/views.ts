@@ -20,6 +20,7 @@ import {
   type AgentHoldReason,
   type Emphasis,
   type HoldReason,
+  type Receipt,
   type Session,
 } from "./session.ts";
 
@@ -264,4 +265,51 @@ export function comparePolicies(session: Session): PolicyProjection[] {
       wouldGoUnmarked: holds.filter((hold) => session.marks[hold.answerId] === undefined).length,
     };
   });
+}
+
+/**
+ * Who named the rubric lines on this answer: a tool call, or a person in the page.
+ *
+ * Nothing new is recorded to answer this. `commit` writes an `operationId` onto a receipt only when
+ * one was handed in, and only the WebMCP port hands one in — the form path in `App` calls
+ * `proposeMarks` with three arguments and no key. So the distinction has been sitting in the receipt
+ * trail since the port was written, and this reads it back out.
+ *
+ * The newest receipt wins, because a mark can be overwritten: an answer marked by an agent and then
+ * corrected by hand is a hand mark now. `null` is "nothing has named a line on this answer", which is
+ * not the same as either.
+ *
+ * Page-side only. It is derived from `operationId`, which no tool result carries —
+ * `tests/webmcp.test.mts` holds that line — so an agent cannot read its own fingerprint back off the
+ * page, and cannot tell whether a teacher has since overruled it.
+ */
+export type MarkProvenance = "tool" | "hand";
+
+export function markProvenance(session: Session, answerId: string): MarkProvenance | null {
+  for (let index = session.receipts.length - 1; index >= 0; index -= 1) {
+    const receipt = session.receipts[index];
+    if (receipt === undefined) continue;
+    if (receipt.action !== "propose_marks") continue;
+    if (!receipt.answerIds.includes(answerId)) continue;
+
+    return receipt.operationId === undefined ? "hand" : "tool";
+  }
+
+  return null;
+}
+
+/**
+ * Who caused one receipt: a tool call, or a person in the page.
+ *
+ * The same key `markProvenance` reads, one receipt at a time rather than one answer at a time, so the
+ * revision timeline can say which of the two callers moved the session at each step. Only the three
+ * agent-callable actions are genuinely ambiguous — a teacher can mark, raise the care level and stage
+ * a release by hand as well — which is why the panel asks this question about those and not about the
+ * two human release actions, whose wording already names the person.
+ *
+ * Page-owned, for the same reason: `operationId` is on no tool result, so an agent cannot read its own
+ * fingerprint back off the page.
+ */
+export function receiptProvenance(receipt: Receipt): MarkProvenance {
+  return receipt.operationId === undefined ? "hand" : "tool";
 }

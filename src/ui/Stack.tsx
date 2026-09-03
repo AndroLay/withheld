@@ -1,23 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 
 import { type Answer, type HoldReason, type Session, policyFor } from "../domain/session.ts";
-import { explainMark } from "../domain/views.ts";
+import { explainMark, markProvenance, type MarkProvenance } from "../domain/views.ts";
 import { Chain } from "./Chain.tsx";
 import { Icon } from "./Icon.tsx";
+import { Redacted, type Lens } from "./lens.tsx";
 import { HOLD_CHAIN, HOLD_TAG, rubricMax } from "./wording.ts";
 
 /**
- * The marking queue: one answer opened in full, the rest of the class as a list under it, and the
- * page's own arithmetic on both. Every figure in this column is shown to a person and none of it is
- * reachable from a tool — the agent's view of the same answer carries rubric line ids and nothing
- * that can be totalled.
+ * The marking queue: every answer in the class as one line, and any one of them opened onto four
+ * tabs. Every figure in this column is shown to a person and none of it is reachable from a tool —
+ * the agent's view of the same answer carries rubric line ids and nothing that can be totalled.
+ *
+ * It used to open one answer in a full card above a paged list of three. That bought a detailed first
+ * card at the price of hiding eleven students behind a *Next 3* control, and it meant the same answer
+ * was on screen twice. Fourteen rows and a strip in the band say more in less height, and an agent
+ * working through the class is now visible as fourteen rows filling rather than as a figure that went
+ * up. `docs/DECISIONS.md` D-31 records the change.
  *
  * The list stays in arrival order and is never sorted by total. A marking page that ranks a class is
  * a leaderboard, and that is a different product with a different effect on a teacher.
  *
- * Three pieces of local state, none of it in the session: which answer is open in the card, which
- * slice of the list is on screen, and which subset is being looked at. None of them can change a
- * mark, and a reload puts all three back where they started.
+ * One piece of local state, and it is not a mark: which subset of the class is being looked at.
+ * Whether a row is open belongs to `details`, and which tab is showing belongs to a radio group the
+ * cascade reads — so nothing here can disagree with what the page holds, and a reload puts the view
+ * back where it started.
  */
 
 type State = "sent" | "held" | "marked" | "waiting";
@@ -38,8 +45,17 @@ const VIEW_WORD: Record<View, string> = {
   waiting: "Not marked yet",
 };
 
-/** How many rows the list shows at once. The card above it is a fourth answer, opened in full. */
-const PAGE = 3;
+/** The four panels behind an opened row, in the order the tabs sit in. */
+const TABS = ["answer", "rubric", "decision", "hand"] as const;
+
+type Tab = (typeof TABS)[number];
+
+const TAB_WORD: Record<Tab, string> = {
+  answer: "Answer",
+  rubric: "Rubric",
+  decision: "Decision",
+  hand: "By hand",
+};
 
 function stateOf(session: Session, answerId: string, heldReason: HoldReason | null): State {
   if (session.releasedAnswerIds.includes(answerId)) return "sent";
@@ -53,43 +69,48 @@ function stateOf(session: Session, answerId: string, heldReason: HoldReason | nu
  * same arithmetic on them — the only difference is who read the answer.
  *
  * The ticks live in form-local React state so the visible draft follows the controlled inputs. The
- * opened revision lives beside that draft; a successful save advances it, while another caller's
- * revision change turns the form into an explicit conflict instead of silently overwriting it.
+ * opened revision lives beside that draft, and a successful save advances it.
+ *
+ * What another caller's write does to this form depends on whether there is anything here to lose.
+ * A closed `<details>` still keeps its children in the document, so all fourteen of these forms are
+ * mounted from the first paint: if every revision change were a conflict, one tool call would leave
+ * fourteen untouched forms demanding to be reloaded, and the guard would read as noise rather than
+ * as protection. So an untouched form follows the page — it adopts the new mark, which is the mark it
+ * would have shown had the teacher opened the row a second later. A form with ticks in it refuses,
+ * and says so. The rule the page is defending is that nobody's work is overwritten without being
+ * told; a draft nobody made is not work.
  */
 function MarkForm({
   session,
   answerId,
+  lens,
   onSave,
 }: {
   session: Session;
   answerId: string;
+  lens: Lens;
   onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
 }) {
   const awarded = new Set(session.marks[answerId]?.awardedLineIds ?? []);
   const [selected, setSelected] = useState<Set<string>>(() => new Set(awarded));
-  const openedAnswer = useRef(answerId);
+  const [touched, setTouched] = useState(false);
   const openedRevision = useRef(session.revision);
   const [conflict, setConflict] = useState(false);
 
-  // A card can stay mounted while a tool call replaces the session underneath it. Reset only when
-  // the teacher opens a different answer; a revision change for the same answer is a conflict and
-  // must not silently overwrite either caller's work.
   useEffect(() => {
-    if (openedAnswer.current !== answerId) {
-      openedAnswer.current = answerId;
-      openedRevision.current = session.revision;
-      setSelected(new Set(session.marks[answerId]?.awardedLineIds ?? []));
-      setConflict(false);
+    if (session.revision === openedRevision.current) return;
+    if (touched) {
+      setConflict(true);
+      return;
     }
-  }, [answerId, session]);
-
-  useEffect(() => {
-    if (session.revision !== openedRevision.current) setConflict(true);
+    openedRevision.current = session.revision;
+    setSelected(new Set(session.marks[answerId]?.awardedLineIds ?? []));
   }, [session.revision]);
 
   function reloadCurrentMark() {
     openedRevision.current = session.revision;
     setSelected(new Set(session.marks[answerId]?.awardedLineIds ?? []));
+    setTouched(false);
     setConflict(false);
   }
 
@@ -104,7 +125,10 @@ function MarkForm({
         }
         const expectedRevision = openedRevision.current;
         const saved = onSave([...selected], expectedRevision);
-        if (saved === true) openedRevision.current = expectedRevision + 1;
+        if (saved === true) {
+          openedRevision.current = expectedRevision + 1;
+          setTouched(false);
+        }
       }}
     >
       <fieldset className="tick__set">
@@ -118,17 +142,18 @@ function MarkForm({
               value={line.id}
               checked={selected.has(line.id)}
               disabled={conflict}
-              onChange={(event) =>
+              onChange={(event) => {
+                setTouched(true);
                 setSelected((previous) => {
                   const next = new Set(previous);
                   if (event.target.checked) next.add(line.id);
                   else next.delete(line.id);
                   return next;
-                })
-              }
+                });
+              }}
             />
             <span className="tick__label">{line.label}</span>
-            <span className="tick__points num">{line.points}</span>
+            <span className="tick__points num">{lens === "agent" ? <Redacted /> : line.points}</span>
           </label>
         ))}
       </fieldset>
@@ -141,7 +166,11 @@ function MarkForm({
         </div>
       ) : null}
       <div className="tick__foot">
-        <button type="submit" className="btn btn--go" disabled={conflict}>
+        {/* Outlined, not filled. On a page with no colour, a filled black button is the loudest
+            thing there is, and it is reserved for the one path that lets a mark leave: the pointer
+            to the gate, staging, and the send itself. Saving a mark writes to this page and nothing
+            else, so it is lettered like the work it is part of. */}
+        <button type="submit" className="btn btn--quiet" disabled={conflict}>
           Save this mark
         </button>
         <span className="tick__note">
@@ -154,8 +183,12 @@ function MarkForm({
 
 /**
  * One sentence saying what the page did with this answer and why. Built from the hold rule that fired
- * rather than from the total, because the total is already printed beside it — and for three of the
- * four rules the total is not the reason.
+ * rather than from the total, because the total is already printed in the row above — and for three of
+ * the four rules the total is not the reason.
+ *
+ * Three of its branches name a number the page owns, and those three ask the lens. The other three
+ * are the same sentence in both views, which is not a coincidence: a rule that fired on the shape of
+ * an answer rather than on its total is a rule the page can explain to an agent in full.
  */
 function verdict(
   state: State,
@@ -164,9 +197,19 @@ function verdict(
   passBoundary: number,
   max: number,
   passes: boolean,
+  lens: Lens,
 ): string {
   if (state === "sent") return "Already sent. Marking is closed for this one.";
-  if (state === "waiting") return "Not marked yet. Nothing has read this one.";
+
+  // The row above already reads NOT MARKED, so repeating it here would spend the sentence on
+  // something the reader can see. It spends it on the number this answer will be judged against
+  // instead — the page's own, and the one figure the whole submission is about keeping off the
+  // agent's side of the boundary. Which is why the agent's view of this row cannot print it.
+  if (state === "waiting") {
+    return lens === "agent"
+      ? "Nothing named on it yet. Your agent can read the answer and name rubric lines; the mark it would be judged against is in no tool result."
+      : `Nothing named on it yet. It will be judged against ${passBoundary} / ${max} — a number no tool is told.`;
+  }
 
   switch (heldReason) {
     case "near-boundary":
@@ -178,37 +221,66 @@ function verdict(
     case "findings-unstable":
       return "Marked twice, differently. The second pass disagreed with the first, so a person decides.";
     default:
-      return `${passes ? "Above" : "Below"} the pass mark (${passBoundary} / ${max}), and nothing about it tripped a rule.`;
+      return lens === "agent"
+        ? "Rubric lines are named on it, and no rule your agent can see fired. Whether it clears the pass mark is the page's to know."
+        : `${passes ? "Above" : "Below"} the pass mark (${passBoundary} / ${max}), and nothing about it tripped a rule.`;
   }
 }
 
-/** One rubric line, with the points the page attaches to it. No tool returns this column. */
-function Line({ points, label }: { points: number; label: string }) {
+/**
+ * One rubric line, with the points the page attaches to it. No tool returns this column, and in the
+ * agent's view `points` arrives as null — the label is what `read_rubric` hands over, and the figure
+ * beside it is the part that stays here.
+ */
+function Line({ points, label }: { points: number | null; label: string }) {
   return (
     <li className="rl">
-      <span className="rl__pt num">{points}</span>
+      <span className="rl__pt num">{points === null ? <Redacted /> : points}</span>
       <em className="rl__label">{label}</em>
     </li>
   );
 }
 
 /**
- * The answer the queue is holding open: the student's text, what the page credited and did not, the
- * evidence the decision rests on, and its own account of the outcome.
+ * Who named the lines on this answer. An unclassed empty span when nothing has: the row head is a
+ * seven-column grid, so the column has to be filled to keep the cells after it in place, and an empty
+ * `.prov` would draw a bordered chip with nothing in it.
  *
- * The target image labels the right-hand half "agent explanation" and "agent rationale". There is no
- * agent prose anywhere in this project — `propose_marks` accepts rubric line ids and nothing else, and
- * no model has ever called it — so the slot carries the page's own account instead. Printing invented
- * agent sentences on the one page whose argument is that a claim should be no wider than its evidence
- * is the single departure from the target that is not open to compromise. `docs/DECISIONS.md` D-27.
+ * Page-owned in the strict sense. It is read back out of the receipt trail, no tool result carries it,
+ * and an agent therefore cannot see its own tag — or see a teacher overrule it. Which is why the
+ * agent's view of a marked row is handed `null` here and draws the same empty span: not a chip with the
+ * word taken out, but the state of a row that never had one.
  */
-function Focus({
+function Prov({ provenance }: { provenance: MarkProvenance | null }) {
+  if (provenance === null) return <span />;
+
+  return (
+    <span className={`prov prov--${provenance}`}>
+      <span className="vh">named by </span>
+      {provenance}
+    </span>
+  );
+}
+
+/**
+ * One answer, as a line that opens onto four panels.
+ *
+ * `details` rather than state-driven, and the four panels are a radio group the stylesheet switches,
+ * so nothing here can disagree with what the page holds: a half-finished tick survives a tool write
+ * landing in another row, and a reload puts every row back closed.
+ *
+ * The head names the rule rather than the word "held", because which rule fired is the part a teacher
+ * acts on. The preview of the answer is truncated by the stylesheet and not by this file: a reader who
+ * cannot see the truncation is read the whole body instead of an abbreviation.
+ */
+function Row({
   session,
   answer,
   folio,
   heldReason,
   max,
   band,
+  lens,
   onSave,
 }: {
   session: Session;
@@ -217,9 +289,11 @@ function Focus({
   heldReason: HoldReason | null;
   max: number;
   band: number;
+  lens: Lens;
   onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
 }) {
   const state = stateOf(session, answer.id, heldReason);
+  const mark = session.marks[answer.id];
   const explanation = explainMark(session, answer.id);
   const said = verdict(
     state,
@@ -228,226 +302,36 @@ function Focus({
     session.rubric.passBoundary,
     max,
     explanation?.passes ?? false,
+    lens,
   );
 
   const credited = explanation?.awarded ?? [];
   const missed = explanation?.missed ?? [];
+  const first = credited[0];
+  const chain = heldReason ? HOLD_CHAIN[heldReason] : null;
   const unattended =
     explanation === null
       ? "would have gone out with no mark on it at all"
-      : `would have gone out as ${explanation.passes ? "a pass" : "a fail"}`;
+      : lens === "agent"
+        ? // An answer with no mark is a fact the agent has: `explain_mark` returns nothing for it. A
+          // pass or a fail is arithmetic, and this is the sentence where the difference shows.
+          "would have gone out, and no tool would say whether as a pass or a fail"
+        : `would have gone out as ${explanation.passes ? "a pass" : "a fail"}`;
 
   return (
-    <article className="focus" aria-labelledby="focus-who">
-      <div className="focus__head">
-        <span className="focus__folio num">{String(folio).padStart(2, "0")}</span>
-        <h2 className="focus__who" id="focus-who">
-          {answer.studentAlias}
-        </h2>
-        <span className={`tagline tagline--${state}`}>{STATE_WORD[state]}</span>
-
-        <p className="focus__label">Credited</p>
-        <p className="focus__score">
-          {explanation ? (
-            <>
-              <span className="focus__big num">{explanation.total}</span>
-              <span className="focus__max num"> / {max}</span>
-            </>
-          ) : (
-            <>
-              <span className="focus__big focus__big--none" aria-hidden="true">
-                —
-              </span>
-              <span className="vh">nothing credited yet</span>
-            </>
-          )}
-        </p>
-
-        <p className="focus__verdict">{said}</p>
-      </div>
-
-      <div className="focus__text">
-        <p className="lab">Answer text</p>
-        <blockquote className="focus__body">{answer.body}</blockquote>
-        <p className="focus__hand">
-          In the student's hand. This page did not write it, and it is handed to an agent flagged as
-          untrusted.
-        </p>
-      </div>
-
-      <FocusSplit
-        alias={answer.studentAlias}
-        credited={credited}
-        missed={missed}
-        heldReason={heldReason}
-        state={state}
-        unattended={unattended}
-      />
-
-      <details className="byhand">
-        <summary className="byhand__head">
-          <span className="byhand__label">Mark this answer by hand</span>
-          <span className="byhand__caret" aria-hidden="true">
-            <Icon name="down" size={13} />
-          </span>
-        </summary>
-        {state === "sent" ? (
-          <p className="byhand__shut">Already sent. Marking is closed for this one.</p>
-        ) : (
-          <MarkForm session={session} answerId={answer.id} onSave={onSave} />
-        )}
-      </details>
-    </article>
-  );
-}
-
-/**
- * The two halves under the answer: what the rubric paid for on the left with the evidence the
- * decision rests on, and what it did not pay for on the right with the page's account of the outcome.
- *
- * The three evidence rows name the three tools a reader could check this against — `read_answer`,
- * `read_rubric`, `preview_unattended_outcome` — so the claim in this card can be read against the
- * payloads printed in the black column to its right.
- */
-function FocusSplit({
-  alias,
-  credited,
-  missed,
-  heldReason,
-  state,
-  unattended,
-}: {
-  alias: string;
-  credited: readonly { id: string; label: string; points: number }[];
-  missed: readonly { id: string; label: string; points: number }[];
-  heldReason: HoldReason | null;
-  state: State;
-  unattended: string;
-}) {
-  const first = credited[0];
-  const chain = heldReason ? HOLD_CHAIN[heldReason] : null;
-
-  return (
-    <div className="focus__split">
-      <div className="focus__half">
-        <p className="lab">Rubric lines credited</p>
-        {credited.length > 0 ? (
-          <ul className="rl__list">
-            {credited.map((line) => (
-              <Line key={line.id} points={line.points} label={line.label} />
-            ))}
-          </ul>
-        ) : (
-          <p className="focus__none">
-            Nothing credited. The page shows an absence rather than a score of zero.
-          </p>
-        )}
-
-        <div className="focus__rule" />
-
-        <p className="lab">Evidence</p>
-        <ul className="ev">
-          <li className="ev__item">
-            <span className="ev__pill">answer text</span>
-            <span className="ev__what">{alias}'s own words, above</span>
-          </li>
-          <li className="ev__item">
-            <span className="ev__pill">rubric line</span>
-            <span className="ev__what">
-              {first ? (
-                <>
-                  <span className="num">{first.points}</span> · {first.label}
-                </>
-              ) : (
-                "no line matched"
-              )}
-            </span>
-          </li>
-          <li className="ev__item">
-            <span className="ev__pill">unattended preview</span>
-            <span className="ev__what">{unattended}</span>
-          </li>
-        </ul>
-      </div>
-
-      <div className="focus__half focus__half--right">
-        <p className="lab">Not credited</p>
-        {missed.length > 0 ? (
-          <ul className="rl__list">
-            {missed.map((line) => (
-              <Line key={line.id} points={line.points} label={line.label} />
-            ))}
-          </ul>
-        ) : (
-          <p className="focus__none">
-            {state === "waiting"
-              ? "Nothing has been read yet, so nothing has been ruled out."
-              : "Every idea in the rubric was credited."}
-          </p>
-        )}
-
-        <div className="focus__rule" />
-
-        <p className="lab">What the page decided</p>
-        {chain ? (
-          <Chain steps={chain} />
-        ) : (
-          <p className="focus__gloss">
-            No rule fired on this one. It sits in the queue until a person stages a release.
-          </p>
-        )}
-        <p className="focus__gloss">
-          If nobody had looked, this {unattended}. The page is not saying that would be wrong — nobody
-          knows that yet, which is what your review is for.
-        </p>
-
-        <a className="btn btn--quiet" href="#audit-title">
-          View full explanation
-        </a>
-      </div>
-    </div>
-  );
-}
-
-/**
- * One answer as a row. `details` rather than a state-driven panel: the disclosure is the browser's
- * job, and one less piece of state is one less way for a teacher's half-finished mark to disagree with
- * what the page thinks it holds.
- *
- * The row's state cell names the rule rather than the word "held", because which rule fired is the
- * part a teacher acts on. The preview of the answer is truncated by the stylesheet and not by this
- * file: a reader who cannot see the truncation is read the whole body instead of an abbreviation.
- */
-function Row({
-  session,
-  answer,
-  folio,
-  heldReason,
-  max,
-  focused,
-  onSave,
-}: {
-  session: Session;
-  answer: Answer;
-  folio: number;
-  heldReason: HoldReason | null;
-  max: number;
-  focused: boolean;
-  onSave: (foundLineIds: string[], expectedRevision: number) => boolean | void;
-}) {
-  const state = stateOf(session, answer.id, heldReason);
-  const mark = session.marks[answer.id];
-
-  return (
-    <li className={`line line--${state}${focused ? " line--on" : ""}`}>
+    <li id={`line-${answer.id}`} className={`line line--${state}`}>
       <details className="line__box">
         <summary className="line__head">
           <span className="line__folio num">{String(folio).padStart(2, "0")}</span>
           <span className="line__who">{answer.studentAlias}</span>
           <span className="line__peek">{answer.body}</span>
 
+          <Prov provenance={lens === "agent" ? null : markProvenance(session, answer.id)} />
+
           <span className="line__score">
-            {mark ? (
+            {mark && lens === "agent" ? (
+              <Redacted />
+            ) : mark ? (
               <>
                 <span className="vh">credited </span>
                 <span className="line__total num">{mark.total}</span>
@@ -473,44 +357,191 @@ function Row({
         </summary>
 
         <div className="line__open">
-          <figure className="hand">
-            <blockquote className="hand__body">{answer.body}</blockquote>
-            <figcaption className="hand__cap">
-              In the student's hand. This page did not write it, and it is handed to an agent flagged
-              as untrusted.
-            </figcaption>
-          </figure>
-          {state === "sent" ? (
-            <p className="line__shut">Already sent. Marking is closed for this one.</p>
-          ) : (
-            <MarkForm session={session} answerId={answer.id} onSave={onSave} />
-          )}
+          {/*
+            Four radios, four labels, four panels, flat siblings in that order — `:checked ~` only
+            reaches forward. No `role="tablist"`: a radio group already arrows between its options in
+            every browser, and a hand-rolled one would be this page's to test. Each label names its
+            input, so the group needs no name of its own.
+          */}
+          <div className="tabs">
+            {TABS.map((tab) => (
+              <input
+                key={tab}
+                className="tabs__pick"
+                type="radio"
+                id={`tab-${answer.id}-${tab}`}
+                name={`tab-${answer.id}`}
+                defaultChecked={tab === "answer"}
+              />
+            ))}
+
+            {TABS.map((tab) => (
+              <label key={tab} className="tabs__tab" htmlFor={`tab-${answer.id}-${tab}`}>
+                {TAB_WORD[tab]}
+              </label>
+            ))}
+
+            <section className="tabs__panel" aria-label={`${answer.studentAlias}: the answer`}>
+              <p className="said">{said}</p>
+              <figure className="hand">
+                <blockquote className="hand__body">{answer.body}</blockquote>
+                <figcaption className="hand__cap">
+                  In the student's hand. This page did not write it, and it is handed to an agent
+                  flagged as untrusted.
+                </figcaption>
+              </figure>
+            </section>
+
+            <section className="tabs__panel" aria-label={`${answer.studentAlias}: the rubric`}>
+              <div className="split">
+                <div className="split__half">
+                  <p className="lab">Rubric lines credited</p>
+                  {credited.length > 0 ? (
+                    <ul className="rl__list">
+                      {credited.map((line) => (
+                        <Line
+                          key={line.id}
+                          points={lens === "agent" ? null : line.points}
+                          label={line.label}
+                        />
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="none">
+                      Nothing credited. The page shows an absence rather than a score of zero.
+                    </p>
+                  )}
+
+                  <div className="hr" />
+
+                  {/* The three tools a reader could check this against, so the claim in this panel
+                      can be read against the payloads printed in the black column. */}
+                  <p className="lab">Evidence</p>
+                  <ul className="ev">
+                    <li className="ev__item">
+                      <span className="ev__pill">answer text</span>
+                      <span className="ev__what">{answer.studentAlias}'s own words, above</span>
+                    </li>
+                    <li className="ev__item">
+                      <span className="ev__pill">rubric line</span>
+                      <span className="ev__what">
+                        {first ? (
+                          <>
+                            {lens === "agent" ? <Redacted /> : <span className="num">{first.points}</span>} ·{" "}
+                            {first.label}
+                          </>
+                        ) : (
+                          "no line matched"
+                        )}
+                      </span>
+                    </li>
+                    <li className="ev__item">
+                      <span className="ev__pill">unattended preview</span>
+                      <span className="ev__what">{unattended}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="split__half split__half--right">
+                  <p className="lab">Not credited</p>
+                  {missed.length > 0 ? (
+                    <ul className="rl__list">
+                      {missed.map((line) => (
+                        <Line
+                          key={line.id}
+                          points={lens === "agent" ? null : line.points}
+                          label={line.label}
+                        />
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="none">
+                      {state === "waiting"
+                        ? "Nothing has been read yet, so nothing has been ruled out."
+                        : "Every idea in the rubric was credited."}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <section className="tabs__panel" aria-label={`${answer.studentAlias}: the decision`}>
+              <p className="lab">What the page decided</p>
+              {chain ? (
+                <Chain steps={chain} />
+              ) : state === "waiting" ? (
+                <p className="gloss">
+                  Nothing has named a line on this one yet.{" "}
+                  <span className="gloss__tool">propose_marks</span> is the tool that would, and{" "}
+                  <a className="gloss__at" href="#worked">
+                    the worked example
+                  </a>{" "}
+                  does the same thing without an agent.
+                </p>
+              ) : (
+                <p className="gloss">
+                  No rule fired on this one. It sits in the queue until a person stages a release.
+                </p>
+              )}
+
+              {state === "sent" ? (
+                <p className="gloss">
+                  This one has already left the page, and a person confirmed it. Every tool that
+                  writes refuses it from here on.
+                </p>
+              ) : (
+                <p className="gloss">
+                  If nobody had looked, this {unattended}. The page is not saying that would be wrong
+                  — nobody knows that yet, which is what your review is for.
+                </p>
+              )}
+
+              <a className="btn btn--quiet" href="#audit-title">
+                View full explanation
+              </a>
+            </section>
+
+            <section className="tabs__panel" aria-label={`${answer.studentAlias}: mark by hand`}>
+              {state === "sent" ? (
+                <p className="line__shut">Already sent. Marking is closed for this one.</p>
+              ) : (
+                <MarkForm session={session} answerId={answer.id} lens={lens} onSave={onSave} />
+              )}
+            </section>
+          </div>
         </div>
       </details>
     </li>
   );
 }
 
+/**
+ * The whole class, in arrival order, under one filter.
+ *
+ * No pager and no focused card. Fourteen rows are shorter than one card above three rows, every
+ * student is on screen, and an agent working through the class is visible as rows filling rather than
+ * as a count that went up.
+ */
 export function Stack({
   session,
   heldReason,
+  lens,
   onSave,
   onMark,
 }: {
   session: Session;
   heldReason: Map<string, HoldReason>;
+  lens: Lens;
   onSave: (answerId: string, foundLineIds: string[], expectedRevision: number) => boolean | void;
   onMark: () => void;
 }) {
   const [view, setView] = useState<View>("all");
-  const [selected, setSelected] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
 
   const max = rubricMax(session.rubric.lines);
   const band = policyFor(session.emphasis, session.basePolicy).boundaryBand;
 
   // The folio is a position in the whole class, not in the current view, so an answer keeps the same
-  // number whichever subset is on screen.
+  // number whichever subset is on screen — and the strip in the band points at the same one.
   const folio = new Map(session.answers.map((answer, index) => [answer.id, index + 1]));
 
   const shown = session.answers.filter((answer) => {
@@ -518,32 +549,6 @@ export function Stack({
     if (view === "waiting") return session.marks[answer.id] === undefined;
     return true;
   });
-
-  /**
-   * Which answer the card holds open. An explicit choice wins; failing that the first answer the page
-   * is holding back, which is the whole product — and failing that the top of the view.
-   */
-  const chosen = shown.findIndex((answer) => answer.id === selected);
-  const firstHeld = shown.findIndex((answer) => heldReason.has(answer.id));
-  const cursor = chosen >= 0 ? chosen : firstHeld >= 0 ? firstHeld : 0;
-  const focus = shown[cursor] ?? null;
-
-  // Clamped on read rather than corrected in state: changing the view must not have to write twice.
-  const pages = Math.max(1, Math.ceil(shown.length / PAGE));
-  const here = Math.min(page, pages - 1);
-  const from = here * PAGE;
-  const rows = shown.slice(from, from + PAGE);
-
-  const nextFrom = ((here + 1) % pages) * PAGE;
-  const nextCount = Math.min(PAGE, shown.length - nextFrom);
-
-  /** Walk the card through the view one answer at a time, bringing the list along with it. */
-  function move(delta: number) {
-    const next = shown[cursor + delta];
-    if (!next) return;
-    setSelected(next.id);
-    setPage(Math.floor((cursor + delta) / PAGE));
-  }
 
   return (
     <section className="queue" aria-labelledby="stack-title">
@@ -559,10 +564,7 @@ export function Stack({
           <select
             className="pick__box"
             value={view}
-            onChange={(event) => {
-              setView(event.currentTarget.value as View);
-              setPage(0);
-            }}
+            onChange={(event) => setView(event.currentTarget.value as View)}
           >
             {(["all", "held", "waiting"] as const).map((option) => (
               <option key={option} value={option}>
@@ -579,91 +581,45 @@ export function Stack({
           <span className="num">{shown.length}</span> of{" "}
           <span className="num">{session.answers.length}</span>
         </p>
-
-        <div className="queue__walk">
-          <button
-            type="button"
-            className="sq"
-            disabled={cursor <= 0 || shown.length === 0}
-            onClick={() => move(-1)}
-          >
-            <Icon name="up" size={15} />
-            <span className="vh">Open the answer above</span>
-          </button>
-          <button
-            type="button"
-            className="sq"
-            disabled={cursor >= shown.length - 1 || shown.length === 0}
-            onClick={() => move(1)}
-          >
-            <Icon name="down" size={15} />
-            <span className="vh">Open the answer below</span>
-          </button>
-        </div>
       </div>
 
-      {focus === null ? (
+      {shown.length === 0 ? (
         <div className="queue__empty">
           <p className="queue__lead">Nothing in this view.</p>
           <p>
-            {view === "held"
-              ? "The page is not holding anything back. Mark a few answers and it will start."
-              : "Every answer in the class has a mark on it."}
+            {session.answers.length === 0
+              ? "There are no answers in this class at all."
+              : view === "held"
+                ? "The page is not holding anything back. Mark a few answers and it will start."
+                : "Every answer in the class has a mark on it."}
           </p>
         </div>
       ) : (
-        <Focus
-          session={session}
-          answer={focus}
-          folio={folio.get(focus.id) ?? 0}
-          heldReason={heldReason.get(focus.id) ?? null}
-          max={max}
-          band={band}
-          onSave={(foundLineIds, expectedRevision) => onSave(focus.id, foundLineIds, expectedRevision)}
-        />
+        <ul className="list">
+          {shown.map((answer) => (
+            <Row
+              key={answer.id}
+              session={session}
+              answer={answer}
+              folio={folio.get(answer.id) ?? 0}
+              heldReason={heldReason.get(answer.id) ?? null}
+              max={max}
+              band={band}
+              lens={lens}
+              onSave={(foundLineIds, expectedRevision) =>
+                onSave(answer.id, foundLineIds, expectedRevision)
+              }
+            />
+          ))}
+        </ul>
       )}
 
-      <ul className="list">
-        {rows.map((answer) => (
-          <Row
-            key={answer.id}
-            session={session}
-            answer={answer}
-            folio={folio.get(answer.id) ?? 0}
-            heldReason={heldReason.get(answer.id) ?? null}
-            max={max}
-            focused={focus !== null && answer.id === focus.id}
-            onSave={(foundLineIds, expectedRevision) => onSave(answer.id, foundLineIds, expectedRevision)}
-          />
-        ))}
-      </ul>
-
-      <div className="queue__foot">
+      {/* The anchor a waiting row points at, so "the worked example" in a panel lands on the control
+          that runs it rather than on the section that contains it. */}
+      <div className="queue__foot" id="worked">
         <button type="button" className="btn btn--quiet" onClick={onMark}>
           <Icon name="chip" size={14} />
           Mark all from the worked example
-        </button>
-
-        <p className="queue__showing">
-          {rows.length === 0 ? (
-            "Nothing to show"
-          ) : (
-            <>
-              Showing <span className="num">{from + 1}</span>–
-              <span className="num">{from + rows.length}</span> of{" "}
-              <span className="num">{shown.length}</span>
-            </>
-          )}
-        </p>
-
-        <button
-          type="button"
-          className="pager"
-          disabled={pages < 2}
-          onClick={() => setPage((here + 1) % pages)}
-        >
-          Next <span className="num">{nextCount}</span>
-          <Icon name="down" size={13} />
         </button>
       </div>
 
