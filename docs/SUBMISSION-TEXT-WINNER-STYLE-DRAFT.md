@@ -4,8 +4,10 @@
 
 **Use:** copy-ready English narrative for the WebMCP submission form.
 
-**Owner must still fill:** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` after the hosted build and video are verified. The current hosted URL and public repository are:
-`https://androlay.github.io/withheld/` and `https://github.com/AndroLay/withheld`.
+**Owner must still fill:** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` — the demo video is the one field with
+nothing behind it. The live URL and the repository are filled in below and were verified on 2026-09-03
+at 09:01 UTC: `https://androlay.github.io/withheld/` answered HTTP 200 and `AndroLay/withheld` read back
+`main` at `b050f991` and `gh-pages` at `58a3ff42` without credentials.
 
 ## Title
 
@@ -78,9 +80,9 @@ three proposal tools, and no tool that can send a mark.
 
 One synthetic answer contains instructions aimed at the marker rather than an answer to the
 question. Withheld treats that text as untrusted student content and quarantines it; it cannot
-carry a point-bearing argument through the tool surface. Unknown rubric ids earn nothing, duplicate
-findings are paid once, and stale or repeated writes are refused instead of silently changing a
-newer session.
+carry a point-bearing argument through the tool surface. Unknown rubric ids earn nothing, a duplicated
+id in a proposal is refused rather than paid twice, and stale or repeated writes are refused instead
+of silently changing a newer session.
 
 The teacher can then compare the page-owned total and pass mark in the middle column with the
 redacted agent payloads on the right. The point is not that the agent is “trusted”; the point is
@@ -91,15 +93,16 @@ that the page does not need to trust it with authority it never had.
 Withheld is a static, local-first React application:
 
 - React `19.2.8`, TypeScript `5.9.3` strict, and Vite `7.3.6`;
-- pure page-owned arithmetic and hold policy in `src/domain/marks.ts`;
-- a revision/receipt authority layer in `src/domain/session.ts`;
+- pure page-owned arithmetic in `src/domain/marks.ts`;
+- the hold policy and the revision/receipt authority layer in `src/domain/session.ts`;
 - separate teacher and agent projections in `src/domain/views.ts`;
 - nine strict WebMCP definitions registered through `document.modelContext`, with a deprecated
   `navigator.modelContext` fallback;
 - plain monochrome CSS, no remote font, no inline style dependency, and a production CSP;
 - synthetic alias-only fixtures, no backend, database, login, telemetry, or outbound request.
 
-Every write carries an `expectedRevision` and a bounded, single-use `operationId`. The shared reply
+Every tool write carries an `expectedRevision` and a bounded, single-use `operationId`; the
+teacher's own form write carries the revision the form was opened at. The shared reply
 guard rejects invalid/oversized/unknown input and keeps page-owned figures out of agent-facing
 prose. `read_answer` is the one tool marked as untrusted content. The human release control is a
 page action, not a WebMCP registration.
@@ -129,8 +132,11 @@ than implying a classroom deployment that has not happened.
 
 ## Testing instructions for judges
 
-Open **https://androlay.github.io/withheld/** in Chrome 149+ with WebMCP enabled, or use ChatGPT's in-app
-browser after the hosted run is verified. No account or API key should be required.
+Open **<https://androlay.github.io/withheld/>** in a browser with WebMCP enabled. The runs behind this
+copy used Chrome `151.0.7922.137` with `--enable-experimental-web-platform-features` and
+`--enable-features=WebMCPTesting`; no other client has been tried against this page, including ChatGPT's
+in-app browser. No account or API key is required, and without the flags the page is still a working
+marking workspace — the tools simply have nowhere to register.
 
 1. Press **Mark all from the worked example** and compare the page-owned totals with the contract
    panel's payloads.
@@ -142,8 +148,9 @@ browser after the hosted run is verified. No account or API key should be requir
 5. Stage a release, decline it, stage again, then confirm it with the human control. The receipt
    records the human decision; there is no agent release button.
 
-The local reproduction path is in the public repository once published:
-`pnpm install`, `pnpm typecheck`, `pnpm test`, `pnpm build`, then `pnpm preview`.
+The local reproduction path is in the public repository at <https://github.com/AndroLay/withheld>:
+`pnpm install`, then `node --run typecheck`, `node --run test`, and `node --run build` — the commands the
+recorded runs used — and `node --run preview` to open the built page.
 
 ## Limitations and evidence status
 
@@ -152,19 +159,24 @@ rubric are synthetic; there is no account, backend, persistence, multi-user sync
 data. Prompt-injection handling is a bounded quarantine route, not a universal model-safety claim.
 
 The package contains local deterministic tests, browser accessibility/CSP checks, agent-view
-redaction checks, native WebMCP registry/dispatch artifacts, and failure/recovery artifacts. At the
-time this draft was written, hosted URL verification, a model-selected natural-language replay,
-non-builder GATE-P2 validation, Node 22/CI, screen-reader review, and real-device review were still
-open in `docs/PROGRESS.md` and `docs/PREFLIGHT.md`. They must be closed or stated plainly before
-submission.
+redaction checks, native WebMCP registry/dispatch artifacts, and failure/recovery artifacts. Hosted
+verification closed on 2026-09-03: the browser session (43/43) and the native dispatch (19/19) were both
+re-run against the live URL at 07:44 UTC and their reports are in `docs/evidence/`. Still open as of
+2026-09-03: a model-selected natural-language replay, non-builder GATE-P2 validation, the demo video,
+Node 22/CI, screen-reader review, real-device review, and a performance baseline. Each is tracked in
+`docs/PROGRESS.md` and `docs/PREFLIGHT.md` with its own artifact, and each must be closed or stated
+plainly before submission.
 
-## Submission fields to fill after verification
+## Submission fields
 
-- **Live URL:** `https://androlay.github.io/withheld/`
-- **Public repository:** `https://github.com/AndroLay/withheld`
-- **Demo video (public YouTube, < 3 minutes):** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]`
+- **Live URL:** <https://androlay.github.io/withheld/> — HTTP 200 on 2026-09-03 at 09:01 UTC.
+- **Public repository:** <https://github.com/AndroLay/withheld> — `main` at `b050f991`, read anonymously
+  at the same minute.
+- **Demo video (public YouTube, < 3 minutes):** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` — the script and
+  shot list are in `docs/VIDEO-SCRIPT.md`; no recording exists.
 - **License/rights:** MIT code; confirm that every final visual, voice, music, and video element is
   original or licensed.
 
-**Do not submit this file as evidence of a hosted/model run. It is copy for the form, and remains
-unsent until the owner verifies the final URLs and recording.**
+**Do not submit this file as evidence of a model run. The two URLs above are verified; the video link is
+not, and no model has chosen a tool on this page. It is copy for the form, and remains unsent until the
+owner records the video and presses submit.**

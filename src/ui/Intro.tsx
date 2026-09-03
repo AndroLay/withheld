@@ -94,6 +94,7 @@ export function Intro({
   const answers = session.answers.length;
   const marked = Object.keys(session.marks).length;
   const staged = session.releaseRequest?.answerIds.length ?? 0;
+  const cells = cellsOf(session, heldReason);
 
   // In the agent's view the map it was handed is `agentVisibleHolds`, so its size is how many holds
   // the agent can name and the difference is how many it is only counted. In yours the two are equal
@@ -160,7 +161,7 @@ export function Intro({
         `docs/design/README.md` are taken from. The accessible name comes off `aria-label` either way.
       */}
       <ol className="cells" aria-label={`All ${answers} answers, in arrival order`}>
-        {cellsOf(session, heldReason).map((cell) => (
+        {cells.map((cell) => (
           <li key={cell.answer.id} className="cells__slot">
             <a
               className={`cell cell--${cell.kind}${cell.secret ? " cell--secret" : ""}`}
@@ -175,6 +176,29 @@ export function Intro({
           </li>
         ))}
       </ol>
+
+      {/*
+        What the shading means, in words, because the strip's own state words live in `data-who` and
+        `aria-label` — a pointer or a screen reader reaches them and a still image does not. Anyone
+        reading a screenshot of this page had four shades and no key.
+
+        It shares its row with the four counters rather than taking one of its own, so the band pays
+        no extra height for it. Two clauses are conditional: the heavy edge is drawn only when such a
+        cell exists, which in the agent's view is never — that view is built from `agentVisibleHolds`
+        and has no unnamed hold to mark — and the overlap note waits until something is marked,
+        because `14 / 0 / 0 / 0` cannot be misread as four parts of a whole. Neither clause carries a
+        digit, so the agent's view carries this line unchanged.
+      */}
+      <p className="band__key">
+        Outlined is not marked, grey is ready to send, hatched is held for you, and black has gone to
+        a student.
+        {cells.some((cell) => cell.secret)
+          ? " A heavy bottom edge means held for a reason your agent is not told."
+          : ""}
+        {marked > 0
+          ? " Marked, held and staged are each counted out of the whole class, not four parts of it."
+          : ""}
+      </p>
 
       <div className="band__counts">
         {counts.map(([value, label]) => (

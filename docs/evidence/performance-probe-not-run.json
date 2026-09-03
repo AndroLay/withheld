@@ -1,15 +1,32 @@
 {
   "status": "UNKNOWN",
-  "evidenceClass": "UNKNOWN",
+  "evidenceClass": "NOT_RUN",
   "artifact": "performance-baseline",
   "project": "withheld",
-  "reason": "No controlled cold/warm, interaction-latency, long-task, or memory baseline was collected on representative hardware or the hosted target.",
-  "availableObservation": "The local browser harness completed the tested interactions without uncaught exceptions; this is not a performance benchmark.",
-  "rerunProtocol": [
-    "Measure cold and warm navigation on the final hosted URL in a clean profile.",
-    "Measure native dispatch-to-DOM update latency for reads and writes over repeated runs.",
-    "Record long tasks, memory/lifecycle behavior after repeated register/abort/reload cycles, browser/device, and raw samples.",
-    "Report distributions and limitations rather than a single unrepeatable number."
+  "ranAt": null,
+  "recordedAt": "2026-09-03T09:38:00Z",
+  "reason": "No controlled cold/warm navigation, interaction-latency, long-task or memory baseline was collected, on this hardware or on the hosted target. The hosted target now exists, so this is a measurement that was not taken rather than one that could not be.",
+  "availableObservation": "The local and hosted browser harnesses each completed all 43 checks with a clean console and no uncaught exception, and the hosted run recorded 4 requests with none off-site. That is evidence the page works, not evidence of how fast it is for anyone.",
+  "sizeFactsOnly": {
+    "note": "Byte counts are the only performance-adjacent figures this package has actually measured. Transfer size is not latency, and none of these numbers describes a user's experience.",
+    "distIndexHtmlBytes": 988,
+    "distCssBytes": 30494,
+    "distJsBytes": 267374,
+    "gzipViteReport": "zlib.gzipSync at its defaults, as Vite prints it: JS 83195 B, CSS 6077 B.",
+    "gzipNine": "gzip -9 on the same two files: JS 81909 B, CSS 6033 B.",
+    "whyTwo": "Two compressors at two settings give two honest numbers for the same bytes. Quote which one produced a figure whenever one is used."
+  },
+  "requiredForRerun": [
+    "The live URL: https://androlay.github.io/withheld/ — already met, so cold navigation can be measured against a real host rather than a loopback preview.",
+    "A clean browser profile and a named machine, so the sample can be attributed to hardware.",
+    "At least one device that is not the author's workstation, if a claim about ordinary hardware is ever to be made."
   ],
-  "notClaimed": "No performance target or production-scale responsiveness claim is made."
+  "rerunProtocol": [
+    "Measure cold and warm navigation on the hosted URL in a clean profile, at least ten samples each, and keep the raw samples.",
+    "Measure native dispatch-to-DOM-update latency separately for reads and for writes, over repeated runs, since a write recomputes every total and a read does not.",
+    "Record long tasks, and memory and lifecycle behaviour after repeated register/abort/reload cycles.",
+    "Record browser, device, network conditions, and every raw sample alongside the summary.",
+    "Report a distribution and its limitations. A single number from one machine is not a baseline, and a median from ten samples on one machine is a fact about that machine."
+  ],
+  "notClaimed": "No performance target, load-time figure, latency figure, or production-scale responsiveness claim is made anywhere in this package, and none may be added while this artifact stands."
 }

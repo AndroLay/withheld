@@ -1,0 +1,18 @@
+{
+  "note": "The plain MCP form. Claude Code, Cursor, Windsurf, Cline and most hosts accept this shape. Point your client at this file, or paste the withheld block into the client's own config. Paths are absolute on purpose: an attaching agent's working directory is not this package.",
+  "requires": "A Withheld build reachable at WITHHELD_URL, and a Chromium at WITHHELD_CHROMIUM. A production preview is already serving at http://127.0.0.1:4197/ — use it rather than starting a second one. The bridge launches its own headless Chromium on WITHHELD_CDP_PORT and reads the nine tools out of the page's WebMCP registry; it implements none of them.",
+  "mcpServers": {
+    "withheld": {
+      "command": "node",
+      "args": ["/home/andro/dev/projects/webmcp-challenge/submissions/withheld/scripts/mcp-bridge.mjs"],
+      "env": {
+        "WITHHELD_URL": "http://127.0.0.1:4197/",
+        "WITHHELD_CDP_PORT": "9521",
+        "WITHHELD_BRIDGE_LOG": "/tmp/withheld-bridge.jsonl",
+        "WITHHELD_CHROMIUM": "/usr/bin/chromium",
+        "WITHHELD_CDP_TIMEOUT_MS": "30000",
+        "WITHHELD_BOOT_ATTEMPTS": "60"
+      }
+    }
+  }
+}

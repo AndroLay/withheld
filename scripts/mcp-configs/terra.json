@@ -1,0 +1,20 @@
+{
+  "note": "Terra's profile — one of the owner's two named client profiles. It is identical to generic.json except for the debugging port and the transcript path, and that difference is the whole point: every attached agent starts its own Chromium, two of them on one remote-debugging port collide, and two of them writing one WITHHELD_BRIDGE_LOG overwrite each other's record of what was chosen. Terra owns 9571 and /tmp/withheld-bridge-terra.jsonl.",
+  "agent": "terra",
+  "pairsWith": "sol.json, which owns 9572 and /tmp/withheld-bridge-sol.jsonl. Run both at once and neither waits for the other, and each keeps its own transcript.",
+  "unverified": "Terra is a client profile, not a program: it is defined nowhere in this repository, no run has ever been made with it, and nothing here describes what it can do. Point it at whichever CLI you actually run.",
+  "mcpServers": {
+    "withheld": {
+      "command": "node",
+      "args": ["/home/andro/dev/projects/webmcp-challenge/submissions/withheld/scripts/mcp-bridge.mjs"],
+      "env": {
+        "WITHHELD_URL": "http://127.0.0.1:4197/",
+        "WITHHELD_CDP_PORT": "9571",
+        "WITHHELD_BRIDGE_LOG": "/tmp/withheld-bridge-terra.jsonl",
+        "WITHHELD_CHROMIUM": "/usr/bin/chromium",
+        "WITHHELD_CDP_TIMEOUT_MS": "30000",
+        "WITHHELD_BOOT_ATTEMPTS": "60"
+      }
+    }
+  }
+}

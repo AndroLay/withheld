@@ -2,12 +2,12 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "local production build, both views swept in a live DOM; not hosted and not model-selected",
-  "ranAt": "2026-09-03T07:40:15.695Z",
+  "ranAt": "2026-09-03T12:54:42.562Z",
   "evidence": {
-    "gitSha": "d01cc2e2932331dc2cc203e0a69d782b1223b716",
+    "gitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24",
     "workingTreeDirty": true,
-    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",
@@ -76,8 +76,8 @@
       "heldEntries": 5,
       "bars": 8,
       "sidewaysOverflowPx": 0,
-      "heightPx": 2609,
-      "words": 1540
+      "heightPx": 813,
+      "words": 1477
     },
     "agent-1440": {
       "view": "agent",
@@ -91,8 +91,8 @@
       "heldEntries": 2,
       "bars": 0,
       "sidewaysOverflowPx": 0,
-      "heightPx": 2697,
-      "words": 1519
+      "heightPx": 813,
+      "words": 1442
     },
     "teacher-1440-again": {
       "view": "yours",
@@ -133,8 +133,8 @@
       "heldEntries": 5,
       "bars": 8,
       "sidewaysOverflowPx": 0,
-      "heightPx": 2609,
-      "words": 1540
+      "heightPx": 813,
+      "words": 1477
     },
     "teacher-420": {
       "view": "yours",
@@ -175,8 +175,8 @@
       "heldEntries": 5,
       "bars": 8,
       "sidewaysOverflowPx": 0,
-      "heightPx": 3885,
-      "words": 744
+      "heightPx": 4056,
+      "words": 824
     },
     "agent-420": {
       "view": "agent",
@@ -190,8 +190,8 @@
       "heldEntries": 2,
       "bars": 0,
       "sidewaysOverflowPx": 0,
-      "heightPx": 3534,
-      "words": 723
+      "heightPx": 3689,
+      "words": 789
     }
   },
   "checks": [

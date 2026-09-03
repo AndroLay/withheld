@@ -7,10 +7,10 @@ The gate is defined by this package's agent-boundary contract and regression tes
 the cheap same-origin equivalent of a cross-origin leak test; the historical research
 register is not an active submission dependency.
 
-**Run on 2026-09-02, on Node 26, against the source in this package.** The gate is driven by
-tests and by reading the tool surface; **no browser agent was involved**, here or anywhere in
-this workspace, so everything below is a statement about what the tool surface can emit and
-not a recording of an agent failing to extract it.
+**Run on 2026-09-02, on Node 26, against the source in this package, and its tests re-run at this
+tree on 2026-09-03 with none failing.** The gate is driven by tests and by reading the tool surface;
+**no browser agent was involved**, here or anywhere in this workspace, so everything below is a
+statement about what the tool surface can emit and not a recording of an agent failing to extract it.
 
 **Verdict: pass on the stated claim, with one defect found and fixed in the course of running
 it, and two residual channels named rather than closed.** The residuals are inference

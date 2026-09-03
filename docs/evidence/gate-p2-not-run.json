@@ -1,17 +1,31 @@
 {
   "status": "NOT_RUN",
-  "evidenceClass": "UNKNOWN",
+  "evidenceClass": "NOT_RUN",
   "artifact": "gate-p2",
   "project": "withheld",
   "participantCount": 0,
-  "reason": "No non-builder marker, reviewer, or workflow owner was available for an independent session.",
-  "privacy": "No participant identity or personal data is stored.",
+  "recordedAt": "2026-09-03T09:30:00Z",
+  "reason": "No non-builder participant was reachable from this working session. Nobody has been asked and nobody has declined; the gap is recruitment, not instrumentation.",
+  "instrument": "docs/GATE-P2.md, complete as of 2026-09-03: four questions, the paired by-hand-then-page task, and the recording form. docs/GATE-P2-BYHAND.md is the by-hand sheet, generated from src/data/fixtures.ts so the two halves of the paired task are the same work.",
+  "technicalPrerequisitesMet": "The page is live at https://androlay.github.io/withheld/ (HTTP 200 on 2026-09-03 at 09:01 UTC), so a session needs a URL rather than a build. hosted-browser-session.json records 43/43 on that URL.",
+  "privacy": "No participant identity or personal data is stored. The fixtures are synthetic and alias-only.",
+  "participants": 0,
+  "sessionCeiling": 3,
   "rerunProtocol": [
-    "Recruit one or more non-builder markers or workflow owners and obtain consent for a short recorded evaluation.",
-    "Show the clean page without explaining the implementation first.",
-    "Ask the participant to explain the problem, agent role, page authority, human release boundary, and the meaning of held/staged/released.",
-    "Have the participant complete or inspect one synthetic alias-only journey and state what was confusing.",
-    "Store verbatim responses, observed actions, interpretation, and limitations without real student data."
+    "Recruit between one and three people who did not build this page and have not had it explained to them. One is enough to run the gate; three is the ceiling. Ask for twenty minutes and consent to being quoted verbatim.",
+    "Ask Q1 and Q2 from docs/GATE-P2.md before the page is opened, and write the answers down as they are said.",
+    "Hand over docs/GATE-P2-BYHAND.md with the page closed. Say once: 'Find the answers you would want to look at twice before any of these marks went out.' Time it. Record the ids they name and the ids they do not.",
+    "Open https://androlay.github.io/withheld/ and say exactly one sentence: 'This is a page for marking a class of short answers, and an AI agent can help with it.' Then ninety seconds of silence, no tour, no narration.",
+    "Repeat the same find-the-second-look task on the page, with a new timer, and record the ids again.",
+    "Ask Q3 and Q4, and record whether the participant said unprompted that the agent cannot score or release.",
+    "Write every answer verbatim into the Result section of docs/GATE-P2.md with the date, and copy the two timings as 'one participant, one pile, N minutes against M minutes'.",
+    "Copy anything the participant wanted that this page does not do into docs/PROGRESS.md as a work item."
   ],
-  "notClaimed": "No user comprehension, time saving, adoption, or impact result is claimed."
+  "reportingRules": [
+    "One participant is not a rate. Two timings from one person on one pile are an anecdote with a number attached.",
+    "Never convert these results into a percentage, a speed-up, a saving per week, or any claim about markers in general.",
+    "If two or three sessions run, record each separately. Do not average them and do not write 'users found'.",
+    "A fail is a result and is more useful than a pass. Quote it in the words it was given."
+  ],
+  "notClaimed": "No user comprehension, time saving, adoption, workload or impact result is claimed. The hosted browser run proves delivery, not that anyone outside the author has used this page."
 }

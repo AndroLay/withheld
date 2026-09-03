@@ -30,10 +30,10 @@ src/ui/wording.ts             teacher-facing wording, and the quantised bar stop
 src/ui/Icon.tsx               every glyph on the page, drawn as inline SVG
 src/ui/Chain.tsx              why an answer was held, as three links. drawn in the queue and the audit
 src/ui/TopBar.tsx             the bar across the top: the name, the revision, and two anchors
-src/ui/Intro.tsx              the band under it: the claim, and the four counted figures
+src/ui/Intro.tsx              the band: the claim, two view buttons, the class as a strip, four figures
 src/ui/Rail.tsx               the care setting, who can do what, the receipt ledger, the four steps
-src/ui/Stack.tsx              the class, three rows at a time, with a mark form in each
-src/ui/AgentPanel.tsx         the third column: the tool surface and four payloads, as the agent gets them
+src/ui/Stack.tsx              the whole class as fourteen rows, four tab panels behind each
+src/ui/AgentPanel.tsx         the third column: the tool surface, four payloads, and the calls so far
 src/ui/Compare.tsx            the same stack under all three care settings
 src/ui/Audit.tsx              what the page kept back, why, and what it cannot know
 src/ui/ActionBar.tsx          the sticky foot: stage, and the confirm no tool can reach
@@ -41,7 +41,7 @@ src/App.tsx                   the shell: a bar, a band, three columns and the ga
 ```
 
 `src/domain/` knows nothing about tools. `src/tools/` knows nothing about React. That is what makes
-103 of the 129 tests possible without React entering the process at all — and the other twenty-six render
+106 of the 136 tests possible without React entering the process at all — and the other thirty render
 every component to static markup, with no DOM anywhere. It is also why the domain can be re-read as a
 plain state machine by anyone auditing the claims in `SECURITY.md`.
 
@@ -100,14 +100,15 @@ that has already moved.
 ```
 latest: useRef(session)     ← the truth for reads
 apply(next)                 ← the single mutator: writes the ref, then setState
-port = { read: () => latest.current, write: apply }
+port = { read: () => latest.current, write: apply, observe }
 readLatest()                ← manual handlers read the same ref before committing
 ```
 
 Every tool reads through `port.read()` and writes through `port.write()`. The React state
 exists only so the page re-renders; it is never the thing a tool reads. That is the whole
-reason `SessionPort` exists as a type: the tool layer is handed two functions and never learns
-that React is involved.
+reason `SessionPort` exists as a type: the tool layer is handed two functions, plus an optional
+third that is told about each arrival and cannot fail a call, and never learns that React is
+involved.
 
 The manual form keeps the same revision discipline. Its checkboxes are controlled by React,
 and the form records the revision and answer it opened. If a tool or another form changes the
@@ -127,8 +128,9 @@ session.
    been released? Any failure refuses **the whole batch** — partial acceptance would leave the
    caller guessing which half landed.
 5. Quarantine is checked before marking. An answer that addresses the marker is escalated and
-   any mark it had is deleted. The injection costs the attacker their mark rather than earning
-   them one.
+   any mark it had is deleted. A *matched* injection costs the attacker their mark rather than
+   earning them one; a missed one is a measured residual, recorded in
+   [`../SECURITY.md`](../SECURITY.md) under Threat 1.
 6. The page computes the total itself, writes a receipt (including the opaque operation id for an
    agent write), and bumps the revision. Reusing an accepted operation id is refused before any
    revision or state change.
@@ -266,8 +268,10 @@ a coerced argument is a decision made on the model's behalf.
 
 `findModelContext()` checks `document.modelContext`, then the `navigator.modelContext` that
 Chromium deprecated, so a judge on an older build still sees the tools. When neither exists the
-page carries on as an ordinary web app — which is the only state this project has ever actually
-observed.
+page carries on as an ordinary web app. Both states have been seen locally: a Chromium started
+with `--enable-features=WebMCPTesting` exposes `document.modelContext`, and all nine tools
+registered against it (`docs/evidence/native-registry.json`); a build without that flag has no
+model context and the page is unchanged.
 
 Teardown is an `AbortSignal`, because the API has no `unregisterTool`. That is also what makes
 React StrictMode's deliberate double mount safe: a module-level
@@ -278,9 +282,10 @@ actually landed rather than claiming the whole set either way.
 
 If a registration provider refuses any tool, the installer aborts the partial set and returns the
 failed names plus a retry callback. `AgentPanel` reports that the surface is incomplete without
-printing provider error detail and exposes `Retry registration`, including when zero tools landed;
-the render suite covers that first-tool failure state. This keeps a browser/provider failure
-actionable without presenting a partial registry as a complete capability surface.
+printing provider error detail and exposes `Retry registration`, and it reaches that state on any
+failure whether or not a tool landed, because the failure branch is checked before the count. The
+render suite covers the partial state in which one tool registered. This keeps a browser/provider
+failure actionable without presenting a partial registry as a complete capability surface.
 
 ## What this architecture does not do
 

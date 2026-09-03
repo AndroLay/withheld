@@ -583,6 +583,19 @@ export function Stack({
         </p>
       </div>
 
+      {/* The question the class was set. It was in the session model from the start and reachable
+          through `read_rubric`, but it was never on the screen — so a reader arriving at fourteen
+          rows had no idea what was being marked, and the four rubric lines below read as arbitrary.
+          It sits above the rows rather than inside each one because it is the same question for all
+          fourteen. Safe in either view: it is the teacher's own text, and it carries no page-owned
+          figure. `docs/DECISIONS.md` D-37. */}
+      {session.question ? (
+        <p className="queue__ask">
+          <span className="queue__ask-tag">The question</span>
+          {session.question}
+        </p>
+      ) : null}
+
       {shown.length === 0 ? (
         <div className="queue__empty">
           <p className="queue__lead">Nothing in this view.</p>

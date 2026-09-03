@@ -592,6 +592,19 @@ a.btn:hover {
   transform: none;
 }
 
+/* The key to the strip's four shades. It shares the counters' row and gives up its width to them:
+   `flex: 1 1 auto` with `min-width: 0` so a long third clause wraps instead of pushing the counters
+   onto a row of their own. `--muted` on `--card` is the same pair the counters' labels use, which the
+   contrast sweep already measures. */
+.band__key {
+  flex: 1 1 14rem;
+  min-width: 0;
+  max-width: 46rem;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
 .band__counts {
   display: flex;
   flex: none;
@@ -767,6 +780,32 @@ a.btn:hover {
 
 .queue__of {
   font-size: 12px;
+  color: var(--muted);
+}
+
+/* The question the class was set, pinned above the rows.
+ *
+ * It reads as a quotation rather than as a control: a left rule and one tag word, no box. A box here
+ * would compete with the fourteen rows below it, and the point of the line is to be read once and
+ * then stop asking for attention. `--ink-2` rather than `--ink` for the same reason — present, not
+ * loud — and both clear 4.5:1 on `--card`, which is what the contrast sweep measures.
+ */
+.queue__ask {
+  margin: 0 0 14px;
+  padding: 0 0 0 11px;
+  border-left: 2px solid var(--line-2);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.queue__ask-tag {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
@@ -2015,6 +2054,15 @@ a.btn:hover {
   color: var(--muted-2);
 }
 
+/* The answered objection, set as a quotation rather than as more preamble: same size and colour as
+   the line above it, with a rule down its left edge so a reader can tell a claim from a caption. The
+   colour is inherited, so this adds no new pair for the contrast sweep to measure. */
+.proj__why--ask {
+  margin-top: -4px;
+  padding-left: 9px;
+  border-left: 2px solid var(--ink-3);
+}
+
 /* What a tool actually returns, printed verbatim. These come from the payload builders the tools
    themselves call, so a field added to a result appears here whether or not anyone remembered. */
 .proj {
@@ -2170,6 +2218,74 @@ a.btn:hover {
 
 .fold[open] .fold__more--open {
   display: inline;
+}
+
+/**
+ * A block of the contract column, tucked away until it is asked for.
+ *
+ * Two of this column's blocks are reference rather than argument — the four verbatim payloads, and the
+ * paragraph about turning the flag on — and beside the work they were most of a thousand pixels of
+ * prose sitting under the part that makes the point. Tucked, each is one line until pressed. The rule
+ * stated in the `.fold` comment above holds here as well, and is why neither summary is styled as a
+ * plain heading: a caret and a visible "open it" say what pressing does, so nothing in this column is
+ * a control wearing a title's clothes. Nothing is deleted — both blocks are in the markup either way,
+ * and a closed `<details>` is still in the page, still in the accessibility tree, and still found by
+ * the browser's own find-in-page.
+ */
+.tuck {
+  margin-bottom: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--black-row-line);
+}
+
+.tuck__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.tuck__head > * {
+  grid-column: 1;
+}
+
+/* The label keeps the column's own small-caps idiom and gives up its margin: inside the summary the
+   grid sets the spacing, and a heading's bottom margin here would open a gap under a closed block. */
+.tuck__head .lab {
+  margin: 0;
+}
+
+.tuck__caret {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  display: block;
+  color: var(--muted-2);
+}
+
+.tuck[open] .tuck__caret {
+  transform: rotate(180deg);
+}
+
+/* Both labels ship and the sheet draws one, so the summary's accessible name is the right one in
+   either state — a `display: none` branch is not in the name. */
+.tuck__more {
+  font-size: 12px;
+  color: var(--muted-2);
+}
+
+.tuck[open] .tuck__more--shut,
+.tuck__more--open {
+  display: none;
+}
+
+.tuck[open] .tuck__more--open {
+  display: inline;
+}
+
+/* Open, the block needs air between the line that named it and its first paragraph. */
+.tuck[open] .tuck__head {
+  padding-bottom: 12px;
 }
 
 /* An empty state that is not a failure: something the page has nothing to show yet. */
@@ -2903,5 +3019,76 @@ a.btn:hover {
   .bar__mid,
   .bar__end {
     padding: 16px 22px;
+  }
+
+  /**
+   * The shell, at the one width where there are three columns to keep apart.
+   *
+   * Below this width the page is a single column and scrolls as one document, which is the honest
+   * shape for a phone. At and above it the page becomes an app shell: the bar, the band and the gate
+   * hold their own height, the grid takes whatever is left of the viewport, and each of the three
+   * columns scrolls its own contents. What that buys is the thing a three-column document cannot do
+   * — a reader who scrolls the audit to its foot was dragging the queue and the contract down with
+   * it, and the one control that releases a mark sat at the foot of a 2856px document, which is to
+   * say off screen for the whole of a first reading. The gate is now in the first frame and stays in
+   * it.
+   *
+   * The cost is in `docs/evidence/`, and it is the same cost `position: sticky` was refused for
+   * above: a full-page capture of a document that is exactly one viewport tall is one viewport tall,
+   * so the wide frames now show what a judge meets on arrival instead of the whole of every column.
+   * The 420px frame is untouched and still captures the page end to end. Taken deliberately this
+   * time, with the consequence written down here rather than found later in a PNG.
+   */
+  .app {
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The three bands that must not be squeezed by a tall column: the facts, the figures, the gate. */
+  .top,
+  .band,
+  .bar {
+    flex: none;
+  }
+
+  /* `min-height: 0` here and on the columns, and both are load-bearing. A flex item's floor is its
+     own content, so without it the grid grows to its tallest column and the shell scrolls after all,
+     which is the layout this block exists to replace. `grid-template-rows` is the other half and was
+     found by measuring rather than by reading: the row these three columns share is implicit, an
+     implicit row is auto-sized, and an auto row takes its base size from the tallest thing in it. The
+     grid was the right height and its one row was not, so the columns kept their full height and
+     spilled out of the bottom of a shell that was already correct — 1511px of document inside a 900px
+     viewport. `minmax(0, 1fr)` makes the row exactly the grid's height, which is what gives
+     `overflow-y` below something definite to scroll inside. */
+  .app__cols {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  /* `position: relative` is not decoration here, and the reason took a measurement to find. Both
+     visually-hidden patterns in this sheet — `.vh` and `.tabs__pick` — are 1×1 boxes taken out of flow
+     with `position: absolute` and no offsets, so each one is laid out against the nearest positioned
+     ancestor, and there was none. Their containing block was the page itself, which means a hidden
+     radio inside an opened marking row landed 1001px down a 900px document and dragged the document's
+     scroll area with it: the columns scrolled, and then the whole page still scrolled a hundred pixels
+     more. Making each column the containing block puts those boxes back inside the thing that clips
+     them. Nothing moves — an absolute box with `auto` offsets stays at its static position. */
+  .work,
+  .rail,
+  .contract {
+    position: relative;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  /* The black column inherits no scrollbar: a default light thumb on ink reads as a seam ruled down
+     the page. Both halves are palette tokens, so the colours stay where the palette tests can see
+     them. */
+  .contract {
+    scrollbar-color: var(--muted-2) var(--ink);
   }
 }

@@ -3,6 +3,11 @@
 Not part of the submission. A working mockup kept next to the package so a layout argument can be
 looked at instead of described. `proposal-v3.html` replaces the earlier v2 file and its renders.
 
+The payloads printed inside `proposal-v3.html` are illustrative and predate the shipped tool surface —
+its `preview_unattended_outcome` sample invents the keys `wouldReachStudents` and `wouldStay`, which no
+tool returns. Read the real payloads from `README.md`'s tool table or from `src/tools/webmcp.ts`, never
+from this mockup.
+
 | file | what it is |
 | --- | --- |
 | [`proposal-v3.html`](proposal-v3.html) | one self-contained page, clickable. Open it in any browser — no server, no build |

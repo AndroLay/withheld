@@ -25,7 +25,13 @@ has been misread.
 
 One person who did not build this and does not need to be a teacher — anyone who has had to grade,
 score, review or triage a pile of similar things against a fixed standard. A marker, a code
-reviewer, an interviewer who has scored a take-home, an admissions reader.
+reviewer, an interviewer who has scored a take-home, an admissions reader. Those are backgrounds a
+participant may come from, not audiences this page claims: the page is written for one persona, the
+instructor marking a class of short answers.
+
+One is enough to run the gate, and three is the sensible ceiling. Each session is one person, one
+pile, recorded separately and quoted verbatim; three separate records are worth more than three
+summarised into a finding, and nothing here is ever averaged.
 
 Not: anyone who has seen this repository, and not anyone the author has already explained the idea
 to. The comprehension half of this gate is destroyed by a prior explanation.
@@ -46,10 +52,10 @@ question with the answer — "what does that mean?" gets "what do you think it m
 gets recorded as a failure to communicate. A gate that the observer can talk their way past measures
 the observer.
 
-Running step 2 needs the page open in a browser, and that prerequisite is now met: the published
-HTTPS page passes 43/43 browser checks in flagged Chromium, so the page lays out and responds.
-What this gate still needs is a person who did not build it — twenty minutes of one, which is not
-something code can supply.
+Running step 2 needs the page open in a browser, and that prerequisite is now met: `pnpm build &&
+pnpm browser` opens `dist/` in a headless Chromium and reports all 43 of its checks green, so the
+page lays out and responds. What this gate still needs is a person who did not build it — twenty
+minutes of one, which is not something code can supply.
 
 The page has since grown an introduction whose whole purpose is to say, in the first ten seconds, what
 Q3 asks a reader to say back (`docs/DECISIONS.md` D-24). That does not make this gate any less
@@ -90,12 +96,49 @@ shows the sentence was read, not that the page was understood. If they point at 
 screen while answering — the tool list, the printed payloads, the human-only gate, or the zero in the
 band — record which, because that is the artefact doing the work.
 
-**Q4 — whether the demonstration convinces.** *"The page held five answers back for you. Do you
-believe it could not tell your agent which five? What would you need to see to believe it?"*
+**Q4 — whether the demonstration convinces.** *"The page held five answers back for you, and three it
+will not name to your agent. Do you believe it could not tell your agent which three? What would you
+need to see to believe it?"*
 
 Looking for: whether the printed payloads in the contract column do any work, or whether the claim
 reads as an assertion. "I'd have to take your word for it" is a failure of the page, not of the
 participant, and the answer to "what would you need" is the design brief for fixing it.
+
+## The paired task: the same pile by hand, then with the page
+
+The four questions measure comprehension. They do not measure whether the page saves anyone anything,
+and that is the weakest claim in this package. This half measures it, on one pile, with one person, and
+it produces a description rather than a rate.
+
+The two halves use the same fourteen answers and the same rubric. `docs/GATE-P2-BYHAND.md` is the
+by-hand sheet, generated from `src/data/fixtures.ts` so the wording cannot drift from the page's.
+
+1. **By hand, first.** Hand over `docs/GATE-P2-BYHAND.md` — printed, or on screen with the page
+   closed. The task, said once: *"Find the answers you would want to look at twice before any of these
+   marks went out. You do not have to mark them."* Start a timer. Stop it when they say they are done.
+   Record: the elapsed time, the ids they named, and the ids they did not.
+2. **Then the page**, from `https://androlay.github.io/withheld/`. Same task, same sentence, new timer,
+   and the same silence rule as the protocol above: no tour.
+3. **Ask, in this order, and write the answers as sentences:** which of the two was easier and why;
+   whether anything the page held surprised them; and — only if they have not already said it —
+   *"who decides the mark here, and who sends it?"*
+
+What to record, all of it verbatim:
+
+| field | why |
+| --- | --- |
+| time by hand, time with the page | the two numbers, as measured, for one pile and one person |
+| ids named by hand | which cases a person finds unaided |
+| ids named with the page | whether the page's five holds match what a person wanted back |
+| ids the page holds that they did not name | the page holding more than a person asked for is a cost, not a win |
+| ids they named that the page does not hold | the most valuable sentence in the exercise; it goes to `docs/PROGRESS.md` as work |
+| whether they said, unprompted, that the agent cannot score or release | Q3 by another route: if they only say it when asked, the page did not say it |
+
+**One participant is not a rate.** Two timings from one person on one pile are an anecdote with a
+number attached. Write them as "one participant, one pile, N minutes against M minutes" and never as a
+percentage, a speed-up, a saving per week, or a claim about markers in general. If two or three people
+run it, write each one separately; do not average them, and do not let three become "users found". The
+honest form of this evidence is a quotation, and the honest sample size is the one that happened.
 
 ## Recording
 
@@ -109,7 +152,15 @@ it is more useful than a pass, because a pass changes nothing about what gets bu
 
 ## Result
 
-Not run. No participant, no date, no answers.
+Not run. No participant, no date, no answers, and no paired timing. As of 2026-09-03 at 09:30 UTC the
+instrument is complete — four questions, the paired task, and the by-hand sheet — and what is missing
+is a person. Nobody has been asked and nobody has declined; no participant was reachable inside this
+working session, and recruiting one is not something this package can do for itself.
+`docs/evidence/gate-p2-not-run.json` carries the same statement in machine-readable form.
+
+The page is live at `https://androlay.github.io/withheld/`, so step 2 needs no build and no local
+server — a participant can be handed a URL. That removes the last technical obstacle and leaves only
+the human one.
 
 If this section still says that at submission time, then `README.md`'s statement that the size of the
 problem was not measured here stands as the whole of the evidence, and it should be read as the

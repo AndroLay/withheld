@@ -1,0 +1,31 @@
+{
+  "note": "Claude Code. Attaching the server is only half of it: a non-interactive run calls nothing unless the tools are also allowed, because there is nobody at the terminal to answer a permission prompt. The nine names below are what the host exposes once the bridge is up — the page registers the bare names, the host prefixes them with mcp__withheld__.",
+  "allowedTools": [
+    "mcp__withheld__describe_stack",
+    "mcp__withheld__read_rubric",
+    "mcp__withheld__read_answer",
+    "mcp__withheld__list_held_answers",
+    "mcp__withheld__explain_mark",
+    "mcp__withheld__preview_unattended_outcome",
+    "mcp__withheld__propose_marks",
+    "mcp__withheld__set_marking_emphasis",
+    "mcp__withheld__request_release"
+  ],
+  "invocation": "claude --print '<goal>' --mcp-config /home/andro/dev/projects/webmcp-challenge/submissions/withheld/scripts/mcp-configs/claude-code.json --strict-mcp-config --allowedTools mcp__withheld__describe_stack mcp__withheld__read_rubric mcp__withheld__read_answer mcp__withheld__list_held_answers mcp__withheld__explain_mark mcp__withheld__preview_unattended_outcome mcp__withheld__propose_marks mcp__withheld__set_marking_emphasis mcp__withheld__request_release --permission-mode dontAsk --output-format json",
+  "doNot": "Do not pass --tools \"\" to shut the built-ins out. On CLI 2.1.220 that empties the WHOLE tool set, MCP tools included, so the model has nothing to call and answers from its own context instead. Observed, not theorised. Use --disallowedTools with the built-in names instead.",
+  "notInTheList": "confirm_release is deliberately absent: sending a release is the human's control and the page never registers it as a tool, so there is no mcp__withheld__confirm_release to allow. request_release only stages one.",
+  "mcpServers": {
+    "withheld": {
+      "command": "node",
+      "args": ["/home/andro/dev/projects/webmcp-challenge/submissions/withheld/scripts/mcp-bridge.mjs"],
+      "env": {
+        "WITHHELD_URL": "http://127.0.0.1:4197/",
+        "WITHHELD_CDP_PORT": "9522",
+        "WITHHELD_BRIDGE_LOG": "/tmp/withheld-bridge-claude.jsonl",
+        "WITHHELD_CHROMIUM": "/usr/bin/chromium",
+        "WITHHELD_CDP_TIMEOUT_MS": "30000",
+        "WITHHELD_BOOT_ATTEMPTS": "60"
+      }
+    }
+  }
+}

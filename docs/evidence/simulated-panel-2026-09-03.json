@@ -1,0 +1,147 @@
+{
+  "status": "COMPLETED",
+  "evidenceClass": "INFERENCE",
+  "artifact": "simulated-panel",
+  "project": "withheld",
+  "recordedAt": "2026-09-03T12:45:00Z",
+  "whatThisIs": "A formative design review in which five read-only agent reviewers were each given one scope and asked to report what they found in this package. It is a critique instrument. Its output is judgement over the product, not observation of the product, so every line of it is INFERENCE.",
+  "whatThisIsNot": "Not a user study. Not learner validation. Not adoption or impact evidence. No human participated, so nothing here says any person understood anything, marked anything faster, or would use this. It does not satisfy GATE-P2 and does not move any gate.",
+  "reviewedTree": {
+    "note": "The reviewers read the tree as it stood between the app-shell build at 10:56Z (sourceSha256 5f5a6730..., buildSha256 eff1c3bf...) and the copy build at 12:16Z. Four of their findings were repaired in src/ afterwards, which is why the current build differs from the one they read.",
+    "currentSourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+    "currentBuildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "workingCommitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24"
+  },
+  "timing": {
+    "date": "2026-09-03",
+    "window": "Between the 10:56Z app-shell build and the 12:16Z copy build, in the same working session.",
+    "perReviewerTimestamps": "NOT CAPTURED. The reviewers were not instrumented, so no minute-precision start or end time exists for any of the five. No timing claim is made from this artifact."
+  },
+  "method": {
+    "reviewers": 5,
+    "access": "Read-only. None of the five could write a file; every change below was applied by the single writing session after reading their reports.",
+    "inputs": "Package source under src/, the nine tool definitions, the documents under docs/, README.md, SECURITY.md, and the rendered page copy as it appears in the two views.",
+    "scoring": "Where a reviewer produced scores, those are that reviewer's own reading of the published rubric wording. They are not the judges' scores, carry no weight, and are recorded only because they show where the reviewer thought the weakest criterion was."
+  },
+  "reviewers": [
+    {
+      "id": "rubric-scorer",
+      "scope": "Read the package as a judge would who never opens the app, then score the four official criteria and say which one is weakest and why.",
+      "reported": {
+        "potentialImpact": "2 of 5",
+        "idea": "4 of 5",
+        "implementation": "4 of 5",
+        "design": "3 of 5",
+        "weakestCriterion": "Potential Impact",
+        "reasons": [
+          "The demo criterion cannot be met from the package as it stands: docs/VIDEO-SCRIPT.md:3 reads 'Status: NOT RECORDED', so a judge scoring from description, images and video has no video.",
+          "The before/after was legible only in part: the reviewer could see what the page withholds but had to assemble the 'before' from prose rather than being shown it.",
+          "Problem and persona were present but arrived late; the opening paragraphs led with mechanism rather than with whose problem this is."
+        ]
+      }
+    },
+    {
+      "id": "cold-read-teacher",
+      "scope": "Stand in for a marker who has never seen this page and has had nothing explained. Read only what is on the screen and say what is confusing, in the order it confuses.",
+      "reported": {
+        "confusions": [
+          "The padlock in the header read as a security badge rather than as the page's subject.",
+          "'The page owns the decision.' was the sentence the reviewer stopped at longest: it names the design principle without saying which decision or who the page is protecting it from.",
+          "The view toggle was unexplained. Two views exist, but nothing on the screen said why a marker would want the second one.",
+          "The strip of cells had no key, so the four states were four shades with no names.",
+          "The three counters do not sum to the class total and nothing said they were not meant to.",
+          "The question the class was set was nowhere on the screen, so fourteen rows of answers were being marked against four rubric lines that read as arbitrary."
+        ]
+      }
+    },
+    {
+      "id": "before-after-legibility",
+      "scope": "Judge only whether the difference between an unguarded workflow and this one is graspable from the page, and rate each device that is supposed to carry it.",
+      "reported": {
+        "ratings": [
+          { "device": "the foot gate that holds release in human hands", "rating": "Strong" },
+          { "device": "the copy anchors that name what an agent is not told", "rating": "Strong" },
+          { "device": "the dots legend", "rating": "Weak" },
+          { "device": "the per-row tool/hand attribution chip", "rating": "Invisible" }
+        ],
+        "invisibleChipCause": "The worked-example button commits through the domain directly and passes no operationId, so every row it writes is attributed to a hand and the chip never shows its other state on a first read."
+      }
+    },
+    {
+      "id": "webmcp-tool-surface",
+      "scope": "Review the nine tool definitions as a client author would: schemas, error vocabulary, and what a model can tell from a response.",
+      "reported": {
+        "weakestSchema": "FINDING_SCHEMA at src/tools/webmcp.ts:113-121. foundLineIds is an array of bounded strings by way of LINE_IDS_SCHEMA and ID_SCHEMA at :106 and :95, so the four rubric line ids are validated in the handler rather than declared in the schema. An enum would let a client fail before dispatch instead of after.",
+        "errorVocabulary": "invalid-argument collapses at least six distinct causes, so a client cannot tell a malformed shape from a stale revision by code alone.",
+        "missing": [
+          "No tool carries an outputSchema, so a client must infer the response shape from prose.",
+          "No isError convention on results; refusals are distinguishable by payload, not by a flag."
+        ],
+        "notAFinding": "The reviewer confirmed the absence of any release or confirm capability is deliberate and consistent across all nine, and did not treat it as a gap."
+      }
+    },
+    {
+      "id": "overclaim-hunter",
+      "scope": "Find every sentence in the package that claims more than the evidence supports, and rank by how badly a careful reader would be misled.",
+      "reported": {
+        "findingCount": 15,
+        "worst": "SECURITY.md:110 — 'cannot be talked into it by an injected instruction'. The tool surface genuinely has no release capability, which is the strong part of the claim; the reviewer's objection is that 'cannot be talked into it' asserts a property of a conversation rather than of the surface, and no adversarial prompting was ever run to support the stronger reading.",
+        "pattern": "The recurring shape was a true structural fact stated as an absolute behavioural guarantee. The repair the reviewer proposed each time was to keep the fact and drop the absolute."
+      }
+    }
+  ],
+  "appliedFromThisReview": [
+    {
+      "change": "The question the class was set is now on the screen, above the queue rather than inside each row.",
+      "where": "src/ui/Stack.tsx, .queue__ask in src/styles.css",
+      "answers": "cold-read-teacher's sixth confusion, and the rubric reviewer's note that the problem arrives late.",
+      "safeInBothViews": "It is the teacher's own text and carries no page-owned figure, so the agent-view sweep still passes 17/17."
+    },
+    {
+      "change": "The cell strip has a prose key, and the counters now say they are each counted out of the whole class rather than being four parts of one bar.",
+      "where": "src/ui/Intro.tsx, .band__key in src/styles.css",
+      "answers": "The unlabelled strip and the non-summing counters.",
+      "note": "The key is prose rather than swatches on purpose: reusing the cell--* classes for legend chips would have changed occurrence counts that tests/render.test.mts and scripts/agent-view.mjs count."
+    },
+    {
+      "change": "A sentence beside the printed tool payloads states that no tool has a slot for a score, so there is no target to mark toward.",
+      "where": "src/ui/AgentPanel.tsx, .proj__why--ask in src/styles.css",
+      "answers": "The tool-surface reviewer's point that the strongest claim in the package is checkable directly against the payloads a judge can already see."
+    },
+    {
+      "change": "The empty call list now says why it is empty and that the worked-example button deliberately does not count as an agent call.",
+      "where": "src/ui/AgentPanel.tsx",
+      "answers": "The before/after reviewer's Invisible chip finding, honestly rather than by faking a dispatch."
+    }
+  ],
+  "rejectedWithReason": [
+    {
+      "proposal": "Route the worked-example button through the registered propose_marks tool so the dispatch log fills and rows are attributed to a tool instead of a hand.",
+      "rejected": "It would change what the locked harness scripts/webmcp-invoke.mjs observes, and that file may not be edited by this session. Close to a deadline, a change that can only be validated by a file one may not repair is the wrong trade. The chip's limitation is stated in the copy instead."
+    },
+    {
+      "proposal": "Rename 'staged' and 'quarantined' across the domain to plainer words.",
+      "rejected": "Both names are load-bearing in the domain, the tests and the nine tool schemas. They are glossed where they first appear instead."
+    }
+  ],
+  "openFromThisReviewNotApplied": [
+    "No enum on the rubric line ids in FINDING_SCHEMA, and no outputSchema or isError convention on any tool. These are real API-shape improvements and are recorded in docs/UPGRADE-PLAN.md rather than made now.",
+    "invalid-argument still covers several distinct causes.",
+    "The video remains unrecorded: docs/VIDEO-SCRIPT.md:3 says so, and the rubric reviewer's demo objection stands until a recording exists."
+  ],
+  "limits": [
+    "The five reviewers are language models. They cannot be confused the way a person is confused, cannot fail a task, and cannot be surprised.",
+    "They share a base model with the session that wrote this package, so their blind spots correlate with its blind spots. A real reader's objections would not.",
+    "Nothing was measured: no task completion, no time on task, no error rate, no comprehension check.",
+    "The scores are a reviewer's reading of published rubric wording, not a judge's score, and predict nothing.",
+    "Anything a reviewer said about how a person would feel or behave is an opinion and is recorded as one."
+  ],
+  "promotionRule": "This artifact stays INFERENCE permanently. It may not be cited as evidence for Potential Impact, for GATE-P2, for accessibility, or for model replay. If a real GATE-P2 session ever runs it is recorded in its own artifact beside gate-p2-not-run.json, and this file is not part of it.",
+  "prohibitedFramings": [
+    "user study",
+    "learner validation",
+    "adoption evidence",
+    "users proved they understood",
+    "validated with teachers"
+  ]
+}

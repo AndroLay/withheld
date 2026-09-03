@@ -1,6 +1,6 @@
 # Withheld — E4 evidence requirements
 
-**Snapshot audit:** 2026-09-02 (WITA)
+**Snapshot audit:** 2026-09-03 (WITA)
 **Status:** `E4 NOT ACHIEVED` — local browser/native-dispatch evidence is strong,
 but hosted and model-selected evidence are still open.
 **Scope:** this document defines the evidence required before Withheld may be
@@ -14,6 +14,16 @@ may receive E4 only when the complete marking-and-release journey is reproduced 
 the build intended for judging, including agent reads, a bounded proposal, human
 review, a human-only release decision, a failure or refusal, recovery/retry, and
 saved evidence bound to the final source and hosted URL.
+
+**E4 sits above the official bar, not on it.** The rules require a working live URL, a text
+description covering four points, a public repository with a licence, and a video under three
+minutes — nothing more. Independent non-builder validation, natural-language model replay,
+screen-reader sessions and a performance baseline are gates this project imposed on itself. Their
+absence keeps E4 unachieved and does not make the entry incomplete against the rules; see
+`docs/PREFLIGHT.md`, "What the rules do not ask for". Judges score *Potential Impact* on whether the
+entry makes a credible, specific case for a real audience and whether the demo shows the solution
+addressing it, and they are not obliged to run the app — so an open internal gate costs clarity of
+claim, not eligibility.
 
 The page's central invariant must remain true throughout:
 
@@ -40,29 +50,34 @@ three minutes. See the [Official Rules](https://webmcp.devpost.com/rules).
 | Area | Evidence observed in this snapshot | Status for E4 |
 | --- | --- | --- |
 | Domain authority | pure marks arithmetic, session revision, holds, receipts, released IDs, and human confirm/decline | source/tests PASS |
-| Information boundary | agent-facing projections omit point values, pass boundary, identity authority, and release authority | source/tests/browser PASS |
-| Tool surface | nine tools: six read, `propose_marks`, `set_marking_emphasis`, `request_release` | source/browser PASS |
+| Information boundary | agent-facing projections omit point values, pass boundary, identity authority, and release authority; the agent's-view sweep redraws the page from those projections and finds no page-owned figure in text or markup, with 132 redactions | source/tests/browser PASS |
+| Tool surface | nine tools: six read, `propose_marks`, `set_marking_emphasis`, `request_release`. Nine registrations, eight distinct payloads — `list_held_answers`'s three keys and values all sit inside `preview_unattended_outcome`. No write can escalate one named answer | source/browser PASS; composition noted in `docs/DEEP-AUDIT.md` M-21/M-22 |
 | Registration | browser artifact records nine tools under Chrome 151 WebMCP flags | local native registry PASS |
 | External dispatch | browser artifact records 19 checks, including read/write, unknown rubric-line, stale, duplicate, injection, and no-confirm paths | local CDP dispatch PASS |
-| Browser UI | hosted browser artifact records 43 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | hosted browser PASS |
-| Stored artifacts | `docs/evidence/hosted-browser-session.json`, `hosted-webmcp-invocation.json`, `native-registry.json`, `failure-recovery.json`, blocked runbooks, and screenshots exist | hosted/local artifacts PASS; source commit `93eee30` and hashes are recorded; no final manifest |
-| Model-selected replay | no model has chosen a tool or composed arguments in the repository evidence | UNKNOWN |
-| Hosted URL | `https://androlay.github.io/withheld/` is reachable and passed the hosted browser/native harnesses | hosted transport PASS; model-selected replay remains UNKNOWN |
+| Browser UI | browser artifact records 43 checks, including layout, contrast, accessibility tree, keyboard, CSP, human release, and no off-site requests | local browser PASS |
+| Stored artifacts | `docs/evidence/browser-session.json`, `agent-view-sweep.json`, `native-registry.json`, `webmcp-invocation.json`, `failure-recovery.json`, two hosted reports, blocked runbooks, and screenshots exist | local artifacts PASS; local base SHA `df9608c4` with `workingTreeDirty: true`, hosted reports at `93eee30`, source/build tree hashes recorded; `docs/evidence/manifest.json` now written |
+| Model-selected replay | no model has chosen a tool or composed arguments in the repository evidence; both hosted reports state it in their own `notClaimed` text | UNKNOWN |
+| Hosted URL | `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at 09:01 UTC; `hosted-browser-session.json` 43/43 at 07:44:04 UTC and `hosted-webmcp-invocation.json` 19/19 at 07:44:25 UTC both name that URL, Chrome/151.0.7922.137, and one source/build pair | VERIFIED_ARTIFACT |
 | GATE-P2 | instrument exists, but no non-builder session/result is recorded | NOT RUN |
 | Node/CI | stored evidence is Node 26; Node 22/CI has not run | open |
-| Current fresh test run | 9/9 test files, typecheck, build, 43 hosted browser checks, 19 hosted native dispatch checks, and 27 local recovery checks pass on writable Node 26.4.0 | hosted/local PASS; Node 22/CI open |
-| Provenance | public repository and Pages URL are recorded; final manifest and entrant-specific evidence remain open | partial |
+| Current fresh test run | 136/136 assertions across 9 files, typecheck, build, 43 browser checks, 17 agent-view checks, 19 native dispatch checks, and 27 recovery checks pass on writable Node 26.4.0 | local PASS; Node 22/CI open |
+| Provenance | published as `AndroLay/withheld`, `main` `b050f991` and `gh-pages` `58a3ff42` read anonymously on 2026-09-03; this working package remains dirty against `df9608c4`, so it is ahead of what is published | partly closed |
 
 ### 2.2 Current classification
 
-Withheld is **A-quality-potential with hosted native dispatch evidence**, but it is
+Withheld is **A-quality-potential and E3-like local dispatch evidence**, but it is
 not E4. The existing artifacts prove that a browser-side external caller can reach
 the page and that the page moves safely. They explicitly do not prove that a model
 found the page, selected among nine tools, or composed valid arguments.
 
-The hosted artifacts are bound to source commit `93eee30`, the Pages artifact `58a3ff4`, and the
-published HTTPS URL. They prove hosted browser/native transport, not a model-selected replay,
-independent learner validation, Node 22/CI, manual accessibility, performance, or a final manifest.
+The existing artifacts are bound to base SHA `df9608c4` with `workingTreeDirty: true`, to source tree
+hash `10fb7f7c…` and build tree hash `84eee099…`, and to a localhost URL. The dirty flag is honest
+rather than incidental: the rebuilt page and the doc corrections here are not committed, so the tree
+hashes and not the base SHA identify the implementation under test. All five run artifacts of
+2026-09-03 12:54–12:56 UTC carry that one pair. They remain local artifacts rather than a final hosted
+manifest, and must be regenerated from the final committed hosted build before an E4 claim. The two
+hosted reports still carry the earlier pair `09974722…` / `3700f7c5…`, which is the build the live URL
+serves; that mismatch is itself a reason the hosted gate cannot be read as covering this source.
 
 ## 3. E4 gates
 
@@ -73,7 +88,7 @@ same source/build/URL that will be submitted. `UNKNOWN` is not a pass.
 | --- | --- | --- | --- |
 | W0 — ownership | original implementation, MIT license, synthetic answers, authorized assets/video | license, originality note, asset/audio inventory, dated commit history | local source/license PASS; final commit open |
 | W1 — information boundary | point values, pass boundary, identity, and release authority never cross to the agent | raw payload assertions, injection probe, no-leak report | local PASS; hosted rerun required |
-| W2 — reproducible build | clean clone installs and runs documented commands | Node/pnpm versions, 125-test result from the writable Node26 artifact, typecheck/build logs, hashes | local Node26 PASS; clean/Node22 open |
+| W2 — reproducible build | clean clone installs and runs documented commands | Node/pnpm versions, 136-test result from the writable Node26 artifact, typecheck/build logs, hashes | local Node26 PASS; clean/Node22 open |
 | W3 — hosted reachability | HTTPS URL opens in a clean profile and remains available throughout judging | URL, provider, timestamp, screenshot, console/network record | UNKNOWN |
 | W4 — native registry | target client exposes the nine intended tools with correct annotations | `native-registry.json`, schemas, browser flags/version | local PASS; hosted target UNKNOWN |
 | W5 — model selection | a real model chooses read/proposal tools from natural language without being scripted | prompt, model/client, tool trace, arguments, response, repetitions | UNKNOWN |

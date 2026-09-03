@@ -6,7 +6,7 @@ The package documents each answer a different question, with one directory of ev
 | --- | --- |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | how it is built, and why the seams are where they are |
 | [DECISIONS.md](DECISIONS.md) | why it is built that way, one numbered decision at a time |
-| [TESTING.md](TESTING.md) | what the test files, 43 hosted browser checks, 17 two-view checks, 19 native dispatch checks, and 27 recovery checks prove — and what they do not |
+| [TESTING.md](TESTING.md) | what the 136 tests, 43 browser checks, 17 two-view checks, 19 native dispatch checks, and 27 recovery checks prove — and what they do not |
 | [GATE-W1.md](GATE-W1.md) | whether an agent could derive the points or the pass boundary |
 | [GATE-P2.md](GATE-P2.md) | whether the problem is real to anyone but the author. Not run |
 | [RUNBOOK.md](RUNBOOK.md) | how to run it, and what to look at once it is running |
@@ -48,9 +48,9 @@ Start with [ARCHITECTURE.md](ARCHITECTURE.md) if you want to know how, and
 5. `TESTING.md` — starting from "What these tests cannot tell you".
 6. `PROGRESS.md` — before believing anything is working.
 
-The last two are not for a reviewer. `PREFLIGHT.md` is the hackathon's own requirement list with an
-owner against each gap, and `SUBMISSION-TEXT.md` is the copy for the form — a draft, unsent, with the
-live URL still a placeholder.
+Two of the documents above are not for a reviewer at all. `PREFLIGHT.md` is the hackathon's own
+requirement list with an owner against each gap, and `SUBMISSION-TEXT.md` is the copy for the form — a
+draft, unsent, with the live and repository URLs still placeholders.
 
 The evidence directory intentionally has no final `manifest.json`: the hosted URL, final commit,
 model replay, and GATE-P2 are still open. `manifest.template.json` is format-only. Read

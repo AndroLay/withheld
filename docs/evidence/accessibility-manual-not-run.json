@@ -3,13 +3,24 @@
   "evidenceClass": "ENVIRONMENT_BLOCKED",
   "artifact": "accessibility-manual-review",
   "project": "withheld",
-  "automatedEvidence": "browser-session.json records the accessibility tree, named controls, landmarks, focus order, keyboard traversal, contrast calculation, and reduced-motion source checks.",
-  "reason": "No independent screen-reader operator or representative real device was available for a manual session.",
-  "rerunProtocol": [
-    "Use keyboard-only navigation at desktop and mobile widths.",
-    "Repeat with a screen reader and record announcements for landmarks, live status, conflict, stage, decline, and confirm.",
-    "Check focus restoration after disclosure, conflict reload, decline, confirm, and browser refresh.",
-    "Record browser, OS, assistive technology, viewport, observed issue, and limitation; do not claim a manual pass from the automated tree."
+  "ranAt": null,
+  "recordedAt": "2026-09-03T11:20:00Z",
+  "automatedEvidence": "browser-session.json records an accessibility tree of 1106 nodes with 57 named and 0 unnamed and 599 composed contrast pairs with none failing, worst 4.8:1 against a 4.5:1 requirement, on the build in this checkout. hosted-browser-session.json records 1139 nodes and 593 pairs on the published build, which the live URL still serves; the two figures differ because the wide layout was rebuilt at 10:56 UTC and two reference blocks moved inside closed disclosures, not because either run is wrong. Both runs also cover named controls, landmarks, focus order, keyboard traversal, and reduced-motion source checks. The hosted figures were taken from https://androlay.github.io/withheld/ on 2026-09-03 at 07:44:04Z.",
+  "whatThatIsNot": "An accessibility tree is what a screen reader would be handed, and a contrast ratio is arithmetic on composed colours. Neither is a report of the page being read aloud, operated by a person who relies on it, or held in a hand.",
+  "reason": "No independent screen-reader operator and no representative real device was available for a manual session. The build half of this blocker is gone — the page is live, so a reviewer needs a URL rather than a toolchain — and what remains is a person and a device.",
+  "requiredForRerun": [
+    "The live URL: https://androlay.github.io/withheld/ — already met.",
+    "One person who operates a screen reader habitually, rather than a sighted operator switching one on for the occasion.",
+    "At least one real device that is not this Linux workstation: a physical phone at roughly 420px, and macOS or iOS if reachable.",
+    "No participant identity or personal data recorded."
   ],
-  "notClaimed": "Automated accessibility evidence is not a substitute for manual screen-reader or device validation."
+  "rerunProtocol": [
+    "Keyboard only, no pointer, at 1440px and at 420px: reach every control, complete one full pass from proposing marks to the human-only release, and record anything that cannot be reached or leaves focus stranded.",
+    "Repeat with a screen reader and record the announcements verbatim for landmarks, the live status region, a stale-revision conflict, staging, decline, and confirm.",
+    "Check focus restoration after the agent-contract disclosure opens and closes, after a conflict reload, after decline, after confirm, and after a browser refresh.",
+    "Confirm on a physical phone that the one-column fold behaves as the headless 420px screenshot shows, since that measurement was taken headless.",
+    "Record browser, OS, assistive technology and version, viewport, each observed issue, and each limitation. Quote the operator rather than summarising them.",
+    "A failure here is a work item for docs/PROGRESS.md, not a reason to lower a threshold in the harness."
+  ],
+  "notClaimed": "No manual accessibility result is claimed. Automated accessibility evidence is not a substitute for a screen-reader or real-device session, and this package must not describe itself as screen-reader tested until this artifact is replaced."
 }

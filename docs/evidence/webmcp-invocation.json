@@ -1,13 +1,13 @@
 {
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
-  "scope": "hosted production build with Chromium native WebMCP dispatch; not model-selected",
-  "ranAt": "2026-09-03T07:44:25.439Z",
+  "scope": "local production build with Chromium native WebMCP dispatch; not hosted and not model-selected",
+  "ranAt": "2026-09-03T12:54:49.286Z",
   "evidence": {
-    "gitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
+    "gitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24",
     "workingTreeDirty": true,
-    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",
@@ -17,7 +17,7 @@
   },
   "browser": "Chrome/151.0.7922.137",
   "protocol": "1.3",
-  "url": "https://androlay.github.io/withheld/",
+  "url": "http://127.0.0.1:4183/",
   "passed": 19,
   "failed": 0,
   "checks": [
@@ -126,7 +126,7 @@
       "hasInputSchema": true
     },
     {
-      "name": "explain_mark",
+      "name": "list_held_answers",
       "annotations": {
         "readOnly": true,
         "untrustedContent": false
@@ -134,7 +134,23 @@
       "hasInputSchema": true
     },
     {
-      "name": "list_held_answers",
+      "name": "read_answer",
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": true
+      },
+      "hasInputSchema": true
+    },
+    {
+      "name": "read_rubric",
+      "annotations": {
+        "readOnly": true,
+        "untrustedContent": false
+      },
+      "hasInputSchema": true
+    },
+    {
+      "name": "explain_mark",
       "annotations": {
         "readOnly": true,
         "untrustedContent": false
@@ -155,28 +171,12 @@
       "hasInputSchema": true
     },
     {
-      "name": "read_answer",
-      "annotations": {
-        "readOnly": true,
-        "untrustedContent": true
-      },
-      "hasInputSchema": true
-    },
-    {
-      "name": "read_rubric",
-      "annotations": {
-        "readOnly": true,
-        "untrustedContent": false
-      },
-      "hasInputSchema": true
-    },
-    {
-      "name": "request_release",
+      "name": "set_marking_emphasis",
       "annotations": null,
       "hasInputSchema": true
     },
     {
-      "name": "set_marking_emphasis",
+      "name": "request_release",
       "annotations": null,
       "hasInputSchema": true
     }

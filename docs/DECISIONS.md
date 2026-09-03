@@ -78,14 +78,14 @@ policing it, which is the strongest evidence available that it is doing somethin
 also apply in development, where it blocks Vite's HMR websocket. So the policy is added by a
 Vite plugin with `apply: "build"`.
 
-**Consequence.** Local development works, and the hosted artefact carries the policy. Verified by
+**Consequence.** Local development works, and the built artefact carries the policy. Verified by
 reading the built file: the CSP is at `dist/index.html:4`, the referrer policy at :5, and the
 first script tag at :14 — the policy precedes the script it governs.
 
-**Cost.** The policy is not exercised during development, so the first time it is enforced will be
-the first time the page is hosted. `style-src 'self'` without `'unsafe-inline'` was checked the
-only way available without a browser: by grepping the build for inline styles and the source for
-`style={` and `dangerouslySetInnerHTML`, and finding none.
+**Cost.** The policy is not exercised during development. It was first enforced in a local browser
+rather than on a host: `pnpm browser` serves `dist/` to Chromium, where an injected inline
+`<script>` did not run and an injected `style` attribute did not apply (D-20). Nothing is hosted,
+so hosted behaviour is still unmeasured.
 
 ---
 
@@ -131,7 +131,7 @@ are strict and **refuse rather than coerce**.
 
 **Consequence.** A coerced argument is a decision made on the model's behalf. `expectedRevision:
 "1"` is refused rather than parsed, because a caller that sent a string may have sent it for a
-reason nobody here can guess. Nine malformed calls are tested and all nine are refused.
+reason nobody here can guess. Eighteen malformed calls are tested and all eighteen are refused.
 
 ---
 
@@ -281,9 +281,9 @@ to static markup, count things, print, delete the script. That made the stronges
 package rest on the weakest evidence available — true on the day they were written, unenforced every
 day after, and impossible for a reader to re-run.
 
-`tests/render.test.mts` is that script, kept. Twelve renders on every `pnpm test`: the top bar, the
-rail in two states, the stack, the contract column in three (no agent, an agent connected, nothing
-marked), the comparison, the audit rail, the bar idle and staged, and `App` whole.
+`tests/render.test.mts` is that script, kept. Thirty-three renders on every `pnpm test`: the top bar, the
+intro band in five states, the rail in three, the stack in seven, the contract column in six, the
+comparison in three, the audit rail in three, the bar in four, and `App` whole.
 
 **Why Vite is in a test file.** Node's `--experimental-strip-types` erases types and cannot transform
 JSX, so the components cannot be imported by the test runner directly. The server is created in
@@ -311,7 +311,7 @@ it does not close it.
 
 ## D-19 — `img-src` narrowed to `'self'`, and the policy is held to its shape by a test
 
-**2026-09-01.** The hosted policy carried `img-src 'self' data:`. `SECURITY.md` had already named it
+**2026-09-01.** The build's policy carried `img-src 'self' data:`. `SECURITY.md` had already named it
 the one directive wider than the app needs; this closes that. There is no `<img>` element in `src/`,
 no `url()` in the stylesheet, no `data:` URL in the source and no favicon link in `index.html` —
 every glyph is inline SVG in `src/ui/Icon.tsx`, and inline SVG is not an image load. The scheme was
@@ -339,9 +339,9 @@ Static renders prove the trees do not throw; they cannot say whether the grid la
 whether the policy is enforced, where focus goes, or whether a bar has any width on screen. That
 gap was the largest one in the package, and it was closed by a program rather than by a session
 someone remembers having: `scripts/browser-session.mjs`, run with `pnpm browser`, **HISTORICAL_LOCAL:
-37 checks** as of
-2026-09-01, exits
-non-zero if any fails, writes `docs/evidence/browser-session.json` and four screenshots.
+37 checks** as of 2026-09-01 and **VERIFIED_RUN: 43 checks, all passed** on 2026-09-03
+(`docs/evidence/browser-session.json`, ranAt 12:54:15Z). It exits non-zero if any fails, and writes
+that file and four screenshots.
 
 **No browser driver was added.** Node has had a global `WebSocket` since 22, so the script speaks
 the DevTools Protocol directly — `Page.navigate`, `Runtime.evaluate`, `Log.entryAdded`,
@@ -350,7 +350,7 @@ alternative was Playwright or Puppeteer, either of which rewrites a workspace lo
 to other work in this repository. A few hundred lines of protocol calls is the cheaper cost.
 
 **It serves `dist/`, not the dev server.** The CSP is injected by a build-only plugin, so the dev
-server is a more permissive page than the hosted one and testing the policy there would test
+server is a more permissive page than the built one and testing the policy there would test
 nothing.
 
 **It runs Chromium with the WebMCP flags but without `--disable-web-security`.** Turning the
@@ -368,14 +368,15 @@ not an agent. A green run makes no claim about a model choosing a tool and calli
 browser agent has driven these tools" survives every run of it. Nor does it judge contrast, wording
 or screen-reader output — it measures.
 
-**It found a defect on its second run, which is the whole argument.** The four "look at" lines in
-the left rail were rendering one word per line. `.flow__step` is
-`grid-template-columns: 26px minmax(0, 1fr)`, `.flow__badge` spans three rows in column one, and
-`.flow__look` is the fourth in-flow child — so auto-placement put it in column one of row four, a
-26px track. Fixed with `grid-column: 2`. No test in the suite could have caught it: the markup was
-correct and the class names all had rules. Reading the source did not catch it either, twice. The
-regression guard is deliberately generic rather than aimed at that one class — the narrowest
-paragraph on the page must be at least 80px wide, and it is currently 200px of 42.
+**It found a defect on its second run, which is the whole argument.** The four "look at" lines in the
+left rail were rendering one word per line. `.flow__step` was `grid-template-columns: 26px minmax(0,
+1fr)`, `.flow__badge` spanned three rows in column one, and `.flow__look` was the fourth in-flow child
+— so auto-placement put it in column one of row four, a 26px track. Fixed with `grid-column: 2`. All
+three classes went with the rail's rebuild; that block is `.flow__list` over `.step__*` items now. No
+test in the suite could have caught it: the markup was correct and the class names all had rules.
+Reading the source did not catch it either, twice. The regression guard is deliberately generic rather
+than aimed at that one class — the narrowest paragraph on the page must be at least 80px wide, and it
+is currently 200px of 26.
 
 **A first-run failure is also worth recording, because the check was wrong and the page was right.**
 The bar check demanded a non-zero width from every bar, and a bar can belong to an answer credited
@@ -397,16 +398,17 @@ departures named here still hold in substance — contrast beat fidelity, the to
 the top bar's release control is still an anchor to the gate rather than a second button that could send —
 but their figures are the old drawing's.
 
-**2026-09-01.** `docs/target-images/` holds two deterministic mockups — 1440×900 and 390×844 — and
-the page was rebuilt to them: a bar across the top, three columns, a sticky foot. The layout is now
+**2026-09-01.** `docs/target-images/` held two deterministic mockups — 1440×900 and 390×844 — and
+the page was rebuilt to them: a bar across the top, three columns, a sticky foot. The layout was
 measured rather than asserted: 256px of policy, 776px of work, 336px of contract at 1440px, and one
-column at 420px, both recorded in `docs/evidence/browser-session.json`.
+column at 420px, both recorded in that day's `docs/evidence/browser-session.json`.
 
 **What moved.** The agent's view was a card under the stack and is now the whole third column, so the
 two halves of the boundary can be read side by side instead of scrolled between. The audit account
 moved the other way, from the third column into the work column, directly under the stack it
-comments on. The identity, the revision and the held count left the columns for the top bar, because
-they are true of the whole page and were being repeated. Every count now has exactly one home.
+comments on. The identity and the revision left the columns for the top bar, because they are true of
+the whole page and were being repeated; the held count went with them and is now one of the band's four
+figures (D-24). Every count has exactly one home.
 
 **Three departures from the mockup, each for a reason that outranks fidelity.**
 
@@ -433,7 +435,7 @@ from the tick's position are spelled out for a screen reader beside it.
 
 **The omission this entry used to record is now done.** `docs/target-images/README.md` asks that on a
 phone the contract column become a panel that can be opened rather than small text that is always
-there. It is one: below 62rem the whole third column is a `<details class="fold">` that arrives closed,
+there. It is one: below 78rem the whole third column is a `<details class="fold">` that arrives closed,
 with the column's own `h2` as its summary, and above that width it is a plain region with no summary at
 all. Two shells rather than one styled twice, because a summary that stays on a desktop is a control
 that hides what it does. The element is chosen in JavaScript — `useOneColumn()` over
@@ -472,14 +474,14 @@ that the quarantine is the page's answer to the call rather than something the w
 had already done. Folding that into a run that clicks the worked example first would have made the
 check meaningless while leaving it green, which is the worst kind of check.
 
-The real reason: **the evidence classes have to stay apart on disk, not only in prose.** There are five
+The real reason: **the evidence classes have to stay apart on disk, not only in prose.** There are seven
 of them and they are routinely collapsed into one sentence by people summarising work like this —
 including by me, which is why the separation is now structural:
 
 | class | what it establishes | where it lives | state |
 | --- | --- | --- | --- |
-| the source | the functions do what they say, and no tree throws | **HISTORICAL_LOCAL:** 110 tests, twenty-three renders; **VERIFIED_RUN:** current writable run is 129 tests, thirty-one renders | green for the current run |
-| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | **HISTORICAL_LOCAL:** `pnpm browser` when it carried 37 checks; **VERIFIED_RUN:** current run is 37 of 44 | green except seven the script has outgrown, each named in `docs/RUNBOOK.md` |
+| the source | the functions do what they say, and no tree throws | **HISTORICAL_LOCAL:** 110 tests, twenty-three renders; **VERIFIED_RUN:** current writable run is 136 tests across nine files, and thirty-three renders inside them | green for the current run |
+| the artefact in a browser | layout, CSP **enforced**, focus, contrast, the AX tree, clean console | **HISTORICAL_LOCAL:** `pnpm browser` when it carried 37 checks, and the same day's 37 of 44; **VERIFIED_RUN:** current run is 43 of 43 | green |
 | the browser's registry | the API exists and nine tools registered | both scripts | green |
 | dispatch through that registry | a call from outside reaches the handler, and the page moves | **HISTORICAL_LOCAL:** `pnpm webmcp`, 18 checks; **VERIFIED_RUN:** current 19 checks | green for the current run |
 | failure and recovery | one refusal/retry/release journey remains consistent across native dispatch and page UI | **VERIFIED_RUN:** `failure-recovery.mjs`, 27 checks | green locally; hosted/model open |
@@ -494,14 +496,14 @@ also does something no test could: `WebMCP.invokeTool` on `confirm_release` fail
 found*, so the absence at the centre of this design is now measured by the browser rather than asserted
 by the page.
 
-**What it deliberately does not claim.** The fifth row stays empty. This script chose the tools, wrote
+**What it deliberately does not claim.** The last row stays empty. This script chose the tools, wrote
 the arguments and knew the revision to quote; a model did none of that. The script's own header says
 so, the evidence file carries a `notClaimed` field, and `docs/PROGRESS.md` keeps the row. A green run
 here is not a replay, and describing it as one would be the single easiest way to make everything else
 in this package unbelievable.
 
 **Cost.** One more script to keep working, and a second run to remember before a submission. The
-alternative — one green number covering five different claims — is what this whole package argues
+alternative — one green number covering seven different claims — is what this whole package argues
 against.
 
 ## D-23 — What can be taken back, and what cannot
@@ -514,7 +516,7 @@ sounds like an unfinished feature:
 | --- | --- |
 | a proposal | it is only a proposal until a release is staged; raising the care setting re-decides every answer already marked |
 | a staged release | decline it; the request is dropped and nothing has left the page |
-| what was decided, and why | every write leaves a receipt, and the audit rail carries the reason, the before-and-after and the causal chain for each held answer |
+| what was decided, and why | every write leaves a receipt, and the audit account carries the reason, the causal chain and the distance from the pass mark for each held answer |
 | a mark | re-enter it by hand in the row, at any time, at any care setting |
 
 What does not come back is a release a person has confirmed. **That is a product decision.** The
@@ -563,17 +565,16 @@ reasons specific to this submission, not out of taste:
   same write path a teacher's ticks take, and the sentence under the rows says it is a
   fixture and that no model has ever driven these tools. Nothing on the band is a recording.
 
-**What it must not become.** It holds no control at all — no button and no anchor. The one
-control that sends a mark is at the foot of the page; a second control up here that looked like it
-released anything would undo the argument the band exists to make, which is why the render test counts
-the buttons and the browser session counts them again on the built page.
+**What it must not become.** It holds no control that acts on the marking: its two buttons switch which
+figures a reader is shown, its fourteen tiles are anchors into the queue, and the one control that sends
+a mark is at the foot of the page. A second control up here that looked like it released anything would
+undo the argument the band exists to make, which is why the render test counts its buttons and the
+browser session counts them again on the built page.
 
-**Cost.** 74px above the fold at 1440px, four figures on one row, so the stack starts barely lower
-than it did — measured, not
-guessed, and asserted as a ceiling by `pnpm browser`. The band carries no heading of its own: it is a
-labelled region, and the page's one `h1`
-stays on the work in `Stack`, because an introduction that took it would be a claim about which of
-the two matters.
+**Cost.** 74px above the fold at 1440px, four figures on one row, so the stack starts barely lower than
+it did — measured, not guessed, and asserted as a ceiling by `pnpm browser`. The band carries no heading
+of its own: it is a labelled region, and the page's one `h1` stays on the work in `Stack`, because an
+introduction that took it would be a claim about which of the two matters.
 
 ## D-25 — Contrast and the accessibility tree are instruments, not a review
 
@@ -593,7 +594,7 @@ rewritten in `rgb()` would leave every sweep above silently measuring a smaller 
 
 What arithmetic cannot know is composition — which pair meets which pixel after the cascade has run —
 so the browser session walks every rendered text node instead, reads the background it resolves to, and
-picks the threshold from the computed size and weight. 446 pairs, none failing, the thinnest at 4.8:1 on
+picks the threshold from the computed size and weight. 599 pairs, none failing, the thinnest at 4.8:1 on
 the note under the comparison table — `--muted` on `--band`, which is the same pair `contrast.test.mts`
 pins as the thinnest margin the lit side of the palette allows itself. The two instruments are complements and neither replaces the other: a
 palette can be sound and still be composed into an unreadable page, and a page can measure clean today
@@ -604,8 +605,8 @@ rubric-line mark drawn in a tone that had only ever been used against white and 
 row's own grey. Nothing in the suite could have caught it, and reading the sheet had not.
 
 **The accessibility tree is read, and that is not listening.** `Accessibility.getFullAXTree` answers
-questions no render can: 883 nodes, 38 named regions and controls, none unnamed, and the landmarks
-the page means to expose — one `banner`, one `main`, three `complementary`, one live `status`. Two
+questions no render can: 1106 nodes, 57 named regions and controls, none unnamed, and the landmarks
+the page means to expose — one `banner`, one `main`, three `complementary`, and one live region. Two
 things it does not answer. It does not report reading order, so the heading outline is read from
 `document.querySelectorAll` and checked for a skipped level separately. And it says nothing about what
 a screen reader announces, or whether the announcement makes sense; **no assistive technology has been
@@ -630,12 +631,14 @@ no WebMCP in it, an action bar with the stack scrolled out from under it. The fi
 rather than six deletions, which is the outcome that says the check was worth writing: the sheet was
 describing more of the page than the tests were exercising.
 
-**Two are excused in writing, and one of the excuses is itself a test.** The quantised bar stops are
+**Five are excused in writing, and one of the excuses is itself a test.** The quantised bar stops are
 proved reachable by `styles.test.mts`, which walks every total against six rubric ceilings, so
 re-proving them here would be duplicate work. `delta--on` is the state of an answer landing exactly on
 the pass mark, and this rubric's four point values cannot sum to it — so the excuse builds all sixteen
 subset totals and asserts the boundary is not among them. Change one point value and the excuse becomes
-a failure again, which is the only kind of excuse worth leaving in a test file.
+a failure again, which is the only kind of excuse worth leaving in a test file. Three more were added as
+the page grew, each a state static markup has no way to hold: `notice` is cleared by the next action,
+`error-state` needs a render to have failed, and `tick__conflict` needs an external write mid-edit.
 
 **Cost, and the reason it is acceptable.** Six extra renders on every run, and a rule for a genuinely
 new state now fails the suite until something renders it. That is the intended pressure: it makes the
@@ -656,24 +659,25 @@ column widths are the mockup's: 322px of policy, 357px of contract, the rest to 
 
 **And it settled the case system — though not in the form the rule was first written down.** The mockup
 letters the page's own small print, and the page now does the same: the wordmark, the strap beside it, both
-top-bar anchors, every section head, the label above each block, the tag on a held entry, the badge on the
-focused answer, and the face of every button — `SAVE THIS MARK`, `MARK ALL FROM THE WORKED EXAMPLE`, `VIEW
+top-bar anchors, every section head, the label above each block, the tag on a held entry, and the face of
+every button that acts on the marking — `SAVE THIS MARK`, `MARK ALL FROM THE WORKED EXAMPLE`, `VIEW
 FULL EXPLANATION`, `STAGE RELEASE`, `CONFIRM RELEASE — HUMAN ONLY`, `HOW TO CONNECT ONE`. All of it is
 letterspaced, and apart from the 19px wordmark none of it is set larger than thirteen pixels. The rule was
 first written down as *capitals are for things a person can press*, and that is not what the sheet does:
-`WITHHELD` is a `<span>` and so is `POLICY`, while the three care levels, the rubric lines
-a teacher ticks, the alias on each held entry and `.pager` are every one of them pressable and every one of
-them sentence case. Case marks scale here, not authority — a control is told from a label by its box.
+`WITHHELD` is a `<span>` and `POLICY` an `<h2>`, while the three care levels, the rubric lines
+a teacher ticks, the alias on each held entry, the four tab labels and the row summary are every one of
+them pressable and every one of them sentence case. Case marks scale here, not authority — a control is
+told from a label by its box.
 
 **The half of the rule that holds is the half worth having: no status word wears a control's case.** Every
-state word in a queue row is lower case, and `src/styles.css:1013-1026` says why — a status word must not
+state word in a queue row is lower case, and `src/styles.css:1246-1252` says why — a status word must not
 dress up as a control. So are `read` and `write` beside a tool, `revision 00`, the four counters
 in the band, and `no longer available` under a locked column in the comparison. One heading opts back in
 halfway: `HUMAN AUTHORITY` is lettered as a standing label while the part that changes, `— a release is
 waiting`, drops to a sentence, because a caps-lock alarm would contradict the page's own claim that a held
-mark is not an emergency. And one badge breaks the rule outright — the state on the focused answer is
-lettered although every row says that same word in lower case — an exception the sheet notes beside
-`.line__state` and does not defend. The row is where a reader scans, and the row keeps the rule.
+mark is not an emergency. The one badge that broke the rule outright — a lettered state word on the focused
+answer — went with that card in D-31, and the note beside `.line__state` now states the rule with no
+exception. The row is where a reader scans, and the row keeps the rule.
 
 **Comparing the two needs a frame that exists.** `docs/evidence/browser-fold-1487.png` is the first screen
 at the mockup's own dimensions, clipped to the viewport — `captureBeyondViewport: false`, unlike the three
@@ -686,17 +690,17 @@ the middle of the document and anyone laying the two images side by side would b
 of 54, one answer held on arrival, and no answer marked. Those numbers are consistent with nothing: the
 page's own arithmetic runs on its own rubric, so the frame shows Theo at 52 of 88 against 50, and it is
 captured after the worked example rather than on arrival, because on arrival there is no mark to compare
-and a card reading `—` compares nothing.
+and an unmarked row compares nothing.
 
 *The third care setting is "Most cautious", not "Boundary".* The control raises how much caution the page
 applies. "Boundary" names a *reason* an answer is held — it is already the wording on a held row — and
 using it for a level would put one word on two jobs.
 
-*The card shows what the page decided, not what an agent said.* The mockup fills half the card with
+*The page shows what it decided, not what an agent said.* The mockup fills half the card with
 `AGENT EXPLANATION` and `AGENT RATIONALE`. Before an agent speaks there is no such prose, and printing
-its absence as an empty heading would be a page advertising a dependency it does not have. That half
-carries the lines the page did not credit and the chain it followed instead — both of which are true of
-every answer, agent or no agent.
+its absence as an empty heading would be a page advertising a dependency it does not have. The lines the
+page did not credit and the chain it followed instead are the `Decision` panel of every row — both of
+which are true of every answer, agent or no agent.
 
 *"Connect agent" is an anchor.* It is drawn as the mockup's outlined button, in capitals like every other
 action, and it goes to the section that explains how. A button by that name would claim the page can
@@ -715,17 +719,17 @@ registered.
 it with "How a mark gets made", which is the only place the page walks a reader through the sequence it
 runs. Dropping it to match a drawing would cost the explanation.
 
-*The list keeps the answer that is open above it.* The mockup shows 02, 04, 05 while 03 is the card; the
-page shows 01, 02, 03 with 03 ringed. The pile is a pile, and losing your place in it to save one row is
-the wrong trade.
+*The list keeps the answer that is open.* The mockup shows 02, 04, 05 while 03 is the card; the page keeps
+all fourteen rows in one pile and opens the answer in place, so no row is lifted out of the list. The pile
+is a pile, and losing your place in it to save one row is the wrong trade.
 
-*Row states stay lower case.* The mockup capitalises `Not marked`. One word list feeds both the row and
-the badge on the card, and the badge is capitalised by `.tagline` rather than in the data, so a capital
-initial in the row would have to be a second copy of the same four words.
+*Row states stay lower case.* The mockup capitalises `Not marked`. One word list, `STATE_WORD`, feeds every
+row, and case is applied in the sheet rather than in the data, so a capital initial in the row would have to
+be a second copy of the same four words.
 
-*The card keeps "Mark this answer by hand".* The mockup has no such control. The page's argument is that a
-person can always do the whole job without an agent, and a page making that argument has to carry the
-control that proves it.
+*Every row keeps a by-hand form.* The mockup has no such control. The page gives each row a `By hand` tab
+over the same rubric a tool would name, because its argument is that a person can always do the whole job
+without an agent, and a page making that argument has to carry the control that proves it.
 
 *The student's words keep their left rule.* The mockup sets the answer as plain text. The rule is the only
 visual mark that the text below it was written by someone else and is handed to an agent flagged untrusted;
@@ -778,25 +782,27 @@ boundaries. Manual page writes omit it because they do not cross a retrying tran
 yet. Three changes, all to presentation; no tool, refusal, boundary or number moved.
 
 **Everything that is context rather than the work is now a closed `<details>`.** The projection panels,
-the flow of a mark from proposal to release, the comparison box and the slab of what marking does not
-settle all arrive shut and open where they are read, using one idiom throughout: `summary` carries the
-existing head, a trailing caret span holds the icon, and `[open]` rotates it. Fresh load is now 2495px
-at 1440 and 3416px at 420; the marked stack is 3004px and a staged phone 5190px. The audit rail's
-count is asserted as `holds.length + 1` in `tests/render.test.mts` rather than as a literal, so the
-next disclosure added in there has to be argued for in that file first.
+the audit ledger, the comparison box and the slab of what marking does not settle all arrive shut and
+open where they are read, using one idiom throughout: `summary` carries the existing head, a trailing
+caret span holds the icon, and `[open]` rotates it. On the day that took a fresh load to 2495px at 1440
+and 3416px at 420, the marked stack to 3004px and a staged phone to 5190px; two rebuilds later the only
+depth measured is 2609px, the marked page at 1440 (`docs/evidence/agent-view-sweep.json`). The audit
+account's disclosure count is asserted as `holds.length + 2` in `tests/render.test.mts` rather than as a
+literal, so the next disclosure added in there has to be argued for in that file first.
 
 **A fresh answer is described once, in terms of what would make it move.** Five sentences about
 absent marks became one about the two ways a rubric line gets named — `propose_marks`, or the worked
-example at the foot of the queue — and the verdict line beside the NOT MARKED pill stopped restating
-the pill and now names the boundary the answer will be judged against, which is a fact no tool holds.
+example at the foot of the queue — and the verdict line stopped restating the row's state word and now
+names the boundary the answer will be judged against, which is a fact no tool holds.
 
-**Filled black now means only that a mark can leave the page.** The pointer to the gate, **Stage
-release** and the send control carry it; nothing else does. The manual save button was demoted to the
-quiet variant, `.btn--go` was deleted outright rather than left as an unrendered rule, and the retry
-button in `src/ui/ErrorBoundary.tsx` became a plain `.btn` — a filled control on the error screen
-would have made the rule false in the one place a reader arrives without context. The selected care
-level stays filled and is the single exception, because it reports a state rather than offering an act.
-The stylesheet says so where `.btn--send` is defined, so the rule is discoverable from the code.
+**Filled black now means only that a mark can leave the page.** The pointer to the gate and the send
+control carry it; **Stage release** carried it then and is outlined now, so the send at the foot is the
+only filled button. The manual save button was demoted to the quiet variant, `.btn--go` was deleted
+outright rather than left as an unrendered rule, and the retry button in `src/ui/ErrorBoundary.tsx`
+became a plain `.btn` — a filled control on the error screen would have made the rule false in the one
+place a reader arrives without context. Filled elsewhere reports a state rather than offering an act: the
+selected care level, an answer already sent, and, since D-33, the agent's-view toggle when it is on. The
+stylesheet argues the rule where `.btn--send` is defined, and its note there predates the toggle.
 
 **A sticky left rail was built, looked correct in the browser, and was withdrawn.** The evidence PNGs
 are full-page captures taken with `captureBeyondViewport`, in which a sticky element paints once at the
@@ -808,9 +814,9 @@ the layout, and the capture is not ours to change.
 differences were written on 2026-09-01, before any of this; the panels arriving shut is a twelfth,
 recorded here rather than folded back into a list with an earlier date on it.
 
-**The counterfactual disclaimer is left in two places on purpose.** It appears in the audit rail's
-explanation and again in the comparison box, because those sit in different columns and a reader may
-open either one without the other; a sentence that says nobody yet knows what an unwatched release
+**The counterfactual disclaimer is left in two places on purpose.** It appears in a row's decision panel
+and again in the comparison box, because those are separate disclosures and a reader may open either one
+without the other; a sentence that says nobody yet knows what an unwatched release
 would have cost has to travel with each of them.
 
 ## D-31 — The class is one list of fourteen rows, and the pager is gone
@@ -832,14 +838,14 @@ walk buttons.
 `section.tabs__panel` as flat siblings, selected with `input:nth-of-type(n):checked ~ section:nth-of-type(n)`.
 No handler, no state, no JavaScript on the path — which also means every panel of every row stays in
 static markup where `tests/render.test.mts` can sweep it, and the browser supplies arrow-key movement
-between the tabs for free. Verified in the built page over CDP: opening a row and clicking each tab in
-turn leaves exactly one panel with a rendered box, four times out of four.
+between the tabs for free. That test counts four picks and four panels per row and exactly one checked in
+each; no browser check presses a tab, so the switch itself is asserted in markup rather than in layout.
 
 **The marked page got shorter while showing eleven more answers.** At 1440 it was 3004px with three
-answers visible (D-30's own measurement); it is 2609px with fourteen. A fresh load is unchanged at
-2495px. The word count went up rather than down — 1300 on arrival, 1474 marked — because every row
-now carries its answer's full text in the markup and the sheet clips it to one line; a body cut short
-in JavaScript is a body a screen reader cannot get back.
+answers visible (D-30's own measurement); it is 2609px with fourteen
+(`docs/evidence/agent-view-sweep.json`). The word count went up rather than down — 1540 words in that
+same capture — because every row now carries its answer's full text in the markup and the sheet clips it
+to one line; a body cut short in JavaScript is a body a screen reader cannot get back.
 
 **Each row says whether a tool or a person named its rubric lines.** `markProvenance` reads the
 distinction out of the receipt trail rather than out of the mark, because `Receipt.operationId` is
@@ -854,8 +860,9 @@ into a conflict — one tool call would have left fourteen untouched forms deman
 a guard that fires that often reads as noise rather than as protection. An untouched form now adopts
 the new mark, which is the mark it would have shown had the row been opened a second later; a form with
 ticks in it still refuses and says so. The rule being defended is that nobody's work is overwritten
-without being told, and a draft nobody made is not work. Verified in the built page: zero conflict
-boxes after the worked example writes all fourteen marks.
+without being told, and a draft nobody made is not work. Verified in the built page by three checks: a
+concurrent manual write blocks a stale row draft, the stale row recovers only after reloading current
+state, and a successful row save does not conflict with its own form.
 
 ## D-32 — The three-column breakpoint is the queue's width, not the columns'
 
@@ -884,10 +891,12 @@ spine's fourteen cells take a line of their own instead of the third of a phone'
 beside the four figures — at 130px those cells are 6px wide and their folio numbers collide. Both
 dropped cells come back at 78rem. The answer is still one tap down in the row's own panel.
 
-**Verified across eight widths in the built page**: at 420, 992, 1200, 1248, 1280, 1366, 1440 and 1920
-a row head's `scrollWidth` equals its `clientWidth` — nothing spills at any of them. The three-column
-grid is present at 1248 and up and absent below. The evidence harness captures at 1440, 1487 and 420,
-so every frame in `docs/evidence/` still lands on the side of the breakpoint it was written for.
+**Measured once across eight widths in the built page, and not kept as a check**: at 420, 992, 1200, 1248,
+1280, 1366, 1440 and 1920 a row head's `scrollWidth` equalled its `clientWidth`, and the three-column grid
+was present at 1248 and up and absent below — 1248px being what 78rem is. The kept harness holds the ends
+of that range only: no sideways overflow at 1440px or 420px, the contract a panel at 420 and not at 1440.
+It captures at 1440, 1487 and 420, so every frame in `docs/evidence/` still lands on the side of the
+breakpoint it was written for.
 
 ## D-33 — The agent's view is a second render, not a stylesheet over the first
 
@@ -908,7 +917,7 @@ session through the same functions in `src/domain/views.ts` that the nine tools 
 opens the inspector finds no total, because at that moment the page has not computed one to draw.
 
 **What stays is what an agent can already derive.** The four figures in the band, the revision, the
-folio numbers, the ledger's action counts, the ready and staged figures at the foot: every one of those
+folio numbers, the ledger's action counts, the ready and held counts at the foot: every one of those
 is in a tool result already, so hiding them would be theatre. What goes is the total, the point values,
 the pass mark, the band, the distance from it, the pass and fail split, the provenance tag, and the
 identity of an answer held for sitting inside the band.
@@ -943,4 +952,147 @@ ever stops leaking, because a sweep that finds nothing everywhere proves nothing
 therefore counted in the document's scrollable width. Fourteen 60px labels inside 24px cells made a
 420px page 18px wider than the phone holding it, on arrival, with nothing hovered. It is `display: none`
 until hover or focus now, and the last two labels hang from the right edge instead of straddling their
-cell. `documentElement.scrollWidth` is 420 at 420px in both views, hovered or not.
+cell. `documentElement.scrollWidth` is 420 at 420px in both views, measured with nothing hovered.
+
+## D-34 — Nine registrations, eight payloads: `list_held_answers` is a name, not a capability
+
+**2026-09-03.** Re-derived from `toolSurfaceFacts()` rather than from any document: nine registrations,
+six of them read-only — `describe_stack`, `read_rubric`, `read_answer`, `list_held_answers`,
+`explain_mark`, `preview_unattended_outcome` — and three writes: `propose_marks`,
+`set_marking_emphasis`, `request_release`.
+
+`list_held_answers` returns `{revision, heldCount, namedHolds}`, and every one of those three fields
+already sits inside what `preview_unattended_outcome` returns. So the surface is nine registrations
+over **eight distinct payloads** (`docs/DEEP-AUDIT.md` M-21). The temptation was to delete it and say
+eight, or to keep it and let a reader assume nine capabilities. Both are wrong in the same direction:
+they let a count stand in for what the page can do.
+
+**It stays, and it is never counted as a ninth capability.** A registry is a discovery surface, and the
+question an agent actually has at that moment — *which of these is waiting for the teacher* — deserves a
+name that answers it. Routing that question through a tool called `preview_unattended_outcome` costs the
+agent a larger payload and a worse guess. The redundancy is read-only and carries no figure, so it widens
+nothing: it spends one name and buys legibility.
+
+The honest cost is discovery noise. An agent may call both and receive overlapping fields, and a reader
+counting rows in the registry will over-count what this page can do by one. The mitigation is wording,
+not code: wherever a number is given it is "nine registrations, eight distinct payloads", and that is now
+the form used in `README.md`, `docs/DEEP-AUDIT.md` and the manifest.
+
+**Not counted as a reason, and now spent as a fact:** when this was written, deleting the tool would have
+edited `src/`, invalidated `sourceSha256 09974722…`, forced a rebuild with new hashed `dist/` filenames
+and a new checksum sheet, and demoted the two hosted artefacts from evidence about this tree to evidence
+about an older one. That cost was paid anyway at 10:56 UTC for the layout change — the source hash is now
+`10fb7f7c…` and the hosted reports already describe the previous build — so it no longer argues for
+keeping the tool. What keeps it is the design argument above, which stood on its own; the question is
+still not reopened before submission, but for the ordinary reason that a tool surface should not churn on
+the day of a deadline.
+
+## D-35 — Nothing can escalate a single answer, and that is a limit rather than a design
+
+**2026-09-03.** Two absences in this surface look alike from outside and are not alike at all.
+
+`confirm_release` is absent **by design**. It is the whole thesis: the agent can ask for release and a
+person presses the button, so no tool exists that could complete one. `docs/GATE-W1.md` argues it,
+`tests/` hold it, and step 5 of the model-replay script is written to make a model discover it.
+
+A write that escalates one answer is absent **by accident**. The three writes take a batch of marks, a
+care setting, or a release request; none takes one answer id plus a reason. So when a model reads
+`ans-11` — the fixture that addresses the marker instead of the question — and correctly decides a
+person should see it, the only honest thing it can do is say so in prose. It cannot record that
+judgement anywhere the page will keep (`docs/DEEP-AUDIT.md` M-22, `SECURITY.md` Threat 1, third
+residual). The page catches that answer itself when marks are next proposed, so nothing unsafe happens
+— but the catch is the page's, not the agent's, and the agent's reading of it is lost.
+
+**Recorded as a limit.** Calling this restraint would be a lie in the same shape as calling a missing
+feature a security boundary. Nothing in the thesis requires it: an escalation that only ever *adds*
+caution cannot leak arithmetic and cannot release anything, so the argument for its absence is
+availability of author time, not safety.
+
+**The shape it would take, if the owner approves a source change.**
+`flag_answer_for_review { answerId, reason, expectedRevision, operationId }` —
+`additionalProperties: false` like every other schema, `reason` a closed enum rather than free text so
+no prose crosses the boundary, no numeric argument of any kind, and ratchet-only: it may add a hold and
+may never lower, clear or downgrade one. It would ship with a unit test and a browser check, and it
+would make the surface ten registrations over nine payloads.
+
+**Why not now.** No owner approval for a `src/` change exists, and the cost is the one stated in D-34:
+all five local artefacts lose their binding, `dist/` filenames move, `checksums.txt` is regenerated, and
+the hosted evidence taken from `93eee30` stops describing the page in this tree. Step 3 of
+`docs/evidence/natural-language-replay-blocked.json` is written to expect the refusal, so a model replay
+run before this is fixed will record the limit rather than trip over it.
+
+## D-36 — The wide page is an app shell, and the three columns scroll on their own
+
+**2026-09-03, 10:56 UTC.** At 1248px and wider the page was one long document: a judge who opened the
+release control at the foot had scrolled past the queue, and the agent's contract in the right column
+was off-screen exactly when it mattered. The point of the layout is that three things are true at once
+— what the class looks like, what the agent is told, and who presses send — and a single scrollbar
+takes one of the three away.
+
+**So the shell is fixed and the columns scroll.** `.app` is `100dvh` in a column, `.app__cols` takes
+the remaining space with `grid-template-rows: minmax(0, 1fr)`, and `.work`, `.rail` and `.contract`
+each get `overflow-y: auto` with `overscroll-behavior: contain`. The grid's row is implicit, which is
+why it is written as `minmax(0, 1fr)` rather than `1fr`: without the `minmax` the row takes its
+content's height and nothing scrolls. The three columns needed `position: relative` at the same time,
+because `.vh` and `.tabs__pick` are 1×1 absolute boxes that were resolving against the initial
+containing block once their ancestors started scrolling.
+
+**What it cost in evidence, stated plainly.** Two things, both recorded rather than smoothed over.
+The wide screenshots are no longer full-page: `browser-1440-marked.png` and `browser-1440-staged.png`
+are 1440×900 viewport frames, because a full-page capture of a `100dvh` shell is a `100dvh` frame.
+`browser-420-staged.png` is still a full-page capture and is the one to read end to end. And the wide
+sideways-overflow assertion is weaker than it was: at 1440px the harness measures
+`documentElement.scrollWidth` against the viewport, and a column that scrolls contains its own
+horizontal overflow, so the check can now pass over a column that spills inside itself. The 420px
+check is unaffected, because at one grid track the document is the scroller again. The harness is
+another writer's file and was not edited to compensate; the weakening is documented instead.
+
+## D-37 — The question the class was set is on the screen
+
+**2026-09-03, 12:16 UTC.** `session.question` had been in the domain from the start
+(`src/domain/session.ts:157`) and any agent could read it through `read_rubric`, but it was never
+drawn. A reader arriving at fourteen rows of answers and a four-line rubric had no idea what was
+being marked, so the four lines read as arbitrary categories rather than as the ideas a correct answer
+about a metal spoon in hot water would contain. A simulated cold read named this as the confusion it
+stopped at longest (`docs/evidence/simulated-panel-2026-09-03.json`, reviewer `cold-read-teacher`).
+
+**It sits above the queue, not inside each row.** It is the same question for all fourteen, so
+fourteen copies would be noise; `.queue__ask` puts it once, above the rows, with a small label so it
+is not mistaken for an answer. It is safe in both views — it is the teacher's own text and carries no
+page-owned figure — which is why the agent-view sweep still reports 17/17 with none of the thirteen
+figures present in the agent's render.
+
+## D-38 — The cell strip gets a key in prose, not in swatches
+
+**2026-09-03, 12:16 UTC.** The strip of fourteen cells in the band carried four visual states with no
+names, and the three counters beside it do not sum to fourteen — marked, held and staged are each
+counted out of the whole class, and a reader who assumed they were four parts of one bar got the
+arithmetic wrong in the one place the page is about arithmetic.
+
+**Both are now said in one sentence of prose, and deliberately not in chips.** The obvious design is a
+legend of small swatches reusing the `cell--*` classes. That would have been wrong twice over:
+`tests/render.test.mts` counts `cell--*` class *string occurrences* in the rendered markup and
+`scripts/agent-view.mjs` counts `.cell--secret` elements, so a legend would have inflated both and
+broken a check by decorating rather than by changing behaviour. `.band__key` therefore names the four
+states in words, and adds the secret-edge sentence only when a secret hold is actually on screen and
+the denominator sentence only once marks exist. Zero new `cell--*` occurrences; 136/136 still pass.
+
+## D-39 — The fair objection is answered beside the payloads, and the empty call list says why it is empty
+
+**2026-09-03, 12:16 UTC.** Two claims on this page are checkable only where the evidence for them is
+printed, so both sentences were put there rather than in a README a judge may never open.
+
+The objection first: if the agent cannot see a point value, a total or the pass mark, is it doing any
+real work? `.proj__why--ask` answers it inside the disclosure that prints four tool payloads verbatim
+— no tool there has a slot for a score, so there is no target to mark toward, and naming the ideas it
+found is the whole proposal. A reader can test that sentence against the four objects beside it in the
+same glance.
+
+Then the empty list. The dispatch log is empty on arrival and that looked like a broken feature. It now
+says what would fill it — an agent in this browser invoking one of the nine — and states that the
+worked-example button is the page's own fixture and deliberately does not count as one, because it
+commits through the domain directly (`src/App.tsx`) and records no dispatch. Routing it through the
+registered `propose_marks` tool would have filled the log and fixed the per-row `HAND` attribution, and
+it was rejected: it changes what `scripts/webmcp-invoke.mjs` observes, and that file may not be edited
+by this session, so the only available validation would have been a file this session cannot repair.
+Saying so is the honest version.

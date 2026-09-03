@@ -1,0 +1,19 @@
+# Codex-style hosts read TOML rather than JSON. Same bridge, same env contract, same nine tools.
+#
+# Untested: no Codex client has been run against this bridge, so this is the documented shape and
+# not a verified attachment. If your host names the table differently, keep the command, the args
+# and the env keys and move them; those are the parts the bridge actually reads.
+#
+# Paths are absolute because an attaching agent's working directory is not this package.
+
+[mcp_servers.withheld]
+command = "node"
+args = ["/home/andro/dev/projects/webmcp-challenge/submissions/withheld/scripts/mcp-bridge.mjs"]
+
+[mcp_servers.withheld.env]
+WITHHELD_URL = "http://127.0.0.1:4197/"
+WITHHELD_CDP_PORT = "9523"
+WITHHELD_BRIDGE_LOG = "/tmp/withheld-bridge-codex.jsonl"
+WITHHELD_CHROMIUM = "/usr/bin/chromium"
+WITHHELD_CDP_TIMEOUT_MS = "30000"
+WITHHELD_BOOT_ATTEMPTS = "60"

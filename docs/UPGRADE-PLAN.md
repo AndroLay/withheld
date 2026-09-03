@@ -1,6 +1,6 @@
 # Withheld — evidence-first upgrade plan
 
-Snapshot: 2 September 2026 (WITA)
+Snapshot: 3 September 2026 (WITA)
 Status: rencana perbaikan dan audit; bukan bukti release, bukan izin deploy, dan bukan izin submit.
 
 Dokumen ini adalah backlog terpusat untuk memperkuat Withheld setelah:
@@ -17,19 +17,24 @@ Temuan source-level yang mendasari backlog ini dirinci di
 [DEEP-AUDIT.md](DEEP-AUDIT.md), termasuk final human receipt, schema strictness,
 idempotency, form revision, property test, performance, dan accessibility.
 
-## Status update — 2 September 2026
+## Status update — 3 September 2026
 
 The first reliability slice is implemented in the Withheld package. Closed items include
 human confirm/decline receipts and timeline events, closed and bounded WebMCP schemas, runtime
 oversized/duplicate-input refusal, no-op and duplicate-release refusal, a controlled
 revision-aware marking form, runtime generated-text canary enforcement with an explicit raw
 answer exception, a generic tool failure envelope, expanded Unicode/multilingual detector
-coverage, and evidence metadata with source/build/artifact hashes.
+coverage, and evidence metadata with source/build/artifact hashes. The page was rebuilt the same day:
+a fourteen-cell spine strip and a view toggle in the opening band, all fourteen queue rows with four
+panels each, authority as a 3×5 table in the rail, every arrived call listed in the agent column
+including the refused ones, a gate that says when a tool staged the request, and the audit account
+and the two slabs under it as disclosures.
 
-Fresh local evidence: 125 tests, typecheck, build, 44 browser checks, 19 WebMCP CDP checks, and
-27 failure/recovery checks pass on Node 26.4.0. This does not close the external gates: hosted HTTPS, public repository
-and About licence visibility, natural-language model replay, GATE-P2, Node 22/CI, manual
-screen-reader review, and the public video remain open.
+Fresh local evidence: 136 tests in 9 files, typecheck, build, 43 browser checks, 17 agent-view
+checks, 19 WebMCP CDP checks, and 27 failure/recovery checks pass on Node 26.4.0. This does not
+close the external gates: hosted HTTPS, public repository and About licence visibility,
+natural-language model replay, GATE-P2, Node 22/CI, manual screen-reader review, and the public
+video remain open.
 
 The backlog below remains useful as the acceptance map. Its earlier descriptions of missing
 receipts, loose schemas, uncontrolled forms, and absent runtime canary are pre-hardening
@@ -66,12 +71,12 @@ findings; do not treat them as current source status.
 | --- | --- | --- |
 | Thesis | page-owned arithmetic; agent hanya melaporkan rubric ideas | README dan src/domain/marks.ts |
 | Tool surface | sembilan tool: enam read-only dan tiga write; confirm_release sengaja tidak terdaftar | src/tools/webmcp.ts; docs/evidence/webmcp-invocation.json |
-| Information boundary | point values, pass boundary, page identity, dan release authority tidak dikirim ke agent; numeric allowlist dan text canary fail-closed | src/tools/agent-boundary.ts; src/domain/views.ts |
+| Information boundary | point values, pass boundary, page identity, dan release authority tidak dikirim ke agent; numeric allowlist dan text canary fail-closed; toggle agent's view menggambar ulang halaman dari proyeksi itu, dengan 0 figure page-owned pada teks maupun markup dan 132 redaction | src/tools/agent-boundary.ts; src/domain/views.ts; docs/evidence/agent-view-sweep.json |
 | Authority | expectedRevision plus single-use operationId, atomic batch, invalid/stale/duplicate refusal, care setting hanya dapat dinaikkan, prompt-injection answer dikarantina | src/domain/session.ts; tests/session.test.mts; tests/boundary-inference.test.mts |
 | Shared state | UI manual dan tool memakai SessionPort yang sama; hasil write mengubah revision/hold count yang terlihat | src/ui/useMarkingSession.ts; evidence webmcp-invocation |
-| Human boundary | tool dapat stage, tetapi hanya tombol page yang memanggil confirmRelease | src/domain/session.ts; src/ui/ActionBar.tsx; tests/webmcp.test.mts |
-| UI evidence | monochrome three-column workspace, contract panel, audit rail, comparison, sticky human gate | docs/evidence/browser-session.json; docs/target-images/ |
-| Browser artifact | artifact terakhir mencatat 44/44 browser checks, CSP, contrast, AX tree, responsive fold, zero off-site requests, form conflict, and human release transitions | docs/evidence/browser-session.json |
+| Human boundary | tool dapat stage, tetapi hanya tombol page yang memanggil confirmRelease; gate menyebut bila release di-stage oleh tool call | src/domain/session.ts; src/ui/ActionBar.tsx; tests/webmcp.test.mts |
+| UI evidence | tiga kolom monochrome di bawah band pembuka yang memuat spine strip 14 cell dan view toggle; 14 baris queue, tiap baris membuka empat panel; tiga slab di bawah kolom (audit account terbuka, comparison dan limits tertutup); human gate pinned | docs/evidence/browser-session.json; docs/evidence/agent-view-sweep.json |
+| Browser artifact | artifact terakhir mencatat 43/43 browser checks, CSP, contrast, AX tree, responsive fold, zero off-site requests, form conflict, and human release transitions | docs/evidence/browser-session.json |
 | Registry dispatch | artifact terakhir mencatat 19/19 checks, termasuk unknown rubric-line, duplicate/stale refusal, injection quarantine, staged release, dan confirm_release tidak ditemukan | docs/evidence/webmcp-invocation.json |
 
 ### 1.2 Yang belum terbukti atau masih lemah
@@ -79,20 +84,21 @@ findings; do not treat them as current source status.
 | Gap | Status evidence sekarang | Mengapa menurunkan skor |
 | --- | --- | --- |
 | Model memilih tool | UNKNOWN; registry/DevTools script memilih semua call | WebMCP Leverage dan Execution belum terbukti pada perilaku agent |
-| Hosted URL | UNKNOWN/absent di PREFLIGHT | juri dapat menilai dari submission, tetapi tidak ada artefak yang bisa dibuka orang luar |
+| Hosted URL | **closed** — `https://androlay.github.io/withheld/` HTTP 200 (2026-09-03 09:01 UTC); `hosted-browser-session.json` 43/43 dan `hosted-webmcp-invocation.json` 19/19 pada 07:44 UTC | tidak lagi menurunkan skor; juri dapat membuka artefaknya sendiri |
 | GATE-P2 | belum dijalankan | Potential Impact masih hipotesis dari author |
 | Video | belum ada | alur, failure, authority, dan WebMCP thesis belum terlihat dalam batas <180 detik |
-| Re-run penuh hari ini | **closed for Node 26 writable environment** | 125 tests, typecheck, build, 44 browser checks, 19 WebMCP checks, and 27 local recovery checks pass; Node 22/CI remains open |
+| Re-run penuh hari ini | **closed for Node 26 writable environment** | 136 tests, typecheck, build, 43 browser checks, 17 agent-view checks, 19 WebMCP checks, and 27 local recovery checks pass; Node 22/CI remains open |
 | Node 22/CI | belum dijalankan | package/CI compatibility masih inferred dari konfigurasi |
 | Screen-reader listening | belum dilakukan | AX tree dan named controls bukan bukti bahwa urutan/wording terdengar masuk akal |
-| Public repo/license detection | file MIT ada, remote/About belum ada | requirement repository tidak tertutup oleh file lokal saja |
+| Public repo/license detection | **closed untuk repo** — `AndroLay/withheld` publik, `main` `b050f991`, `gh-pages` `58a3ff42`, dibaca anonim 2026-09-03; About/license badge belum dikonfirmasi pemilik | requirement repository sudah tertutup; tampilan About tinggal dilihat pemilik di halaman repo |
 | Confirmed-release receipt | **closed in source and fresh browser artifact** | confirm/decline add human receipt events with exact revisions; repeat on hosted build |
 | Persistence/undo setelah confirm | tidak ada dan sengaja demikian | bukan defect otomatis; jangan ditambah tanpa alasan produk dan waktu |
 
-Catatan verifikasi: artifact lama tetap disimpan sebagai provenance, tetapi evidence terbaru
-di `docs/evidence/` adalah fresh Node 26 writable-run evidence. It was generated from a dirty
-working tree and therefore records source/build/artifact hashes; a final release still needs
-the same checks after the hardening is committed and published.
+Catatan verifikasi: artifact lama tetap disimpan sebagai provenance, tetapi evidence terbaru di
+`docs/evidence/` berasal dari run Node 26 writable pada 3 September. Kelima capture — browser,
+agent-view, native registry, dispatch, recovery — memakai satu `gitSha` `df9608c4`, satu
+`sourceSha256`, dan satu `buildSha256`, jadi semuanya menggambarkan satu tree; tree itu masih dirty
+dan belum di-commit, jadi release final tetap perlu check yang sama setelah hardening dipublikasikan.
 
 ## 2. Apa yang dipelajari dari benchmark terbaik
 
@@ -234,7 +240,7 @@ Gunakan build hosted yang sama. Ikuti storyboard pada audit video:
 | 0–8s | “Agent brings language. Page keeps arithmetic.” | problem + boundary |
 | 8–30s | satu answer dan rubric | agent view tidak memiliki point/pass value |
 | 30–60s | model membaca dan mengusulkan | tool choice, revision, proposal |
-| 60–90s | page menghitung dan menahan | held reason, same row, audit rail |
+| 60–90s | page menghitung dan menahan | held reason pada baris queue, lalu audit account di bawah queue |
 | 90–115s | invalid/stale request | refusal dan tidak ada leak |
 | 115–145s | stage lalu human confirm | satu human-only control; no confirm_release |
 | 145–165s | receipt + limitation | synthetic/alias-only, no model claim palsu |
@@ -280,34 +286,28 @@ screen-reader user test.
 
 #### P1-01 — Perkuat final audit receipt
 
-Saat manusia benar-benar mengonfirmasi release, tambahkan page-owned audit event
-yang memuat revision sebelumnya, revision sesudahnya, actor human, jumlah item,
-dan status final. Event ini boleh lengkap di UI page, tetapi projection tool
-harus tetap tidak mengembalikan secret arithmetic atau daftar yang dapat
-mengungkap held set.
+Sudah mendarat. Setiap confirm manusia menulis satu receipt page-owned: `human_release_confirmed`
+menamai actor, `revision` adalah revision yang dihasilkan, `answerIds` memberi jumlah item, dan
+`operationId` membedakan tool dari tangan tanpa pernah dikirim ke agent. Projection tool tetap tidak
+mengembalikan secret arithmetic atau daftar yang dapat mengungkap held set.
 
-Tes yang diperlukan:
-
-- confirm menambah tepat satu event;
-- double click tidak menggandakan release;
-- stale hold antara stage dan confirm tidak ikut terkirim;
-- event final dapat dibaca pada audit rail;
-- event agent-facing tetap melewati boundary guard.
-
-Ini menerapkan pola receipt/replay tier A tanpa memberi agent kuasa baru.
+Bukti: `node --run test` → **136 passed, 0 failed**, dengan `tests/session.test.mts` menuntut confirm
+menambah tepat satu receipt pada revision baru dan hold antara stage dan confirm tidak ikut terkirim,
+dan `tests/agent-boundary.test.mts` menolak receipt yang mengutip total. `node --run browser` → **43
+passed, 0 failed**, termasuk confirm dan decline lewat human control; event final terbaca pada audit
+ledger di rail kiri dan pada timeline agent column. Confirm kedua sebagai no-op ada di source, belum
+diuji; ulangi semuanya pada build hosted.
 
 #### P1-02 — Jadikan refusal mudah dilihat dalam satu layar
 
-- tampilkan status “refused — read again and retry” di live region;
-- beri label revision pada proposal/stage;
-- buka hanya satu redacted payload secara default; payload lain tetap dapat
-  diperiksa;
-- letakkan indikator “agent may read / cannot receive / human only” dekat control
-  yang terkait;
-- sediakan jalur kembali dari contract column ke answer/audit row.
+Sudah mendarat: refusal muncul di live region dengan instruksi baca-ulang-dan-coba-lagi; setiap call
+yang tiba terdaftar di agent column dengan revision dan refusal code; empat payload dicetak verbatim
+di balik disclosure, semuanya tertutup pada arrival; authority dinyatakan sebagai tabel 3×5 (Agent /
+You / Page terhadap Read / Propose / Hold / Score / Send) di rail, menggantikan tiga paragraf.
 
-Tujuannya bukan membuat lebih banyak teks, melainkan mengurangi waktu juri
-untuk menemukan bukti.
+Masih terbuka: jalur kembali dari agent column ke baris queue atau ke audit account; kolom itu hanya
+menautkan ke dirinya sendiri dan ke gate. Tujuannya bukan membuat lebih banyak teks, melainkan
+mengurangi waktu juri untuk menemukan bukti.
 
 #### P1-03 — Perjelas contract surface tanpa menambah tool
 
@@ -403,13 +403,13 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 
 | Claim yang ingin ditulis | Evidence sekarang | Bukti berikutnya | Owner |
 | --- | --- | --- | --- |
-| source/domain works | source + historical tests | fresh full test/build | implementer/environment |
-| WebMCP registered | historical browser registry artifact | hosted registry capture | environment/owner |
+| source/domain works | source + full local suite today (136 tests, 9 files) | same suite from the committed build | implementer/environment |
+| WebMCP registered | current local native-registry.json (Chrome 151) | hosted registry capture | environment/owner |
 | outside caller dispatches | current local 19-check artifact | hosted dispatch run | environment/owner |
 | a model selects tools | belum ada | authorized natural-language replay | owner/client |
-| page-owned boundary | source/tests + artifact payload checks | hosted payload capture + GATE-W1 rerun | implementer |
+| page-owned boundary | source/tests + artifact payload checks + agent-view sweep (132 redactions) | hosted payload capture + GATE-W1 rerun | implementer |
 | workflow matters | author description only | GATE-P2 non-builder record | owner/participant |
-| browser usability | historical headless layout/AX/contrast | manual keyboard/screen-reader listen | owner/reviewer |
+| browser usability | current local layout/AX/contrast checks inside the 43-check browser run | manual keyboard/screen-reader listen | owner/reviewer |
 | public reproducibility | local package only | public repo/About/license + clean clone | owner |
 | judge can understand quickly | storyboard only | final hosted video and independent comprehension | owner |
 
@@ -427,6 +427,10 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 | docs/SUBMISSION-TEXT.md | copy final hanya setelah hosted run dan video selesai |
 | ../../../docs/research/46-tier-ab-audit-and-two-submission-upgrade-plan.md | comparative tier A/B and two-package strategy |
 | ../../../docs/research/47-devpost-video-audit-2026-09-02.md | 13-page/video audit and storyboard lessons |
+
+Dua baris terakhir itu path monorepo. Package ini diterbitkan sebagai repositori mandiri
+(`AndroLay/withheld`), jadi di tree terbit keduanya tidak ada — sebutkan sebagai provenance internal,
+jangan diandalkan sebagai tautan yang bisa dibuka juri.
 
 Jangan menyalin seluruh audit benchmark ke package docs. Gunakan link ke sumber
 riset agar satu perubahan tidak membuat dua status berbeda.

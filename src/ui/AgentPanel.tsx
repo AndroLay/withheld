@@ -161,8 +161,14 @@ function Connection({
     </>,
     // The count, not the claim. "Offered" is a fact about registration; whether anything has been
     // called is a different fact, and the page should be the one saying which of the two it knows.
+    //
+    // The empty case also names what would fill it. Without that sentence the column reads, to
+    // anyone who has not attached an agent, as a feature that does not work — and the true reason is
+    // worth stating: the worked-example button commits through the domain directly
+    // (`src/App.tsx`), not through the tool port, so it records no dispatch and is not counted here.
+    // A fixture that logged itself as an agent call would be the one lie this page cannot afford.
     activity.total === 0
-      ? "No call has arrived yet. None of them can send a mark to a student."
+      ? "No call has arrived yet — an agent in this browser invoking one of the nine is what fills this list. The worked-example button under the queue is this page's own fixture and deliberately does not count as one. None of them can send a mark to a student."
       : `${activity.total} ${activity.total === 1 ? "call has" : "calls have"} arrived, listed below. None of them could send a mark to a student.`,
     installation.failures.length > 0 && installation.retry && onRetry ? (
       <a
@@ -422,39 +428,63 @@ export function AgentPanel({
         ))}
       </ul>
 
-      <p className="lab">What a tool actually returns</p>
+      {/* Reference rather than argument, so it is tucked: the four objects are what a reader checks
+          once, and a column that opens with them buries the sentence they are evidence for. Closed is
+          not gone — the payloads are in the markup, in the tree, and in find-in-page. */}
+      <details className="tuck">
+        <summary className="tuck__head">
+          <span className="lab">What a tool actually returns</span>
+          <span className="tuck__more tuck__more--shut">
+            Open it: four of the nine payloads, verbatim
+          </span>
+          <span className="tuck__more tuck__more--open">Close it</span>
+          <span className="tuck__caret" aria-hidden="true">
+            <Icon name="down" size={13} />
+          </span>
+        </summary>
 
-      <p className="proj__why">
-        Four of the nine, verbatim. Each one opens on the object the tool hands over — the interesting
-        part of every one of them is what is not in it.
-      </p>
+        <p className="proj__why">
+          Four of the nine, verbatim. Each one opens on the object the tool hands over — the
+          interesting part of every one of them is what is not in it.
+        </p>
 
-      <div className="proj">
-        {shown.map((entry) => (
-          <details key={entry.tool} className="proj__box">
-            <summary className="proj__head">
-              <code className="proj__tool">{entry.tool}</code>
-              <span className="proj__what">{OMITS[entry.tool] ?? "a redacted projection"}</span>
-              <span className="proj__caret" aria-hidden="true">
-                <Icon name="down" size={13} />
-              </span>
-            </summary>
-            {/* Pretty-printed with two spaces because a reader is meant to check it, not parse it.
-                The agent receives the same object serialised on one line. */}
-            <pre className="proj__json">{JSON.stringify(entry.payload, null, 2)}</pre>
-          </details>
-        ))}
-      </div>
+        {/* The fair objection, answered where it can be checked rather than in a README a judge may
+            never open: if the agent cannot see a point value, a total or the pass mark, is it still
+            doing the work? It reads next to the payloads on purpose — this is the one place on the
+            page where the absence is printed, so the sentence can be tested against what is beside
+            it. `docs/DECISIONS.md` D-39. */}
+        <p className="proj__why proj__why--ask">
+          No tool here has a slot for a score, so there is no target to mark toward: naming the ideas
+          it found is the whole proposal, and the arithmetic was never the agent's to do.
+        </p>
 
-      {explained ? null : (
-        <div className="empty">
-          <p className="empty__lead">explain_mark is not in the list above.</p>
-          <p>
-            Nothing is marked yet, so there is no explanation to project. Mark one answer — by hand,
-            or from the worked example — and it appears here with the rest.
-          </p>
+        <div className="proj">
+          {shown.map((entry) => (
+            <details key={entry.tool} className="proj__box">
+              <summary className="proj__head">
+                <code className="proj__tool">{entry.tool}</code>
+                <span className="proj__what">{OMITS[entry.tool] ?? "a redacted projection"}</span>
+                <span className="proj__caret" aria-hidden="true">
+                  <Icon name="down" size={13} />
+                </span>
+              </summary>
+              {/* Pretty-printed with two spaces because a reader is meant to check it, not parse it.
+                  The agent receives the same object serialised on one line. */}
+              <pre className="proj__json">{JSON.stringify(entry.payload, null, 2)}</pre>
+            </details>
+          ))}
         </div>
-      )}
+
+        {explained ? null : (
+          <div className="empty">
+            <p className="empty__lead">explain_mark is not in the list above.</p>
+            <p>
+              Nothing is marked yet, so there is no explanation to project. Mark one answer — by hand,
+              or from the worked example — and it appears here with the rest.
+            </p>
+          </div>
+        )}
+      </details>
 
       {/* The foot of the agent's own column is the thing the agent cannot do. It points at the
           control rather than repeating it: a second send button, even a disabled one, would make
@@ -468,17 +498,29 @@ export function AgentPanel({
         </a>
       </div>
 
-      <p className="lab" id="how-title">
-        How to connect one
-      </p>
+      {/* The `id` moved from the label to the summary when this became a disclosure, and it had to:
+          the box at the top of the column links here by fragment, and a link whose destination is a
+          closed panel should land on the control that opens it, not on prose behind it. The words on
+          the summary are the words on the link. */}
+      <details className="tuck">
+        <summary className="tuck__head" id="how-title">
+          <span className="lab">How to connect one</span>
+          <span className="tuck__more tuck__more--shut">Open it: the flag, and what it turns on</span>
+          <span className="tuck__more tuck__more--open">Close it</span>
+          <span className="tuck__caret" aria-hidden="true">
+            <Icon name="down" size={13} />
+          </span>
+        </summary>
 
-      <p className="how">
-        A browser agent reaches this page through <code className="how__code">document.modelContext</code>,
-        which today is behind <code className="how__code">chrome://flags/#enable-webmcp-testing</code> in
-        Chrome Canary. Turn it on, reload, and the box at the top of this column counts the
-        registrations. No natural-language model has been watched reading these payloads — the local
-        CDP harness exercises the transport, while this page remains usable by hand and by test.
-      </p>
+        <p className="how">
+          A browser agent reaches this page through{" "}
+          <code className="how__code">document.modelContext</code>, which today is behind{" "}
+          <code className="how__code">chrome://flags/#enable-webmcp-testing</code> in Chrome Canary.
+          Turn it on, reload, and the box at the top of this column counts the registrations. No
+          natural-language model has been watched reading these payloads — the local CDP harness
+          exercises the transport, while this page remains usable by hand and by test.
+        </p>
+      </details>
     </>
   );
 
