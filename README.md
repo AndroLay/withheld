@@ -416,8 +416,9 @@ configs, the result shape, the refusal codes and the flags,
 
 Published and current. `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at 18:03
 UTC, serving a 988-byte `index.html` last modified at 18:02:45 UTC, and all three files it returns
-hashed byte-identical to `dist/` in this checkout; the public repository `AndroLay/withheld` holds
-`main` at `9cce7d0a` and `gh-pages` at `15baf8f0`. Two probes have run against that URL rather than
+hashed byte-identical to `dist/` in this checkout. `gh-pages` — the ref the site serves — is `15baf8f0`;
+`main` was `9cce7d0a` when this line was written and moves with each doc commit after it. Two probes
+have run against that URL rather than
 against `127.0.0.1` — `docs/evidence/hosted-browser-session.json` (43 checks, 43 passed, 07:44:04 UTC)
 and `docs/evidence/hosted-webmcp-invocation.json` (19 checks, 19 passed, 07:44:25 UTC), both in
 Chrome/151.0.7922.137 — but against the build the site served that morning, not against this one. Still
@@ -426,7 +427,7 @@ chose one of these tools from a sentence.
 
 | | |
 | --- | --- |
-| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `main` `9cce7d0a`, `gh-pages` `15baf8f0`, pushed 2026-09-03 18:02 UTC |
+| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `gh-pages` `15baf8f0` is what the site serves; `main` held `9cce7d0a` at 18:02 UTC on 2026-09-03 and advances with each doc commit |
 | Hosted URL | <https://androlay.github.io/withheld/> — HTTP 200, GitHub Pages, serving build `84eee099…`, verified 2026-09-03 18:03 UTC |
 | Hosted evidence | 43/43 browser checks and 19/19 tool dispatches on the live URL at 07:44 UTC, neither model-selected, neither re-run after the 18:02 republish |
 | Agent attachment | bridge, five host configs and two harnesses on disk; none executed, no host attached |
