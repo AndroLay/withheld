@@ -2,11 +2,12 @@
 
 This directory contains evidence from local runs on 2026-09-03 between 12:54 and 12:56 UTC, and two
 runs against the live URL earlier the same morning at 07:44 UTC. The local five share one build —
-source `10fb7f7c…`, build `84eee099…` — and that pair is the tree as it stands, so the local
-evidence is bound to the checkout you are reading. The two hosted runs are **not** on that build:
-they describe source `09974722…` / build `3700f7c5…`, which the live URL still serves. The page has
-been rebuilt twice since — the app shell at 10:56 UTC and four pieces of copy at 12:16 UTC — and
-republishing is the owner's decision, so this checkout is two builds ahead of the URL. Each artifact
+source `10fb7f7c…`, build `84eee099…` — and that build is now what the live URL serves: `gh-pages`
+`15baf8f0` went up at 18:02:45 UTC and all three served files hashed byte-identical to `dist/` at 18:03
+UTC. The source hash has moved on to `b924a27a…` since those artifacts were written, because `scripts/`
+gained the MCP bridge, five host configs and two harnesses while nothing under `src/` changed. The two
+hosted runs are **not** on that build: they describe source `09974722…` / build `3700f7c5…`, the pair
+the site served that morning, and they were not re-run after the republish. Each artifact
 restates its own `sourceSha256` and `buildSha256`, and those
 per-artifact values are the authoritative ones. Evidence is classified by what was actually observed:
 
@@ -65,9 +66,10 @@ user validation, or CI evidence.
 
 ## Hosted artifacts
 
-These two describe the **published** build (source `09974722…`, build `3700f7c5…`), which is what
-the live URL serves. They are not runs against the source in this checkout, and their figures must
-not be read as figures for it.
+These two describe the build the site served on the morning of 2026-09-03 (source `09974722…`, build
+`3700f7c5…`). The URL was republished at 18:02:45 UTC and these two were not repeated against it, so
+they are neither runs against the source in this checkout nor statements about the page live now, and
+their figures must not be read as either.
 
 - `hosted-browser-session.json`: the browser session repeated against
   `https://androlay.github.io/withheld/` on 2026-09-03 at 07:44:04Z — 43 checks, 43 passed, in
@@ -86,17 +88,17 @@ not be read as figures for it.
   into it. `manifest.json` states both facts in `screenshotNote` and `dirtyFlagNote`. None of the four
   screenshot hashes they carry is still a file in this directory: the three wide renders were replaced
   by the app-shell rebuild at 10:56 UTC, and `browser-420-staged.png` by the copy build at 12:16 UTC.
-- The served build was compared to `dist/` on 2026-09-03 at 10:06:01Z, before the layout rebuild: all
-  three files a judge downloads — `index.html` 988 B, `assets/index-DXn1KLBA.css` 30494 B and
+- The served build was compared to `dist/` twice. On 2026-09-03 at 10:06:01Z, before the layout rebuild,
+  all three files a judge downloads — `index.html` 988 B, `assets/index-DXn1KLBA.css` 30494 B and
   `assets/index-JsqLqLgl.js` 267374 B — were **byte-identical** to `dist/` as it then stood, by
-  sha256 on the downloaded bytes. `manifest.json` records the three hashes under
-  `hostedBuildIdentity`. That makes `buildSha256 3700f7c5…` a statement about the live site rather
-  than only about a local directory, and it remains true of the live site. It is **no longer** true of
-  this tree: `dist/` was replaced at 10:56 UTC and again at 12:16 UTC, and now holds
-  `index-DI6vQgfk.css` and `index-LG0K2zXZ.js` under build `84eee099…`. Re-running the comparison is
-  only meaningful after a republish, which is the owner's decision and has not been made. The
-  repository refs were re-read anonymously in the same minute and are unchanged: `main` and `HEAD`
-  `b050f991`, `gh-pages` `58a3ff42`.
+  sha256 on the downloaded bytes. `manifest.json` records those three hashes under
+  `hostedBuildIdentity`, which is what makes `buildSha256 3700f7c5…` a statement about a live site rather
+  than only about a local directory. That statement now belongs to the past: the site was republished at
+  18:02:45 UTC, and at 18:03 UTC the comparison was repeated against the current three files —
+  `index.html` 988 B, `assets/index-DI6vQgfk.css` 31862 B and `assets/index-LG0K2zXZ.js` 269076 B — which
+  came back byte-identical to `dist/` in this checkout, build `84eee099…`. The published refs are now
+  `main` `9cce7d0a` and `gh-pages` `15baf8f0`; `manifest.json` still records the earlier trio and has not
+  been regenerated.
 - A hosted browser check is delivery evidence. It is not user validation and not a model replay.
 
 ## Blocked or not-run artifacts
@@ -123,11 +125,13 @@ not be read as figures for it.
   satisfy GATE-P2 and may never be promoted to any other class.
 
 Each blocked artifact contains a rerun protocol. None is a substitute for the missing evidence.
-`manifest.json` is now written from the runs in this directory: it binds the hosted URL, the published
+`manifest.json` is written from the runs in this directory: it binds the hosted URL, the published
 commit `b050f991`, the built commit `93eee30`, this working commit `df9608c4`, the local
 `sourceSha256`/`buildSha256`, every run with its timestamp and result, the four screenshot hashes, the
 `liveUrlLag` record of the two-build gap between this tree and the URL, and the gates that remain
-open. `manifest.template.json` stays as the empty form.
+open. It was written before the 18:02 republish and has not been regenerated, so its `liveUrlLag` and
+its published-commit fields describe the state at 12:56 UTC rather than the state now — the gap they
+record was closed by `gh-pages` `15baf8f0`. `manifest.template.json` stays as the empty form.
 `checksums.txt` covers every file in this directory except itself, plus the three current `dist/`
 files. Verify it with `sha256sum -c docs/evidence/checksums.txt` run from `submissions/withheld` —
 the paths are package-relative, so running it from inside this directory fails every line. It also

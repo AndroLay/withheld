@@ -12,8 +12,8 @@ the second list must not be described as working.
 
 Each of these was checked by running it. The unit, typecheck and build rows were re-run on 2026-09-03;
 the browser and CDP rows are the 12:54–12:56 UTC run of that day, all against one production build.
-That build is two ahead of the live URL, which still serves the build published at 07:44 UTC;
-republishing is the owner's decision and has not been made.
+That build is what the live URL serves: `gh-pages` `15baf8f0` was pushed at 18:02:45 UTC and the three
+served files hashed byte-identical to `dist/` at 18:03 UTC.
 Every run was on Node 26.4.0; see `docs/TESTING.md`, and the Node floor under "Built, not verified".
 
 - `pnpm test` — 136 tests, 136 pass, 0 fail across 9 files. Re-read this figure from the runner rather
@@ -102,9 +102,11 @@ Every run was on Node 26.4.0; see `docs/TESTING.md`, and the Node floor under "B
   implementation under test. All five local run artifacts of 2026-09-03 12:54–12:56 UTC carry one pair:
   source `10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012` and build
   `84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02`, over base SHA
-  `df9608c46c09e979d1b1dd55039ec7fc52402f24`. The two hosted artifacts carry the *published* pair —
-  source `09974722…`, build `3700f7c5…` — because the live URL has not been rebuilt from this tree.
-  Recompute the current pair with
+  `df9608c46c09e979d1b1dd55039ec7fc52402f24`. The two hosted artifacts carry the pair that was published
+  that morning — source `09974722…`, build `3700f7c5…` — and were not re-run after the 18:02 republish,
+  which put build `84eee099…` on the live URL. The source hash has since moved to `b924a27a…`, because
+  `scripts/` gained the MCP bridge, the five host configs and the two harnesses while nothing under
+  `src/` changed. Recompute the current pair with
   `scripts/evidence-meta.mjs`; the per-artifact values are the authoritative ones.
 - **A continuous local failure/recovery journey is now stored.**
   `docs/evidence/failure-recovery.json` records 27/27 checks from clean load through malformed,
@@ -398,11 +400,12 @@ Not started, and not mine to start:
 Settled since this file was first written:
 
 - **Publication of the source and the page.** The owner published: `AndroLay/withheld` is public and
-  readable without credentials — `main` `b050f991`, `gh-pages` `58a3ff42`, both read on 2026-09-03 at
-  09:01 UTC — and `https://androlay.github.io/withheld/` answers HTTP 200 with the built
-  `index.html` from 07:43:21 UTC. Two probes ran against that URL at 07:44 UTC rather than against
-  `127.0.0.1`, and their reports are `docs/evidence/hosted-browser-session.json` (43/43) and
-  `docs/evidence/hosted-webmcp-invocation.json` (19/19). Neither was model-selected.
+  readable without credentials — `main` `9cce7d0a`, `gh-pages` `15baf8f0`, both pushed on 2026-09-03 at
+  18:02 UTC — and `https://androlay.github.io/withheld/` answers HTTP 200 with the built `index.html`
+  from 18:02:45 UTC, byte-identical to `dist/` here. Two probes ran against that URL at 07:44 UTC rather
+  than against `127.0.0.1`, and their reports are `docs/evidence/hosted-browser-session.json` (43/43) and
+  `docs/evidence/hosted-webmcp-invocation.json` (19/19); both describe the build published that morning,
+  and neither was model-selected.
 - **A local browser session.** The owner granted the permission on 2026-09-01 and it has been
   carried out; the last run reported 43 passed / 0 failed.
   See "Verified in a browser", and `docs/RUNBOOK.md` for what the earlier runs found.
@@ -444,8 +447,9 @@ Settled since this file was first written:
   moved, remain in the working tree until they are reviewed and committed. This repository has no
   remote and none of those twelve commits has been pushed. What is published is a *separate* standalone
   repository, `AndroLay/withheld`, whose tree was generated from this package: `93eee30` is the source
-  the live page was built from and `b050f991` is the commit that added the two hosted reports. Neither
-  sha exists in this repository's history, which is why they are named rather than linked.
+  the page served that morning was built from, `b050f991` is the commit that added the two hosted
+  reports, and `9cce7d0a` is this package mirrored into that root on 2026-09-03 at 18:02 UTC. None of
+  those shas exists in this repository's history, which is why they are named rather than linked.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
   list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
   judge's instructions. The live URL and the repository URL are no longer placeholders — both exist and

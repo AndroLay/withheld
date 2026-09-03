@@ -61,7 +61,7 @@ three minutes. See the [Official Rules](https://webmcp.devpost.com/rules).
 | GATE-P2 | instrument exists, but no non-builder session/result is recorded | NOT RUN |
 | Node/CI | stored evidence is Node 26; Node 22/CI has not run | open |
 | Current fresh test run | 136/136 assertions across 9 files, typecheck, build, 43 browser checks, 17 agent-view checks, 19 native dispatch checks, and 27 recovery checks pass on writable Node 26.4.0 | local PASS; Node 22/CI open |
-| Provenance | published as `AndroLay/withheld`, `main` `b050f991` and `gh-pages` `58a3ff42` read anonymously on 2026-09-03; this working package remains dirty against `df9608c4`, so it is ahead of what is published | partly closed |
+| Provenance | published as `AndroLay/withheld`, `main` `9cce7d0a` and `gh-pages` `15baf8f0` pushed on 2026-09-03 at 18:02 UTC; the live URL now serves this tree's build `84eee099…`, while the two hosted reports still describe the build published that morning | partly closed |
 
 ### 2.2 Current classification
 
@@ -76,8 +76,9 @@ rather than incidental: the rebuilt page and the doc corrections here are not co
 hashes and not the base SHA identify the implementation under test. All five run artifacts of
 2026-09-03 12:54–12:56 UTC carry that one pair. They remain local artifacts rather than a final hosted
 manifest, and must be regenerated from the final committed hosted build before an E4 claim. The two
-hosted reports still carry the earlier pair `09974722…` / `3700f7c5…`, which is the build the live URL
-serves; that mismatch is itself a reason the hosted gate cannot be read as covering this source.
+hosted reports still carry the earlier pair `09974722…` / `3700f7c5…`, the build the live URL served
+before the 18:02 republish; they were not repeated against the build now live, and that gap is itself a
+reason the hosted gate cannot be read as covering this source.
 
 ## 3. E4 gates
 

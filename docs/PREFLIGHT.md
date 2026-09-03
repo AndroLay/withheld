@@ -23,9 +23,9 @@ minute to do both.
 
 | requirement | the rules' words | status | whose call |
 | --- | --- | --- | --- |
-| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **present** — <https://androlay.github.io/withheld/>, HTTP 200 re-checked on 2026-09-03 at 10:05 UTC; two probes ran against it at 07:44 UTC, 43/43 and 19/19; and at 10:06 UTC all three served files were confirmed byte-identical to `dist/` as it stood then. The wide layout was rebuilt at 10:56 UTC, so the URL now serves the build **before** this checkout's; the difference is layout only and the same checks pass on both | done, with a republish pending the owner |
+| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **present** — <https://androlay.github.io/withheld/>, HTTP 200 re-checked on 2026-09-03 at 18:03 UTC, and all three served files confirmed byte-identical to `dist/` in this checkout at that minute, so the URL serves this tree's build `84eee099…`. Two probes ran against the URL at 07:44 UTC, 43/43 and 19/19, but against the build published that morning; they were not re-run after the 18:02 republish | done |
 | Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — the copy to paste is `docs/SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md`, which now carries the verified live URL and repository and leaves `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` as its only placeholder; `docs/SUBMISSION-TEXT.md` is the retained longer draft and carries both URLs too | mine |
-| Public repository | source, assets and instructions "required for the project to be functional" | **present** — `AndroLay/withheld`, `main` `b050f991`, `gh-pages` `58a3ff42`, read without credentials on 2026-09-03 at 09:01 UTC | done |
+| Public repository | source, assets and instructions "required for the project to be functional" | **present** — `AndroLay/withheld`, `main` `9cce7d0a`, `gh-pages` `15baf8f0`, pushed on 2026-09-03 at 18:02 UTC | done |
 | Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | file present in the published tree; whether GitHub's About panel displays it is for the owner to confirm on the repository page | both |
 | A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — nine tools at `src/tools/webmcp.ts:355-606`, registered at `:762` | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
@@ -39,11 +39,10 @@ minute to do both.
 Items 1 and 2 are done, by the owner, on 2026-09-03. What is left below is not started, and each is
 an outward-facing act the owner reserves.
 
-1. **A public repository.** Done. `AndroLay/withheld` is public: `main` `b050f991`, `gh-pages`
-   `58a3ff42`, both read anonymously on 2026-09-03 at 09:01 UTC. The published source is commit
-   `93eee30`, which is the `gitSha` inside the two hosted reports; `b050f991` is the commit that added
-   those reports. This working package is still dirty against `df9608c4`, so it holds doc corrections
-   that are not in the published tree yet.
+1. **A public repository.** Done. `AndroLay/withheld` is public: `main` `9cce7d0a`, `gh-pages`
+   `15baf8f0`, both pushed on 2026-09-03 at 18:02 UTC. The two hosted reports carry `gitSha` `93eee30`,
+   the commit the live page was built from that morning; `b050f991` is the commit that added those
+   reports, and `9cce7d0a` is this tree mirrored into the published root.
 2. **Hosting.** Done. `https://androlay.github.io/withheld/` answers HTTP 200, serving a 988-byte
    `index.html` last modified 2026-09-03 at 07:43:21 UTC. The subpath assumption held with no rebuild:
    `vite.config.ts` sets `base: "./"`, `dist/index.html` emits `./assets/…`, and the hosted browser
@@ -109,15 +108,14 @@ neither fact lowers the entry below what the rules require.
   cautions: the sheet hashes `dist/` by filename, so any rebuild breaks it and it must be the last
   thing regenerated before publishing; and the unit-test count moves whenever a test file does, so
   re-read it from `node --run test` rather than from this line.
-- **The live URL is two builds behind this tree, and that is the only open item on the delivery side.**
-  The app shell was built at 10:56 UTC and four pieces of copy at 12:16 UTC; the URL still serves source
-  `09974722…` / build `3700f7c5…`. The differences are the scrolling columns and five added sentences —
-  no tool, contract or fixture changed — and both later builds pass the whole local suite, so nothing
-  here is broken. But a judge opening the URL today sees the earlier arrangement without those
-  sentences, and the two hosted reports in `docs/evidence/` describe that build rather than this one.
-  Only the browser session and the WebMCP dispatch were ever repeated against the URL, so 43/43 and
-  19/19 are true of both builds while 17/17 and 27/27 are local figures. Republishing is the owner's
-  decision.
+- **The live URL now serves this tree's build, and the delivery side is closed.** `gh-pages` `15baf8f0`
+  replaced the earlier build at 18:02:45 UTC on 2026-09-03, and at 18:03 UTC all three files the URL
+  returns hashed byte-identical to `dist/` here — build `84eee099…`, the build the five local artifacts
+  bind to. What the republish dates is the two hosted reports: they describe source `09974722…` / build
+  `3700f7c5…` and were not re-run afterwards, so 43/43 and 19/19 are delivery proof for that morning's
+  build rather than for the one now live, while 17/17 and 27/27 remain local figures. The difference
+  between the two builds is the scrolling columns and five added sentences — no tool, contract or
+  fixture changed.
 - **Blocked evidence is recorded.** `docs/evidence/` contains explicit blocked/not-run artifacts
   for hosted browser, hosted WebMCP, natural-language replay, GATE-P2, manual accessibility, and
   performance. These are not substitutes for the missing gates.

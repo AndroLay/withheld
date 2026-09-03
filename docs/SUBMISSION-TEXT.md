@@ -6,15 +6,15 @@
 
 **One blank only the owner can fill:** the demo video. Script in [`VIDEO-SCRIPT.md`](./VIDEO-SCRIPT.md).
 The live URL and the repository are filled in below and were re-read without credentials on 2026-09-03:
-HTTP 200 serving the app, `main` at `b050f991`, `gh-pages` at `58a3ff42`.
+HTTP 200 serving the app, `main` at `9cce7d0a`, `gh-pages` at `15baf8f0`.
 
-**One gate.** The published build is behind this machine's. The live URL serves
-`assets/index-JsqLqLgl.js`; `dist/` here is `assets/index-LG0K2zXZ.js` — 1 702 bytes apart across 15
-changed source files, because the on-screen copy was tightened after the hosted verification at 07:44 UTC.
-Every judge-facing control named below exists in **both** bundles, so the testing steps work against the
-live URL as it stands; what is not live is the newer wording. Publish before pasting, or trim the sentences
-that describe it. §7.2 treats a mismatch between description, source, video and deployment as an
-eligibility risk.
+**That gate is closed.** The live URL now serves `assets/index-LG0K2zXZ.js`, the same bundle as `dist/`
+here: republished at 18:02:45 UTC on `gh-pages` `15baf8f0`, and all three served files hashed
+byte-identical to `dist/` at 18:03 UTC. Every judge-facing control named below, and the newer on-screen
+wording, is live. What has not been repeated against this build is the pair of hosted probes from
+07:44 UTC — they describe the bundle the site served that morning. §7.2 treats a mismatch between
+description, source, video and deployment as an eligibility risk; description, source and deployment now
+agree, and the video is the remaining blank.
 
 **§8.2 coverage, so eligibility is checkable:** (1) why WebMCP fits → *Inspiration*, final two paragraphs;
 (2) better UX → *What it does*, "What that changes"; (3) what a person and an agent can do together →
@@ -232,7 +232,7 @@ GitHub repo:   https://github.com/AndroLay/withheld
 ```
 
 Both were re-read without credentials on 2026-09-03: the live URL answers HTTP 200 serving the app, and the
-repository is public with `main` at `b050f991` and `gh-pages` at `58a3ff42`.
+repository is public with `main` at `9cce7d0a` and `gh-pages` at `15baf8f0`.
 
 ## Image gallery
 
@@ -337,11 +337,10 @@ https://github.com/AndroLay/withheld
 Public, and the license requirement is met: `LICENSE` is a complete **MIT License** at the repository root, and
 GitHub detects it — "MIT license" is shown in the About sidebar at the top of the repository page, which is
 exactly what the field asks for. There is also a `SECURITY.md` with a linked security policy. Read without
-credentials on 2026-09-03; `main` at `b050f991`, `gh-pages` at `58a3ff42`.
+credentials on 2026-09-03; `main` at `9cce7d0a`, `gh-pages` at `15baf8f0`.
 
-**Caveat:** the published bundle is 1 702 bytes behind this source across 15 changed files — later copy
-tightening, no behaviour change, every control named above present in both. Publish or trim; see the gate at
-the top.
+**No caveat left here:** the published bundle and this source are the same build as of 18:02:45 UTC, and
+the three served files hashed byte-identical to `dist/` a minute later.
 
 ## Which agent(s) or client(s) did you test your WebMCP tools with?
 

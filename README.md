@@ -37,7 +37,8 @@ page.
 12:16 UTC: thirteen answers marked, five held for a person, nine staged and waiting on the human-only
 press, nine tools registered and no call arrived. At 1440px the page is one viewport tall and each
 column scrolls on its own, so the capture is a 1440×900 viewport rather than a full-page scroll. The
-live URL is two builds behind this capture; `docs/evidence/README.md` says which.</sub>
+live URL serves this build: at 18:03 UTC the three files it returns hashed byte-identical to `dist/` in
+this checkout.</sub>
 
 > Agent brings language. The page keeps arithmetic and authority.
 
@@ -248,36 +249,39 @@ Measured on this machine against the current build, on Node `26.4.0` and Chromiu
 | The agent's view, swept in a browser | 17 / 17 — none of the thirteen figures the page owns appears in its `innerText` or anywhere in its DOM, at 1440px and 420px, against 143 elements carrying them in the teacher's view of the same session | `VERIFIED_ARTIFACT` |
 | Native WebMCP dispatch | 19 / 19 — nine tools enumerated through Chromium's own `WebMCP` domain and seven of them dispatched into the page in this run, plus the injection, the duplicate-operation retry, the stale-revision and unknown-rubric-line refusals, and `confirm_release` coming back *Tool not found* | `VERIFIED_ARTIFACT`, deterministic CDP |
 | Failure and recovery journey | 27 / 27 | `VERIFIED_ARTIFACT`, deterministic CDP |
-| Hosted browser harness, on the live URL | 43 / 43 at 07:44:04 UTC on the published build — same enforced CSP, 593 contrast pairs, 1139-node tree, 4 requests and none off-site, over HTTPS from GitHub Pages | `VERIFIED_ARTIFACT` |
-| Hosted WebMCP dispatch, on the live URL | 19 / 19 at 07:44:25 UTC on the published build — nine tools present on `document.modelContext`, the same seven dispatched into the page's own handlers | `VERIFIED_ARTIFACT`, deterministic CDP |
+| Hosted browser harness, on the live URL | 43 / 43 at 07:44:04 UTC against the build the site served then — same enforced CSP, 593 contrast pairs, 1139-node tree, 4 requests and none off-site, over HTTPS from GitHub Pages. Not re-run since the 18:02 republish | `VERIFIED_ARTIFACT` |
+| Hosted WebMCP dispatch, on the live URL | 19 / 19 at 07:44:25 UTC against the build the site served then — nine tools present on `document.modelContext`, the same seven dispatched into the page's own handlers. Not re-run since the 18:02 republish | `VERIFIED_ARTIFACT`, deterministic CDP |
+| The published bytes | HTTP 200 and sha256-identical to `dist/` for all three files at 18:03 UTC, on `gh-pages` `15baf8f` | `VERIFIED_RUN` |
 | Natural-language model replay | not run — the harness exists (`scripts/nl-replay.mjs`, three prompts naming no tool, the choices read out of the bridge transcript rather than out of the model's prose) and has never been executed; `docs/evidence/natural-language-replay-blocked.json` stands | `UNKNOWN` |
 | MCP host attached to the bridge | not run — `scripts/mcp-bridge.mjs` and five client configs are on disk and parse; no host has been pointed at them | `UNKNOWN` |
 | Independent user validation | not run — the protocol is written and waiting in `docs/GATE-P2.md`. A five-reviewer simulated panel was run instead and is recorded as `INFERENCE` in `docs/evidence/simulated-panel-2026-09-03.json`; it is a critique instrument, not a user study | `UNKNOWN` |
 | Screen reader and real-device review | not run | `ENVIRONMENT_BLOCKED` |
 | Controlled performance baseline | not run | `UNKNOWN` |
 
-Do not combine those classes. A local deterministic CDP run is engineering proof; the hosted run is
-delivery proof, and it exists — two probes drove `https://androlay.github.io/withheld/` on 2026-09-03
+Do not combine those classes. A local deterministic CDP run is engineering proof; a hosted run is
+delivery proof, and one exists — two probes drove `https://androlay.github.io/withheld/` on 2026-09-03
 at 07:44 UTC and are saved as `docs/evidence/hosted-browser-session.json` and
 `docs/evidence/hosted-webmcp-invocation.json`. A model choosing a tool by itself is a third thing that
 neither of them shows, and it has not happened: both hosted reports say so in their own words, one
 "not model-selected", the other "No model was involved." The five local artifacts in `docs/evidence/`
-were regenerated on 2026-09-03 at 12:54–12:56 UTC and all bind to one build — source `10fb7f7c…`,
-build `84eee099…` — which is the tree in this checkout.
+were regenerated on 2026-09-03 at 12:54–12:56 UTC and all bind to build `84eee099…`.
 
-The two hosted reports bind to an **earlier** pair, source `09974722…` / build `3700f7c5…`, at commit
-`93eee30`, published as `b050f991`. That is still what the live URL serves. At 10:06 UTC the three
-files it serves — `index.html`, one CSS bundle and one JS bundle — were downloaded and hashed and were
-byte-identical to `dist/` as it then stood, so `build 3700f7c5…` is a statement about the page a judge
-opens today. The page has been rebuilt twice since — the app shell at 10:56 UTC and four pieces of copy
-at 12:16 UTC — so this checkout is **two builds ahead** of the URL. Neither rebuild touched the tools,
-the contracts or the fixtures: the differences are the scrolling columns and five added sentences. Both
-builds were re-checked locally, and the two hosted probes ran only against the published one, so read
-43/43 and 19/19 as true of both and 17/17 and 27/27 as local figures only. Closing the gap is a
-republish, and that is the owner's decision. The figures in the table above are read from those
-artifacts, and `docs/evidence/checksums.txt` verifies clean from `submissions/withheld`. Rebuilding
-changes the hashed `dist/` filenames, so the checksum sheet is the last thing to regenerate before
-publishing again.
+**The live URL now serves that build.** At 18:02:45 UTC `gh-pages` `15baf8f` replaced what the site had
+served since 07:43, and at 18:03 UTC the three files it returns — a 988-byte `index.html`, a
+31,862-byte CSS bundle and a 269,076-byte JS bundle — were downloaded and hashed byte-identical to
+`dist/` in this checkout, HTTP 200 on each, over HTTPS from GitHub Pages. So the local figures in the
+table above were measured against the same bytes the URL returns today. What did move is the source
+hash: `scripts/` gained the bridge, the five host configs and the two harnesses, so source is
+`b924a27a…` where those artifacts record `10fb7f7c…`. Nothing under `src/`, `index.html`,
+`vite.config.ts` or the tsconfigs changed, which is why the build hash and the hashed `dist/` filenames
+did not, and why `docs/evidence/checksums.txt` still verifies clean from `submissions/withheld` without
+regenerating.
+
+The republish dates one thing: the two hosted probes. They ran against the earlier published build
+`3700f7c5…` — source `09974722…`, commit `93eee30`, published as `b050f991` — and have **not** been
+re-run against what is live now, so read those two reports as delivery proof for that build rather than
+for this one. The difference between the two is the scrolling columns and five sentences of copy; it
+touched no tool, no contract and no fixture.
 
 ## On a phone
 
@@ -410,20 +414,22 @@ configs, the result shape, the refusal codes and the flags,
 
 ## Status
 
-Published and live. `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at 09:01
-UTC, serving a 988-byte `index.html` last modified at 07:43:21 UTC; the public repository
-`AndroLay/withheld` read back `main` at `b050f991` and `gh-pages` at `58a3ff42` at the same minute.
-Two probes have now run against that URL rather than against `127.0.0.1`, and their reports are in
-this repository: `docs/evidence/hosted-browser-session.json` (43 checks, 43 passed, 07:44:04 UTC) and
-`docs/evidence/hosted-webmcp-invocation.json` (19 checks, 19 passed, 07:44:25 UTC), both in
-Chrome/151.0.7922.137. Still absent: a Devpost entry, a demo video, and any run in which a model
+Published and current. `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at 18:03
+UTC, serving a 988-byte `index.html` last modified at 18:02:45 UTC, and all three files it returns
+hashed byte-identical to `dist/` in this checkout; the public repository `AndroLay/withheld` holds
+`main` at `9cce7d0a` and `gh-pages` at `15baf8f0`. Two probes have run against that URL rather than
+against `127.0.0.1` — `docs/evidence/hosted-browser-session.json` (43 checks, 43 passed, 07:44:04 UTC)
+and `docs/evidence/hosted-webmcp-invocation.json` (19 checks, 19 passed, 07:44:25 UTC), both in
+Chrome/151.0.7922.137 — but against the build the site served that morning, not against this one. Still
+absent: a Devpost entry, a demo video, any MCP host attached to the bridge, and any run in which a model
 chose one of these tools from a sentence.
 
 | | |
 | --- | --- |
-| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `main` `b050f991`, `gh-pages` `58a3ff42`, read 2026-09-03 09:01 UTC |
-| Hosted URL | <https://androlay.github.io/withheld/> — HTTP 200, GitHub Pages, verified 2026-09-03 09:01 UTC |
-| Hosted evidence | 43/43 browser checks and 19/19 tool dispatches on the live URL, both at 07:44 UTC, neither model-selected |
+| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `main` `9cce7d0a`, `gh-pages` `15baf8f0`, pushed 2026-09-03 18:02 UTC |
+| Hosted URL | <https://androlay.github.io/withheld/> — HTTP 200, GitHub Pages, serving build `84eee099…`, verified 2026-09-03 18:03 UTC |
+| Hosted evidence | 43/43 browser checks and 19/19 tool dispatches on the live URL at 07:44 UTC, neither model-selected, neither re-run after the 18:02 republish |
+| Agent attachment | bridge, five host configs and two harnesses on disk; none executed, no host attached |
 | Data | synthetic, alias-only fixtures; no real student data |
 | Runtime | no backend, database, login, persistence, analytics, or outbound request |
 | Internal evidence gate (E4) | **not achieved** — model replay, independent validation and the video are open; the hosted run is now closed |

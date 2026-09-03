@@ -6,8 +6,8 @@
 
 **Owner must still fill:** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` — the demo video is the one field with
 nothing behind it. The live URL and the repository are filled in below and were verified on 2026-09-03
-at 09:01 UTC: `https://androlay.github.io/withheld/` answered HTTP 200 and `AndroLay/withheld` read back
-`main` at `b050f991` and `gh-pages` at `58a3ff42` without credentials.
+at 18:03 UTC: `https://androlay.github.io/withheld/` answered HTTP 200, serving files byte-identical to
+`dist/`, and `AndroLay/withheld` holds `main` at `9cce7d0a` and `gh-pages` at `15baf8f0`.
 
 ## Title
 
@@ -169,9 +169,9 @@ plainly before submission.
 
 ## Submission fields
 
-- **Live URL:** <https://androlay.github.io/withheld/> — HTTP 200 on 2026-09-03 at 09:01 UTC.
-- **Public repository:** <https://github.com/AndroLay/withheld> — `main` at `b050f991`, read anonymously
-  at the same minute.
+- **Live URL:** <https://androlay.github.io/withheld/> — HTTP 200 on 2026-09-03 at 18:03 UTC.
+- **Public repository:** <https://github.com/AndroLay/withheld> — `main` at `9cce7d0a`, `gh-pages` at
+  `15baf8f0`, pushed the minute before.
 - **Demo video (public YouTube, < 3 minutes):** `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` — the script and
   shot list are in `docs/VIDEO-SCRIPT.md`; no recording exists.
 - **License/rights:** MIT code; confirm that every final visual, voice, music, and video element is

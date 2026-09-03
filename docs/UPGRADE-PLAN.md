@@ -90,7 +90,7 @@ findings; do not treat them as current source status.
 | Re-run penuh hari ini | **closed for Node 26 writable environment** | 136 tests, typecheck, build, 43 browser checks, 17 agent-view checks, 19 WebMCP checks, and 27 local recovery checks pass; Node 22/CI remains open |
 | Node 22/CI | belum dijalankan | package/CI compatibility masih inferred dari konfigurasi |
 | Screen-reader listening | belum dilakukan | AX tree dan named controls bukan bukti bahwa urutan/wording terdengar masuk akal |
-| Public repo/license detection | **closed untuk repo** — `AndroLay/withheld` publik, `main` `b050f991`, `gh-pages` `58a3ff42`, dibaca anonim 2026-09-03; About/license badge belum dikonfirmasi pemilik | requirement repository sudah tertutup; tampilan About tinggal dilihat pemilik di halaman repo |
+| Public repo/license detection | **closed untuk repo** — `AndroLay/withheld` publik, `main` `9cce7d0a`, `gh-pages` `15baf8f0`, dipush 2026-09-03 18:02 UTC; About/license badge belum dikonfirmasi pemilik | requirement repository sudah tertutup; tampilan About tinggal dilihat pemilik di halaman repo |
 | Confirmed-release receipt | **closed in source and fresh browser artifact** | confirm/decline add human receipt events with exact revisions; repeat on hosted build |
 | Persistence/undo setelah confirm | tidak ada dan sengaja demikian | bukan defect otomatis; jangan ditambah tanpa alasan produk dan waktu |
 
