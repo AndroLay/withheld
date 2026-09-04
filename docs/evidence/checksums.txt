@@ -1,35 +1,43 @@
-# SHA256 checksums generated 2026-09-03T13:08:46Z.
-# The source/build tree hashes below use scripts/evidence-meta.mjs and match the
-# sourceSha256/buildSha256 recorded inside each run artifact in this directory.
+# SHA256 checksums for the frozen evidence in this directory and the published bundle in dist/.
+# Fully regenerated 2026-09-04T05:45:29Z, after the release changed twice on 2026-09-04: src/App.tsx's footnote was
+# corrected to match what the model replay actually shows, and the four browser probes gained a
+# busy-port guard. Both moved the source tree hash; the footnote change also renamed the hashed dist
+# asset. Every local run in this directory was re-run against this release. Two classes are
+# deliberately not: the two hosted probes stay bound to the build the live URL was serving when they
+# ran, and the 12:54:49Z local dispatch pair stays bound to the build it read.
+# The source/build tree hashes below come from scripts/evidence-meta.mjs. They are comments, not
+# entries, so the verify command reports only the 29 file entries and no warning.
 # The individual dist hashes are ordinary file SHA256 values. Verify from submissions/withheld:
 #   sha256sum -c docs/evidence/checksums.txt
-source-tree 10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012
-build-tree 84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02
+# source-tree a682d3d7e03b3e9552209d4c94d2c6e2b2038a0889c4d35ab5a344e1c4f3e84d
+# build-tree  2a6264beb0991a87d630b63c7f592ac888e719aced9cc67262fe65b275f8a8d2
 
-015a8c3df9b4b083ab28dd39d055c1719acdfc2cf8579db659eb07f8d2683d78  docs/evidence/README.md
-d028fa990fb1ae719bf25f96c91f84187722c0e21517f010ff8b86dfe3a53b58  docs/evidence/accessibility-manual-not-run.json
-122990e8857849351c1cb7411d72ba4531ef6016b6f3067a6d1c92a8e3f20f27  docs/evidence/agent-view-sweep.json
+c183c4f23e6f56c982d7e8d470af17573dbdf0f29299b2d47bcc6642adca175a  docs/evidence/README.md
+e488cf0e6659d1034685e5176ba4fa6ec42afbf98b06a8a194b6f8cf1e55e794  docs/evidence/accessibility-manual-not-run.json
+0cd31a9687221b3c16408dc5a6a3b189d31884bc810f92498c81070ee97f009b  docs/evidence/agent-view-sweep.json
 5a73a65ea36a9edcda8c10e10e470509ca7777103db79060f5563ff7293cf584  docs/evidence/browser-1440-marked.png
 d0a4f62d90f7c6e41ae9ea0768fca19cb91757f3635d1ccfaf7e804e0d2cedce  docs/evidence/browser-1440-staged.png
-57f420dbb531eac10bffd14184613051ca0c6f114da0e713fb099d97e620132e  docs/evidence/browser-420-staged.png
+0b9f7a7a1275611e52664745cb71bba223c321bbf172dd8a27abe7c73f9b6ced  docs/evidence/browser-420-staged.png
 61655a251087de1cab7a8d940cf354256fd965a5be34565ac7fcceec6c5323e2  docs/evidence/browser-fold-1487.png
-584fef39f9ef945227a65e5d29f1ed53a63def0051eec4534179ef9842d8c026  docs/evidence/browser-session.json
-ecc959db5ad53cddb4baa0e4dbb8b1a1c214df4e2467772acec4157a2e11c130  docs/evidence/failure-recovery.json
-f31e4845ef4a0b6071d0f5e1633f1c7841734d525acf63368ac94058204930da  docs/evidence/gate-p2-not-run.json
+cc51c21ef2b2a352b23022d52241a46e1799a3d5066614b7efc5549f09bee2ed  docs/evidence/browser-session.json
+80c0f7ed8e6e9abbd7492197faeff37173e500cb5c6f53d8f30ecca1b2b1c315  docs/evidence/failure-recovery.json
+dbf383774dcfed962943c4ce97d50c4d8b8322bcab12c8223f84edb698e9722d  docs/evidence/gate-p2-not-run.json
+284bc4044053b7a86e5fe9c5144d2e3947786916dca40e27389e2c2369f1d8ff  docs/evidence/harness/multi-agent-simulation.mjs
 2a8bed4a40ae6598f63c189e568043176338566c1fdcebe11dc5f228398464b6  docs/evidence/hosted-browser-session-blocked.json
-fa75ed979a6d6b5eaa3efd7513a9860f00498ea2fdd9a6a68f94bdddb1a05d3a  docs/evidence/hosted-browser-session.json
+5be33eb64b801fc7e3da08c06589022324fc49cc74afff948997f399b3b39fa5  docs/evidence/hosted-browser-session.json
 7fe81d40d86851962e27a6e53cf12e20fab8a73e28eb99f30c71b3d471d7e58b  docs/evidence/hosted-webmcp-invocation-blocked.json
-2c0e25b7f1dea8aa1913796f9cbff9ef63f3c7bc3279d22e7280377fcfdcb6c8  docs/evidence/hosted-webmcp-invocation.json
-e4de970d00e946003ca9c20d1c6ee448c1b24d9d25a2838001ba54aa11b9f901  docs/evidence/manifest.json
+ef45e79d076727560e78f72af81a5cc993833f31f8cb23f02dbf035dbf568d8c  docs/evidence/hosted-webmcp-invocation.json
+af3e583ce0ccd06709fbeade91f4e2298cc894a411c7b3c8ee1c55789448b9de  docs/evidence/local-dispatch-retake-2026-09-03.json
+18682ae933ff25c658346a01fb344d48b55d15d2cdcdef9296432cf8f30c5143  docs/evidence/manifest.json
 cfdc50b68ff496f9ea5adca67c2a749aa1035f492b517052de51d9f51a99ae92  docs/evidence/manifest.template.json
-22c51e3647813e16bdfd1b5b4ddd202b21a0bed63aed3316c558ada943659bf7  docs/evidence/native-registry.json
-852501db01453369955bf90a7887a0ef3ec0261dbf036a3c9e3d045738d9f4b2  docs/evidence/natural-language-replay-blocked.json
+09bb6b0766fbf17496e9cb980cd6f3937ce428ba787e9dc097509654e4ede47e  docs/evidence/multi-agent-simulation.json
+acb5412563d21eb6293de2bbf4d9361eed81a0b9bd387c830853596d6e9c65ad  docs/evidence/native-registry.json
+5da9b7f8085d6476e9c5952c6aa76bcd8cadcb57e70743f90896461fb229c3af  docs/evidence/natural-language-replay-blocked.json
 ed2c01f9e23818ba53c1e3e269dc8c2b5294e07c0afa686ab78af257a0670558  docs/evidence/performance-probe-not-run.json
-d7e04d79397d8ef9be3901f76d507012d50c795d7b89df7c6a1469ee107125ff  docs/evidence/screenshots/README.md
+663e58e9bd42fa7f1c8ba46bf9aa8bdbadb02c66ed7a1f48267a74498652cb1a  docs/evidence/screenshots/README.md
 b9f8b2ed8c0b2ccebab7cd8936af2749d8c26a91629090c23eb27e04366f7a0e  docs/evidence/simulated-panel-2026-09-03.json
-b687f208f7e86a29dd81265590edbd2ae7637e9ed75046af2b3c00ebe2d618ad  docs/evidence/verification-log.md
-1f463a6afed2a06f6db6700af26b9a0aa6f05f6bf9da26206c885e72e7a68413  docs/evidence/webmcp-invocation.json
-
-a9effc1cf855202677e880118997bd541749826d1b042fafd2f075dd25435b13  dist/index.html
+8a1d5c51f9d1465cc37a50ed30b1506da3b7f1e2b56612ed08776762083ac585  docs/evidence/verification-log.md
+de778662f4a2c8308bc5372ca98f56132b3c2df8aa14efb58dfd3fba7d34141b  docs/evidence/webmcp-invocation.json
+a9e615160dd85c7da62b1aa15ac71f94ce77329b932cd395f43084e3b71278b0  dist/index.html
 9c2e5a99619102ae6c47562666039a5d8c9fd48db0c8d763ee7b184f03f4f458  dist/assets/index-DI6vQgfk.css
-cf9369bbb914128a3023b1d269ecd1ffb797f28c2703bcac94637f26e350130b  dist/assets/index-LG0K2zXZ.js
+2592209ba768dbc7e8263d7904c5d762ed3076a755395088752d28e172211755  dist/assets/index-MbNE9IES.js

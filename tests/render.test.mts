@@ -1143,7 +1143,11 @@ test("the whole page renders as one tree", () => {
     assert.equal(times(html, region), 1, `the page draws ${region} more than once, or not at all`);
   }
   assert.equal(times(html, "slab"), 3, "the audit, the comparison, and the limits");
-  assert.ok(html.includes("No natural-language model has driven these tools here"));
+  assert.ok(html.includes("A model has chosen among these tools and written their inputs"));
+  assert.ok(
+    html.includes("not through a host that found this page by itself"),
+    "the footnote must keep the limit attached to the claim",
+  );
 
   // One band, above the columns rather than inside one of them, and it did not take the page's `h1`
   // off the marking surface.

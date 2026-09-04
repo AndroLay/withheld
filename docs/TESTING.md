@@ -434,6 +434,18 @@ check.
 quote. `docs/PROGRESS.md` keeps the five classes of evidence apart, and the two empty rows — a model,
 and a hosted URL — stay empty.
 
+## The multi-agent workflow simulation
+
+`docs/evidence/harness/multi-agent-simulation.mjs` assigns bounded responsibilities to recognition,
+safety, adversarial recovery, release staging, audit and a page-owned human gate. It calls the real
+Withheld tool registrations over one shared in-memory session and writes
+`docs/evidence/multi-agent-simulation.json`.
+
+The current run passes **20/20 checks**: redaction, injection quarantine, stale and duplicate
+refusals, malformed input, stage-only release, human decline, re-stage, human confirmation, receipt
+continuity and post-release refusal. It is a deterministic `SIMULATED_RUN`, not natural-language
+model evidence, native-host discovery, user validation or impact measurement.
+
 ## The local failure/recovery journey
 
 `scripts/failure-recovery.mjs` is a third browser instrument. It uses the same native WebMCP CDP

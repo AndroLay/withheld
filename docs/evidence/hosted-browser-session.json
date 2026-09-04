@@ -2,22 +2,22 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "hosted production build in flagged Chromium; not model-selected",
-  "ranAt": "2026-09-03T07:44:04.631Z",
+  "ranAt": "2026-09-03T18:59:34.561Z",
   "evidence": {
-    "gitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
+    "gitSha": "bb4c82ad2a08948d5d3b5ba6b3802bc86a6c6457",
     "workingTreeDirty": false,
-    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "sourceSha256": "b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",
       "--enable-features=WebMCPTesting"
     ],
     "artifactSha256": {
-      "docs/evidence/browser-1440-marked.png": "e4c1ffd1bc67d03390a772d07ed879438380bc6c5566b0fa01f8497c7a3c3b3a",
-      "docs/evidence/browser-fold-1487.png": "36828c83585503795192b6307fdb37b9c2ff4106e8e4e8126f257db27e70f94b",
-      "docs/evidence/browser-1440-staged.png": "2bb50b8dfc2d9632f3aea2a8fe5b0f8007a1a1c0636099e9fafe1dcf7b3409b7",
-      "docs/evidence/browser-420-staged.png": "f2f8625e2435cd63db3c3319e1dfadffbf1efaa8a184acdd78e4abcba6ac6fe5"
+      "docs/evidence/browser-1440-marked.png": "5a73a65ea36a9edcda8c10e10e470509ca7777103db79060f5563ff7293cf584",
+      "docs/evidence/browser-fold-1487.png": "61655a251087de1cab7a8d940cf354256fd965a5be34565ac7fcceec6c5323e2",
+      "docs/evidence/browser-1440-staged.png": "d0a4f62d90f7c6e41ae9ea0768fca19cb91757f3635d1ccfaf7e804e0d2cedce",
+      "docs/evidence/browser-420-staged.png": "57f420dbb531eac10bffd14184613051ca0c6f114da0e713fb099d97e620132e"
     }
   },
   "browser": "Chrome/151.0.7922.137",
@@ -79,7 +79,7 @@
     {
       "name": "no paragraph is crushed into a narrow column",
       "passed": true,
-      "detail": "narrowest 200px of 26: \"The page owns the decision.\""
+      "detail": "narrowest 200px of 23: \"The page owns the decision.\""
     },
     {
       "name": "the audit draws two rails per marked hold",
@@ -134,7 +134,7 @@
     {
       "name": "every text pair on the page meets its WCAG threshold",
       "passed": true,
-      "detail": "593 text pairs, worst 4.8:1 on p.ifnobody__note (needs 4.5)"
+      "detail": "599 text pairs, worst 4.8:1 on p.ifnobody__note (needs 4.5)"
     },
     {
       "name": "every control and heading in the accessibility tree arrives with a name",
@@ -204,7 +204,7 @@
     {
       "name": "pressing it opens the whole contract, and pressing it again closes it",
       "passed": true,
-      "detail": "110px shut, 2501px open, 9 of 9 rows"
+      "detail": "110px shut, 2053px open, 9 of 9 rows"
     },
     {
       "name": "the page raised no policy violation of its own",
@@ -354,7 +354,7 @@
         }
       ],
       "prose": {
-        "count": 26,
+        "count": 23,
         "narrowest": {
           "width": 200,
           "text": "The page owns the decision."
@@ -417,7 +417,7 @@
         "columns": "322px 761px 357px"
       },
       "band": {
-        "height": 74,
+        "height": 81,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -496,7 +496,7 @@
         }
       ],
       "prose": {
-        "count": 29,
+        "count": 28,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -561,7 +561,7 @@
         "columns": "322px 808px 357px"
       },
       "band": {
-        "height": 74,
+        "height": 81,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -640,7 +640,7 @@
         }
       ],
       "prose": {
-        "count": 32,
+        "count": 31,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -711,7 +711,7 @@
         "columns": "322px 761px 357px"
       },
       "band": {
-        "height": 74,
+        "height": 81,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -790,7 +790,7 @@
         }
       ],
       "prose": {
-        "count": 33,
+        "count": 32,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -863,7 +863,7 @@
         "columns": "322px 761px 357px"
       },
       "band": {
-        "height": 74,
+        "height": 81,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -942,7 +942,7 @@
         }
       ],
       "prose": {
-        "count": 34,
+        "count": 33,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1017,7 +1017,7 @@
         "columns": "322px 761px 357px"
       },
       "band": {
-        "height": 74,
+        "height": 81,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -1096,7 +1096,7 @@
         }
       ],
       "prose": {
-        "count": 35,
+        "count": 34,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1173,7 +1173,7 @@
         "columns": "none"
       },
       "band": {
-        "height": 217,
+        "height": 299,
         "aboveColumns": true,
         "counts": 4,
         "countRows": 1,
@@ -1252,7 +1252,7 @@
         }
       ],
       "prose": {
-        "count": 15,
+        "count": 17,
         "narrowest": {
           "width": 1,
           "text": "13 of 14 answers marked. 5 held back for"
@@ -1290,9 +1290,9 @@
     }
   },
   "contrast": {
-    "pairs": 593,
+    "pairs": 599,
     "skippedForImage": 5,
-    "skippedInvisible": 453,
+    "skippedInvisible": 455,
     "worst": {
       "ratio": 4.8,
       "needs": 4.5,
@@ -1324,14 +1324,14 @@
     },
     "shown": {
       "open": true,
-      "column": 2501,
+      "column": 2053,
       "rows": 9,
       "rowsWithBoxes": 9
     },
     "closedAgain": false
   },
   "accessibility": {
-    "nodes": 1139,
+    "nodes": 1106,
     "named": 57,
     "unnamed": [],
     "outline": [
@@ -1478,10 +1478,10 @@
     "afterProbes": 2
   },
   "screenshots": {
-    "marked": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-marked.png",
-    "fold": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-fold-1487.png",
-    "staged": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-1440-staged.png",
-    "narrow": "/tmp/withheld-publish.fYwgy5/docs/evidence/browser-420-staged.png"
+    "marked": "/home/andro/dev/projects/webmcp-challenge/submissions/withheld/docs/evidence/browser-1440-marked.png",
+    "fold": "/home/andro/dev/projects/webmcp-challenge/submissions/withheld/docs/evidence/browser-fold-1487.png",
+    "staged": "/home/andro/dev/projects/webmcp-challenge/submissions/withheld/docs/evidence/browser-1440-staged.png",
+    "narrow": "/home/andro/dev/projects/webmcp-challenge/submissions/withheld/docs/evidence/browser-420-staged.png"
   },
   "notClaimed": "This run reads the WebMCP registry; it does not let a model call a tool. No browser agent has driven these tools. Contrast here is arithmetic on what the cascade composed, not a judgement about whether the page reads well; the accessibility tree is what a screen reader would be handed, not a recording of one speaking. Wording has been read by nobody but the author."
 }

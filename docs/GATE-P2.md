@@ -1,9 +1,22 @@
 # GATE-P2 — is the problem real to anyone but the author?
 
-**Status: NOT RUN.** `docs/evidence/gate-p2-not-run.json` records the reason and rerun protocol.
-This file is the instrument, not the result. Nothing in this repository should
-be read as evidence about a teacher's workload until the "Result" section at the foot has been filled
-in with someone's actual answers.
+**Status: WITHDRAWN as a blocking gate, 2026-09-04. Never run.** This was our own gate, set above the
+hackathon's own bar, and no participant who fits its screen was reachable inside the working session.
+Two documents took its place, and they cover different halves of it.
+[`GATE-P2-SIMULATION.md`](GATE-P2-SIMULATION.md) takes the four human questions below, and the first
+thing it says is that a simulation cannot close them: two of the four cannot be simulated at all, and
+the other two come back in the author's own words. `docs/evidence/gate-p2-not-run.json` still records
+`"status": "NOT_RUN"`.
+
+The other half — the workflow the gate was meant to watch someone use — is the bounded role-based run in
+[`MULTI-AGENT-SIMULATION.md`](MULTI-AGENT-SIMULATION.md), with its generated
+[`multi-agent-simulation.json`](evidence/multi-agent-simulation.json). It tests shared-state hand-off,
+refusal recovery and the human-only release boundary; it does not pretend to answer the human
+questions below.
+
+Everything below is preserved as the instrument, unfilled. It is not a result. Nothing in this
+repository should be read as evidence about a teacher's workload — the "Result" section at the foot
+still has nobody's answers in it, and withdrawing the gate did not change that.
 
 It exists because the gate cannot be closed by writing code, and because "ask a non-builder four
 questions" is the kind of task that never happens if the questions have to be invented on the day.
@@ -23,11 +36,18 @@ has been misread.
 
 ## Who
 
-One person who did not build this and does not need to be a teacher — anyone who has had to grade,
-score, review or triage a pile of similar things against a fixed standard. A marker, a code
-reviewer, an interviewer who has scored a take-home, an admissions reader. Those are backgrounds a
-participant may come from, not audiences this page claims: the page is written for one persona, the
-instructor marking a class of short answers.
+**One person who has marked a stack of short answers against a rubric by hand within the last year:** a
+teacher, a teaching assistant, a tutor, or an exam marker. The screen is a single question — *"when did
+you last mark a set of short answers against a rubric by hand?"* — and "never" ends the session before it
+starts.
+
+The narrowness is the point. This gate exists to support the weakest axis in the package, which is
+whether the workflow's *owner* can tell what the agent may and may not do. A general software reader
+answers a different question, usually more generously, and a pass from them would not license anything.
+If no one who fits can be found, an adjacent scorer — a code reviewer, an interviewer who has marked a
+take-home, an admissions reader — may run it, but the record must say so in the first line of the result
+and the finding drops to "someone who scores work against a fixed standard", which is a weaker claim than
+this gate is for.
 
 One is enough to run the gate, and three is the sensible ceiling. Each session is one person, one
 pile, recorded separately and quoted verbatim; three separate records are worth more than three
@@ -38,22 +58,26 @@ to. The comprehension half of this gate is destroyed by a prior explanation.
 
 ## Protocol
 
-The two problem questions come **before** the app is opened. The two comprehension questions come
+The persona screen comes first, then the two problem questions **before** the app is opened. The two
+comprehension questions come
 after ninety seconds of looking at it, with no tour and no narration.
 
-1. Ask Q1 and Q2. Write the answers down as they are said, not as they are meant.
-2. Open the page. Say exactly one sentence: *"This is a page for marking a class of short answers,
+1. Screen: *"when did you last mark a set of short answers against a rubric by hand?"* Record the answer;
+   if it is "never", stop and say why in the result.
+2. Ask Q1 and Q2. Write the answers down as they are said, not as they are meant.
+3. Open the page. Say exactly one sentence: *"This is a page for marking a class of short answers,
    and an AI agent can help with it."* Nothing else — no walkthrough, no pointing.
-3. Ninety seconds of silence. They may click anything, including "Mark all from the worked example".
-4. Ask Q3 and Q4.
+4. Ninety seconds of silence. They may click anything, including "Mark all from the worked example".
+5. Ask Q3 and Q4.
 
 **What the observer must not do.** Do not explain, lead, defend, or fill a pause. Do not answer a
 question with the answer — "what does that mean?" gets "what do you think it means?" once, and then
 gets recorded as a failure to communicate. A gate that the observer can talk their way past measures
 the observer.
 
-Running step 2 needs the page open in a browser, and that prerequisite is now met: `pnpm build &&
-pnpm browser` opens `dist/` in a headless Chromium and reports all 43 of its checks green, so the
+Running step 3 needs the page open in a browser, and that prerequisite is now met twice over: `node --run
+build && node --run browser` opens `dist/` in a headless Chromium and reports all 43 of its checks green,
+and the same 43 ran against the live URL on 2026-09-03 at 18:59:34 UTC. So the
 page lays out and responds. What this gate still needs is a person who did not build it — twenty
 minutes of one, which is not something code can supply.
 
@@ -116,18 +140,25 @@ by-hand sheet, generated from `src/data/fixtures.ts` so the wording cannot drift
 1. **By hand, first.** Hand over `docs/GATE-P2-BYHAND.md` — printed, or on screen with the page
    closed. The task, said once: *"Find the answers you would want to look at twice before any of these
    marks went out. You do not have to mark them."* Start a timer. Stop it when they say they are done.
-   Record: the elapsed time, the ids they named, and the ids they did not.
+   Record: the elapsed time, **the number of passes they make over the sheet**, the ids they named, and
+   the ids they did not.
 2. **Then the page**, from `https://androlay.github.io/withheld/`. Same task, same sentence, new timer,
-   and the same silence rule as the protocol above: no tour.
+   and the same silence rule as the protocol above: no tour. Count the steps the same way — every click,
+   every row opened, every view switched.
 3. **Ask, in this order, and write the answers as sentences:** which of the two was easier and why;
    whether anything the page held surprised them; and — only if they have not already said it —
    *"who decides the mark here, and who sends it?"*
+
+**Steps are the measure; time is the context.** A step count is countable from the recording and does
+not depend on how fast someone reads, whether they were interrupted, or how carefully they were thinking.
+A time is a single number about a single afternoon. Report both raw, and lead with the steps.
 
 What to record, all of it verbatim:
 
 | field | why |
 | --- | --- |
-| time by hand, time with the page | the two numbers, as measured, for one pile and one person |
+| steps by hand, steps with the page | the primary measure: two counts, one pile, one person |
+| time by hand, time with the page | context for the counts, as measured — not a saving |
 | ids named by hand | which cases a person finds unaided |
 | ids named with the page | whether the page's five holds match what a person wanted back |
 | ids the page holds that they did not name | the page holding more than a person asked for is a cost, not a win |
@@ -135,10 +166,16 @@ What to record, all of it verbatim:
 | whether they said, unprompted, that the agent cannot score or release | Q3 by another route: if they only say it when asked, the page did not say it |
 
 **One participant is not a rate.** Two timings from one person on one pile are an anecdote with a
-number attached. Write them as "one participant, one pile, N minutes against M minutes" and never as a
-percentage, a speed-up, a saving per week, or a claim about markers in general. If two or three people
+number attached. Write them as "one participant, one pile, N steps in X minutes by hand against M steps
+in Y minutes on the page" and never as a
+percentage, a speed-up, a saving per week, or a claim about markers in general. Four steps against nine
+is a sentence; "56 % fewer steps" is an invention. If two or three people
 run it, write each one separately; do not average them, and do not let three become "users found". The
 honest form of this evidence is a quotation, and the honest sample size is the one that happened.
+
+**Comprehension outranks both counts.** If a participant finishes in half the steps and still cannot say
+that the agent decides nothing and sends nothing, the gate failed. The last row of the table is the
+result; the first two rows are how it was reached.
 
 ## Recording
 
@@ -152,13 +189,21 @@ it is more useful than a pass, because a pass changes nothing about what gets bu
 
 ## Result
 
-Not run. No participant, no date, no answers, and no paired timing. As of 2026-09-03 at 09:30 UTC the
-instrument is complete — four questions, the paired task, and the by-hand sheet — and what is missing
-is a person. Nobody has been asked and nobody has declined; no participant was reachable inside this
-working session, and recruiting one is not something this package can do for itself.
+Not run, and now withdrawn. No participant, no date, no answers, and no paired measurement. As of
+2026-09-03 at 20:31 UTC the instrument was complete — the persona screen, four questions, the paired
+task counted in steps, and the by-hand sheet — and what was missing was a person who fits the screen.
+Nobody was asked and nobody declined; no participant was reachable inside this working session, and
+recruiting one is not something this package can do for itself.
 `docs/evidence/gate-p2-not-run.json` carries the same statement in machine-readable form.
 
-The page is live at `https://androlay.github.io/withheld/`, so step 2 needs no build and no local
+On **2026-09-04** the owner withdrew it as a blocking gate, on the ground that it is an internal gate
+above what the rules ask for, and replaced it with the derivation and transcript in
+[`GATE-P2-SIMULATION.md`](GATE-P2-SIMULATION.md). That file is class `INFERENCE`. It does not fill this
+section, it does not pass or fail any of the four questions, and it licenses no claim about any person.
+The last paragraph of this section is therefore what stands.
+
+The page is live at `https://androlay.github.io/withheld/` and served bytes identical to `dist/` when they
+were last compared at 19:25:19 UTC, so step 3 needs no build and no local
 server — a participant can be handed a URL. That removes the last technical obstacle and leaves only
 the human one.
 

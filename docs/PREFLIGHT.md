@@ -23,9 +23,9 @@ minute to do both.
 
 | requirement | the rules' words | status | whose call |
 | --- | --- | --- | --- |
-| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **present** — <https://androlay.github.io/withheld/>, HTTP 200 re-checked on 2026-09-03 at 18:03 UTC, and all three served files confirmed byte-identical to `dist/` in this checkout at that minute, so the URL serves this tree's build `84eee099…`. Two probes ran against the URL at 07:44 UTC, 43/43 and 19/19, but against the build published that morning; they were not re-run after the 18:02 republish | done |
-| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — the copy to paste is `docs/SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md`, which now carries the verified live URL and repository and leaves `[YOUTUBE_VIDEO_URL_PENDING_OWNER]` as its only placeholder; `docs/SUBMISSION-TEXT.md` is the retained longer draft and carries both URLs too | mine |
-| Public repository | source, assets and instructions "required for the project to be functional" | **present** — `AndroLay/withheld`, `main` `9cce7d0a`, `gh-pages` `15baf8f0`, pushed on 2026-09-03 at 18:02 UTC | done |
+| Live URL | "a working live URL that judges can access using ChatGPT's in-app browser or Google Chrome with WebMCP enabled" | **present** — <https://androlay.github.io/withheld/>, HTTP 200 re-checked on 2026-09-03 at 19:25:19 UTC, and all three served files confirmed byte-identical to `dist/` in this checkout at that minute, so the URL serves this tree's build `84eee099…`. Both probes were re-run against the URL after the republish: 43/43 at 18:59:34 UTC and 19/19 at 19:06:44 UTC, on that build, each reporting a clean tree | done |
+| Text description | four points: why the use case suits WebMCP, the UX gain, the human-plus-agent capability that was hard before, and how WebMCP was implemented | **drafted** — the copy to paste is `docs/SUBMISSION-TEXT.md`, laid out field by field against the form, revised 2026-09-03 22:58 WITA with every figure re-derived against this tree, and leaving the demo video as its only blank; it supersedes `docs/SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md`, which is retained as the prose-shaped alternative and carries both URLs too. Until 2026-09-04 this row named the WINNER-STYLE draft as the paste source, which contradicted `docs/SUBMISSION-TEXT.md:3-5` and three other rows in this package | mine |
+| Public repository | source, assets and instructions "required for the project to be functional" | **present** — `AndroLay/withheld`, `main` `7e404d36`, `gh-pages` `15baf8f0`, read back anonymously on 2026-09-03 at 19:25:19 UTC; `gh-pages` is the ref the site serves and doc commits after that minute move `main` only | done |
 | Open-source licence | "detectable and visible at the top of the repository page (in the About section)" | file present in the published tree; whether GitHub's About panel displays it is for the owner to confirm on the repository page | both |
 | A real registration | `document.modelContext.registerTool({...})` with name, description, inputSchema, execute | present — nine tools at `src/tools/webmcp.ts:355-606`, registered at `:762` | done |
 | Video | "less than three (3) minutes", "a clear demo of your project functioning and with audio that covers what you built and how you used WebMCP", public on YouTube | **absent** | owner |
@@ -39,16 +39,16 @@ minute to do both.
 Items 1 and 2 are done, by the owner, on 2026-09-03. What is left below is not started, and each is
 an outward-facing act the owner reserves.
 
-1. **A public repository.** Done. `AndroLay/withheld` is public: `main` `9cce7d0a`, `gh-pages`
-   `15baf8f0`, both pushed on 2026-09-03 at 18:02 UTC. The two hosted reports carry `gitSha` `93eee30`,
-   the commit the live page was built from that morning; `b050f991` is the commit that added those
-   reports, and `9cce7d0a` is this tree mirrored into the published root.
+1. **A public repository.** Done. `AndroLay/withheld` is public: `gh-pages` `15baf8f0` is the ref the
+   site serves and `main` was `7e404d36` when the refs were last read without credentials, at
+   2026-09-03 19:25:19 UTC. Both hosted reports carry `gitSha` `bb4c82ad`, the monorepo commit this
+   package's tree was at when they ran; doc commits after that minute move `main` only.
 2. **Hosting.** Done. `https://androlay.github.io/withheld/` answers HTTP 200, serving a 988-byte
-   `index.html` last modified 2026-09-03 at 07:43:21 UTC. The subpath assumption held with no rebuild:
+   `index.html` last modified 2026-09-03 at 18:02:45 UTC. The subpath assumption held with no rebuild:
    `vite.config.ts` sets `base: "./"`, `dist/index.html` emits `./assets/…`, and the hosted browser
-   report records 4 requests with none off-site. One follow-up sits here now: the page has been
-   rebuilt twice since publishing — the app shell at 10:56 UTC and four pieces of copy at 12:16 UTC —
-   so the URL serves a build two behind this tree until the owner republishes.
+   report records 4 requests with none off-site. The follow-up that used to sit here is closed: the
+   republish at 18:02:45 UTC put this tree's build on the URL, and at 19:25:19 UTC all three served files
+   hashed byte-identical to `dist/` here.
 3. **The video.** Three minutes, with a voice on it. Nobody but the owner can record it. The shot
    list, timings and spoken lines are written in `docs/VIDEO-SCRIPT.md`, against the hosted URL.
 4. **The Devpost form.** Registration, the four description points, the URLs, and the status reading
@@ -61,11 +61,16 @@ an outward-facing act the owner reserves.
 Read the table above as the complete official bar. Three things this package treats as gates are
 **self-imposed and above that bar**, and their absence is not a rule violation:
 
-- **Independent non-builder validation (`docs/GATE-P2.md`).** An internal gate of ours. The rules ask
-  for a working URL, a description, a repository, a licence and a video — not for a user study.
+- **Independent non-builder validation (`docs/GATE-P2.md`).** An internal gate of ours, now retired.
+  The rules ask
+  for a working URL, a description, a repository, a licence and a video — not for a user study. On
+  2026-09-04 the owner withdrew it on exactly that ground; `docs/GATE-P2-SIMULATION.md` records the
+  historical limitation, while `docs/MULTI-AGENT-SIMULATION.md` and its 20/20 artifact replace it
+  for the internal workflow gate. The replacement does not stand in for a real person.
 - **Natural-language model replay.** Not in the rules either. The rules ask that WebMCP be
   implemented and demonstrated, which `docs/evidence/webmcp-invocation.json` and the hosted dispatch
-  report cover.
+  report cover. This one has since been run anyway, twice, on 2026-09-04 — local and hosted,
+  `docs/MODEL-REPLAY.md` — which leaves the video as the gate that is both open and self-imposed.
 - **Screen-reader, real-device and performance sessions.** Good practice, not entry requirements.
 
 Judges score *Potential Impact* as whether the entry makes a credible, specific case for a real
@@ -85,11 +90,13 @@ neither fact lowers the entry below what the rules require.
   27-check failure/recovery journey, the concurrent-form conflict, and the human release path. Two of
   those runs — the 43-check session and the 19-check dispatch — have now been repeated against the
   live URL. The artifacts still say what they are: browser and CDP, never model.
-- **`GATE-P2`.** Twenty minutes with one person who did not build the page — ten to ask, ten of
-  session — four written questions, and an honest record of what they said. The instrument is
-  `docs/GATE-P2.md`; what it needs is a person.
-  This is the weakest criterion in the whole entry — Potential Impact rests on a problem I have
-  asserted and not measured, and `README.md` says so in as many words.
+- **`GATE-P2`. Withdrawn 2026-09-04, never run.** Twenty minutes with one person who did not build the
+  page — ten to ask, ten of session — four written questions, and an honest record of what they said.
+  The instrument stays at `docs/GATE-P2.md` for anyone who finds the person; what stands in the
+  package now is `docs/MULTI-AGENT-SIMULATION.md`, with `docs/evidence/multi-agent-simulation.json`
+  reporting 20/20 deterministic checks. This improves workflow evidence, not impact evidence: the
+  problem remains a deliberately narrow author-described prototype claim, and no user validation or
+  time-saving claim follows from the simulation.
 - **A pass over wording and over what a screen reader says, by eye and by ear.** Contrast is no longer
   on this list: it is measured in the browser on every session run, 599 pairs against the backgrounds
   they actually resolve to with the worst at 4.8:1 against a 4.5:1 requirement, and guarded from the
@@ -99,34 +106,47 @@ neither fact lowers the entry below what the rules require.
   sense read aloud, and no person other than the author has read the wording.
 - **Node 22 verification.** CI is pinned to it; every local run was Node 26. It has not run in this
   environment, so this remains open rather than a compatibility claim.
-- **`docs/evidence/` is current, as of 2026-09-03 12:54–12:56 UTC.** All five run artifacts were
-  regenerated against one production build — source `10fb7f7c…`, build `84eee099…` — which is the tree
-  in this checkout, and `docs/evidence/checksums.txt` was regenerated after them and verifies clean
-  (26 hashed paths OK, 0 failed, plus the 2 documented `source-tree`/`build-tree` pseudo-entries) from
-  `submissions/withheld`. The figures are 136 unit tests, 43 browser checks, 19
-  WebMCP dispatches, 27 failure/recovery checks, and 17 agent-view checks, all passing. Two standing
-  cautions: the sheet hashes `dist/` by filename, so any rebuild breaks it and it must be the last
-  thing regenerated before publishing; and the unit-test count moves whenever a test file does, so
+- **`docs/evidence/` is current, as of 2026-09-03 19:19–19:25 UTC.** The browser session, agent-view
+  sweep and failure/recovery journey were re-taken on the frozen source `b924a27a…`, the two hosted runs
+  were re-taken against the live URL, the delivered bytes were compared again, and
+  `docs/evidence/checksums.txt` was regenerated after all of them and verifies clean from
+  `submissions/withheld` (27 of 27 hashed paths OK, exit 0, and since 2026-09-04 no warning at all: the
+  `source-tree`/`build-tree` tree hashes are carried as comments rather than as bare pseudo-entries
+  `sha256sum` reported as malformed). Every report binds build `84eee099…`. The
+  figures are 136 unit tests, 43 browser checks, 19
+  WebMCP dispatches, 27 failure/recovery checks, and 17 agent-view checks, all passing. One report is
+  older than the rest and says so: the local dispatch pair still carries its 12:54:49 UTC run on source
+  `10fb7f7c…`, because the re-take fails a request-origin check on a force-installed browser extension —
+  `docs/evidence/local-dispatch-retake-2026-09-03.json`, `FAILED_RUN` / `ENVIRONMENT_BLOCKED`. Two
+  standing cautions: the sheet hashes `dist/` by filename, so any rebuild breaks it and it must be the
+  last thing regenerated before publishing; and the unit-test count moves whenever a test file does, so
   re-read it from `node --run test` rather than from this line.
-- **The live URL now serves this tree's build, and the delivery side is closed.** `gh-pages` `15baf8f0`
-  replaced the earlier build at 18:02:45 UTC on 2026-09-03, and at 18:03 UTC all three files the URL
-  returns hashed byte-identical to `dist/` here — build `84eee099…`, the build the five local artifacts
-  bind to. What the republish dates is the two hosted reports: they describe source `09974722…` / build
-  `3700f7c5…` and were not re-run afterwards, so 43/43 and 19/19 are delivery proof for that morning's
-  build rather than for the one now live, while 17/17 and 27/27 remain local figures. The difference
-  between the two builds is the scrolling columns and five added sentences — no tool, contract or
-  fixture changed.
+- **The live URL serves this tree's build, and the delivery side is closed.** `gh-pages` `15baf8f0`
+  replaced the earlier build at 18:02:45 UTC on 2026-09-03, and at 19:25:19 UTC all three files the URL
+  returns hashed byte-identical to `dist/` here — build `84eee099…`, the build every artifact binds to.
+  Both hosted probes were then re-run against that URL, 43/43 at 18:59:34 and 19/19 at 19:06:44 UTC, so
+  they are delivery proof for the build now live rather than for a predecessor; 17/17 and 27/27 remain
+  local figures. The four screenshots came back byte-identical from the live page, which is what ties the
+  pictures, the local table and the URL to one release. The build served before 18:02 was `3700f7c5…`;
+  the difference was the scrolling columns and five added sentences — no tool, contract or fixture
+  changed.
 - **Blocked evidence is recorded.** `docs/evidence/` contains explicit blocked/not-run artifacts
-  for hosted browser, hosted WebMCP, natural-language replay, GATE-P2, manual accessibility, and
-  performance. These are not substitutes for the missing gates.
+  for hosted browser, hosted WebMCP, natural-language replay, the historical GATE-P2 instrument,
+  manual accessibility, and performance. Two of those have since been overtaken by runs and are kept
+  as the record of the state before them: the hosted pair on 2026-09-03, and natural-language replay
+  on 2026-09-04 (`docs/MODEL-REPLAY.md`, local and hosted). The multi-agent replacement is complete
+  with limitations; it is not a substitute for the video, for a native third-party host, or for a person.
 
 ## The order these have to happen in
 
 The dependencies are real, not preferences:
 
-1. **`GATE-P2` first**, because it is the only item that can still change the page. If the person who
-   reads it cannot say what the page is for, the description and the video would be built on a
-   misunderstanding, and both are expensive to redo.
+1. ~~**`GATE-P2` first**, because it is the only item that can still change the page.~~ **Dropped
+   2026-09-04.** It was first because a stranger's misreading would have made the description and the
+   video expensive to redo. No stranger was reachable, so the ordering constraint it imposed is gone
+   and the copy is written from the page as built. `docs/GATE-P2-SIMULATION.md` explains what that
+   costs: the description's problem framing is the author's, unconfirmed by anyone. The replacement
+   workflow simulation is recorded in `docs/evidence/multi-agent-simulation.json` and passed 20/20.
 2. **Publish the repository** — done on 2026-09-03; the licence requirement is about a repository page
    and the video will show a URL.
 3. **Host, then open the hosted URL in a clean browser** — done for headless Chrome 151; still open for
@@ -135,15 +155,16 @@ The dependencies are real, not preferences:
    context, which `127.0.0.1` grants and an `http://` host would not. All three held on
    `https://androlay.github.io/withheld/`: the hosted report records the policy enforced, 4 requests
    with none off-site, and `document.modelContext` present with nine tools.
-4. **Re-run `node --run webmcp` against the hosted URL** with `--url` — done at 07:44:25 UTC,
-   19 checks, 19 passed, saved as `docs/evidence/hosted-webmcp-invocation.json`, so the invocation
+4. **Re-run the dispatch harness against the hosted URL** with `--url` — done at 19:06:44 UTC,
+   19 checks, 19 passed, saved as `docs/evidence/hosted-webmcp-invocation.json`, on the build the URL
+   serves now, so the invocation
    evidence is about the thing judges will open rather than about `dist/` on this machine.
 5. **Write the description and the testing instructions** from what the hosted page did. The draft in
    `docs/SUBMISSION-TEXT.md` is written to be corrected here, not pasted before here.
 6. **Record the video** last, because it shows the URL and the flow, and both are settled by then.
 7. **Fill the form**, verify the status reads `Submitted`, and keep the host up until 2026-09-21.
 
-Steps 1 and 2 are independent of each other; everything after 3 depends on 3.
+With step 1 dropped, step 2 waits on nothing; everything after 3 still depends on 3.
 
 ## What must not be said on the form
 

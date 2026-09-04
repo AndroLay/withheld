@@ -1,0 +1,61 @@
+{
+  "status": "FAILED_RUN",
+  "evidenceClass": "ENVIRONMENT_BLOCKED",
+  "scope": "re-take of scripts/webmcp-invoke.mjs against the local production build, attempted only so that every run in manifest.json would bind one source hash",
+  "why": "The five local runs in this manifest were taken at 12:54–12:55 UTC, when sourceSha256 was 10fb7f7c…. scripts/ then gained the MCP bridge, its five host configs and the two harnesses, moving sourceSha256 to b924a27a… without touching src/ or dist/. Three of the four local scripts re-took cleanly on the new source. This one does not, for a reason outside the page.",
+  "attempts": [
+    {
+      "ranAt": "between the 19:19:11Z agent-view sweep and the 19:19:32Z recovery run, in the same sequence",
+      "passed": 18,
+      "failed": 1,
+      "requests": 5,
+      "offsite": ["chrome-extension://cimiefiiaegbelhefglklhhakcgmhkai/page-script.js"]
+    },
+    {
+      "ranAt": "2026-09-03T19:21:26.550Z",
+      "passed": 18,
+      "failed": 1,
+      "requests": 4,
+      "offsite": ["chrome-extension://cimiefiiaegbelhefglklhhakcgmhkai/page-script.js"]
+    }
+  ],
+  "evidence": {
+    "gitSha": "bb4c82ad2a08948d5d3b5ba6b3802bc86a6c6457",
+    "sourceSha256": "b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "browser": "Chrome/151.0.7922.137",
+    "node": "v26.4.0",
+    "url": "http://127.0.0.1:4183/"
+  },
+  "failingCheck": {
+    "name": "nothing left the expected origin",
+    "detail": "4 requests, 1 off-site",
+    "theOtherEighteen": "passed, including the nine registrations, the seven dispatches, both refusals, the staged release and the absent confirm tool"
+  },
+  "cause": {
+    "what": "a Chromium extension force-installed on this machine, not a request the page made",
+    "where": "/usr/share/chromium/extensions/cimiefiiaegbelhefglklhhakcgmhkai.json, whose whole content is an external_update_url pointing at clients2.google.com",
+    "how": "the harness starts Chromium on a fresh temporary profile; an external extension declared system-wide is installed into that profile and injects page-script.js into the http:// origin, and the check counts every requestWillBeSent whose origin is not the page's",
+    "notThePage": "the page's own request count is unchanged and its CSP still carries connect-src 'none'; the injected URL is a chrome-extension:// script, not an outbound network call by the page",
+    "reproducible": "twice, in two separate invocations",
+    "notWorkedAround": "the harness's browser flags live in scripts/, and the source tree is frozen for this release, so no flag was added to suppress the extension"
+  },
+  "sameChecksPassedOnTheSameBuild": {
+    "file": "hosted-webmcp-invocation.json",
+    "url": "https://androlay.github.io/withheld/",
+    "ranAt": "2026-09-03T19:06:44.394Z",
+    "passed": 19,
+    "failed": 0,
+    "note": "same nineteen checks, same buildSha256, https:// origin, 4 requests and 0 off-site — the extension does not inject there"
+  },
+  "canonicalLocalRecord": {
+    "file": "webmcp-invocation.json",
+    "ranAt": "2026-09-03T12:54:49.286Z",
+    "passed": 19,
+    "failed": 0,
+    "bindsSourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+    "bindsBuildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "why": "it is a real run of the same nineteen checks against the same built bytes; it was left in place rather than replaced by a run that fails for a reason this package does not control, and this file is the disclosure of that choice"
+  },
+  "notClaimed": "This is not a page defect and not a passing run. It is a record that the local variant of one check cannot be re-taken green on this machine, that the failure is a third-party extension, and that the hosted variant of the same check passed on the same build."
+}

@@ -1,0 +1,1446 @@
+{
+  "artifact": "multi-agent-simulation",
+  "schemaVersion": 1,
+  "project": "withheld",
+  "status": "PASS_WITH_LIMITATIONS",
+  "evidenceClass": "SIMULATED_RUN",
+  "classification": "DETERMINISTIC_MULTI_AGENT_ROLE_SIMULATION",
+  "claim": "Four bounded roles exercised the real Withheld tool surface and shared session, including refusal recovery and the human-only release boundary.",
+  "notClaimed": [
+    "This is not a natural-language model replay. No LLM selected a tool or composed an argument.",
+    "This is not native-host discovery. The registrations were built directly from the production TypeScript tool surface.",
+    "This is not GATE-P2, user validation, learner validation, adoption evidence, or measured time saving.",
+    "Human release actions are direct calls to the page-owned domain functions to model the UI boundary; no agent was given a confirmation tool."
+  ],
+  "scenario": {
+    "question": "synthetic spoon marking fixture",
+    "answerCount": 14,
+    "roles": [
+      {
+        "id": "recognition-agent",
+        "responsibility": "read live context and submit bounded rubric-line findings"
+      },
+      {
+        "id": "safety-agent",
+        "responsibility": "inspect holds and unattended outcome without page-owned arithmetic"
+      },
+      {
+        "id": "adversarial-agent",
+        "responsibility": "exercise stale, duplicate, malformed and post-release recovery"
+      },
+      {
+        "id": "release-agent",
+        "responsibility": "stage a release request and stop at the human boundary"
+      },
+      {
+        "id": "audit-agent",
+        "responsibility": "re-read final shared state and receipt continuity"
+      },
+      {
+        "id": "human-gate",
+        "responsibility": "decline and confirm through page-owned functions; not an agent"
+      }
+    ]
+  },
+  "handoffs": [
+    "recognition-agent → safety-agent: accepted proposal and current revision",
+    "safety-agent → adversarial-agent: redacted views and refusal surface",
+    "adversarial-agent → release-agent: unchanged state after negative probes",
+    "release-agent → human-gate: staged request awaiting a person",
+    "human-gate → audit-agent: receipt and final released state"
+  ],
+  "trace": [
+    {
+      "step": 1,
+      "agent": "recognition-agent",
+      "tool": "describe_stack",
+      "input": {},
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerCount": 14,
+        "heldCount": 0,
+        "releasableCount": 0,
+        "releasedCount": 0,
+        "emphasis": "standard",
+        "payloadKeys": [
+          "answerCount",
+          "answers",
+          "emphasis",
+          "heldCount",
+          "markedCount",
+          "question",
+          "releasableCount",
+          "releaseRequested",
+          "releasedCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 2,
+      "agent": "recognition-agent",
+      "tool": "read_rubric",
+      "input": {},
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "payloadKeys": [
+          "revision",
+          "rubric",
+          "rubricLineCount"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 3,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-01"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 4,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-02"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 5,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-03"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 6,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-04"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 7,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-05"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 8,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-06"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 9,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-07"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 10,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-08"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 11,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-09"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 12,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-10"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 13,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-11"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 14,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-12"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 15,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-13"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 16,
+      "agent": "recognition-agent",
+      "tool": "read_answer",
+      "input": {
+        "answerId": "ans-14"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 1,
+      "result": {
+        "revision": 1,
+        "answerBodyStored": false,
+        "payloadKeys": [
+          "answer",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 17,
+      "agent": "recognition-agent",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": [
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": [
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": [
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": [
+              "l-conductor"
+            ]
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": [
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "sim-recognition-proposal-v1"
+      },
+      "beforeRevision": 1,
+      "afterRevision": 2,
+      "result": {
+        "revision": 2,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "payloadKeys": [
+          "heldCount",
+          "receipt",
+          "releasableCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 18,
+      "agent": "safety-agent",
+      "tool": "list_held_answers",
+      "input": {},
+      "beforeRevision": 2,
+      "afterRevision": 2,
+      "result": {
+        "revision": 2,
+        "heldCount": 5,
+        "payloadKeys": [
+          "heldCount",
+          "namedHolds",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 19,
+      "agent": "safety-agent",
+      "tool": "preview_unattended_outcome",
+      "input": {},
+      "beforeRevision": 2,
+      "afterRevision": 2,
+      "result": {
+        "revision": 2,
+        "answerCount": 14,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "payloadKeys": [
+          "answerCount",
+          "heldCount",
+          "namedHolds",
+          "needsHuman",
+          "releasableCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 20,
+      "agent": "adversarial-agent",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": [
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": [
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": [
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": [
+              "l-conductor"
+            ]
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": [
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 1,
+        "operationId": "sim-stale-proposal-v1"
+      },
+      "beforeRevision": 2,
+      "afterRevision": 2,
+      "result": {
+        "refused": true,
+        "code": "stale-revision",
+        "revision": 2,
+        "payloadKeys": [
+          "code",
+          "message",
+          "refused",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 21,
+      "agent": "adversarial-agent",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": [
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": [
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": [
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": [
+              "l-conductor"
+            ]
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": [
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 2,
+        "operationId": "sim-recognition-proposal-v1"
+      },
+      "beforeRevision": 2,
+      "afterRevision": 2,
+      "result": {
+        "refused": true,
+        "code": "duplicate-operation",
+        "revision": 2,
+        "payloadKeys": [
+          "code",
+          "message",
+          "refused",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 22,
+      "agent": "adversarial-agent",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-02",
+            "foundLineIds": [
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-03",
+            "foundLineIds": [
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-04",
+            "foundLineIds": [
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-05",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-06",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-07",
+            "foundLineIds": [
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-08",
+            "foundLineIds": [
+              "l-conductor"
+            ]
+          },
+          {
+            "answerId": "ans-09",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-10",
+            "foundLineIds": []
+          },
+          {
+            "answerId": "ans-11",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-12",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-conductor",
+              "l-rate"
+            ]
+          },
+          {
+            "answerId": "ans-13",
+            "foundLineIds": [
+              "l-heat-flow"
+            ]
+          },
+          {
+            "answerId": "ans-14",
+            "foundLineIds": [
+              "l-same-temp",
+              "l-heat-flow",
+              "l-rate"
+            ]
+          }
+        ],
+        "expectedRevision": 2,
+        "operationId": "sim-malformed-proposal-v1",
+        "unexpected": true
+      },
+      "beforeRevision": 2,
+      "afterRevision": 2,
+      "result": {
+        "refused": true,
+        "code": "invalid-argument",
+        "revision": 2,
+        "payloadKeys": [
+          "code",
+          "message",
+          "refused",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 23,
+      "agent": "release-agent",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 2,
+        "operationId": "sim-release-stage-v1"
+      },
+      "beforeRevision": 2,
+      "afterRevision": 3,
+      "result": {
+        "revision": 3,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "awaitingHuman": true,
+        "payloadKeys": [
+          "awaitingHuman",
+          "heldCount",
+          "receipt",
+          "releasableCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 24,
+      "agent": "human-gate",
+      "action": "decline_release",
+      "beforeRevision": 3,
+      "afterRevision": 4,
+      "releasedCount": 0,
+      "receiptAction": "human_release_declined"
+    },
+    {
+      "step": 25,
+      "agent": "release-agent",
+      "tool": "describe_stack",
+      "input": {},
+      "beforeRevision": 4,
+      "afterRevision": 4,
+      "result": {
+        "revision": 4,
+        "answerCount": 14,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "releasedCount": 0,
+        "emphasis": "standard",
+        "payloadKeys": [
+          "answerCount",
+          "answers",
+          "emphasis",
+          "heldCount",
+          "markedCount",
+          "question",
+          "releasableCount",
+          "releaseRequested",
+          "releasedCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 26,
+      "agent": "release-agent",
+      "tool": "request_release",
+      "input": {
+        "expectedRevision": 4,
+        "operationId": "sim-release-stage-v2"
+      },
+      "beforeRevision": 4,
+      "afterRevision": 5,
+      "result": {
+        "revision": 5,
+        "heldCount": 5,
+        "releasableCount": 9,
+        "awaitingHuman": true,
+        "payloadKeys": [
+          "awaitingHuman",
+          "heldCount",
+          "receipt",
+          "releasableCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 27,
+      "agent": "human-gate",
+      "action": "confirm_release",
+      "beforeRevision": 5,
+      "afterRevision": 6,
+      "releasedCount": 9,
+      "receiptAction": "human_release_confirmed"
+    },
+    {
+      "step": 28,
+      "agent": "adversarial-agent",
+      "tool": "propose_marks",
+      "input": {
+        "findings": [
+          {
+            "answerId": "ans-01",
+            "foundLineIds": []
+          }
+        ],
+        "expectedRevision": 6,
+        "operationId": "sim-post-release-proposal-v1"
+      },
+      "beforeRevision": 6,
+      "afterRevision": 6,
+      "result": {
+        "refused": true,
+        "code": "already-released",
+        "revision": 6,
+        "payloadKeys": [
+          "code",
+          "message",
+          "refused",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    },
+    {
+      "step": 29,
+      "agent": "audit-agent",
+      "tool": "describe_stack",
+      "input": {},
+      "beforeRevision": 6,
+      "afterRevision": 6,
+      "result": {
+        "revision": 6,
+        "answerCount": 14,
+        "heldCount": 5,
+        "releasableCount": 0,
+        "releasedCount": 9,
+        "emphasis": "standard",
+        "payloadKeys": [
+          "answerCount",
+          "answers",
+          "emphasis",
+          "heldCount",
+          "markedCount",
+          "question",
+          "releasableCount",
+          "releaseRequested",
+          "releasedCount",
+          "revision"
+        ]
+      },
+      "boundaryViolation": {
+        "numericPaths": [],
+        "textHits": []
+      }
+    }
+  ],
+  "dispatches": [
+    {
+      "tool": "describe_stack",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_rubric",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "read_answer",
+      "revision": 1,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "propose_marks",
+      "revision": 2,
+      "code": null,
+      "moved": true
+    },
+    {
+      "tool": "list_held_answers",
+      "revision": 2,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "preview_unattended_outcome",
+      "revision": 2,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "propose_marks",
+      "revision": 2,
+      "code": "stale-revision",
+      "moved": false
+    },
+    {
+      "tool": "propose_marks",
+      "revision": 2,
+      "code": "duplicate-operation",
+      "moved": false
+    },
+    {
+      "tool": "propose_marks",
+      "revision": 2,
+      "code": "invalid-argument",
+      "moved": false
+    },
+    {
+      "tool": "request_release",
+      "revision": 3,
+      "code": null,
+      "moved": true
+    },
+    {
+      "tool": "describe_stack",
+      "revision": 4,
+      "code": null,
+      "moved": false
+    },
+    {
+      "tool": "request_release",
+      "revision": 5,
+      "code": null,
+      "moved": true
+    },
+    {
+      "tool": "propose_marks",
+      "revision": 6,
+      "code": "already-released",
+      "moved": false
+    },
+    {
+      "tool": "describe_stack",
+      "revision": 6,
+      "code": null,
+      "moved": false
+    }
+  ],
+  "checks": {
+    "total": 20,
+    "passed": 20,
+    "failed": 0,
+    "items": [
+      {
+        "id": "registry-count",
+        "label": "the simulated host exposes exactly nine Withheld tools",
+        "passed": true,
+        "detail": "9 tools"
+      },
+      {
+        "id": "registry-no-confirm",
+        "label": "the registry has no confirm_release tool",
+        "passed": true,
+        "detail": "confirm_release absent"
+      },
+      {
+        "id": "discover-first",
+        "label": "the recognition agent starts with live stack state",
+        "passed": true,
+        "detail": "revision 1"
+      },
+      {
+        "id": "rubric-redacted",
+        "label": "the rubric hand-off contains no page-owned arithmetic",
+        "passed": true,
+        "detail": "redacted rubric payload"
+      },
+      {
+        "id": "answer-sweep",
+        "label": "the recognition role inspected all synthetic answers without storing bodies",
+        "passed": true,
+        "detail": "14 answer reads"
+      },
+      {
+        "id": "proposal-accepted",
+        "label": "the bounded recognition proposal moves shared page state once",
+        "passed": true,
+        "detail": "1→2"
+      },
+      {
+        "id": "injection-quarantined",
+        "label": "the marker-directed synthetic answer is quarantined without a mark",
+        "passed": true,
+        "detail": "ans-11 quarantined"
+      },
+      {
+        "id": "safety-views-redacted",
+        "label": "safety-agent views contain no page-owned arithmetic",
+        "passed": true,
+        "detail": "no forbidden numeric payload"
+      },
+      {
+        "id": "stale-refusal",
+        "label": "a stale agent proposal is refused without moving state",
+        "passed": true,
+        "detail": "stale-revision"
+      },
+      {
+        "id": "duplicate-refusal",
+        "label": "a replayed operation id is refused without moving state",
+        "passed": true,
+        "detail": "duplicate-operation"
+      },
+      {
+        "id": "malformed-refusal",
+        "label": "an unexpected argument is refused before the reducer",
+        "passed": true,
+        "detail": "invalid-argument"
+      },
+      {
+        "id": "release-stage-only",
+        "label": "the release agent can stage but not release",
+        "passed": true,
+        "detail": "2→3"
+      },
+      {
+        "id": "human-tool-absent",
+        "label": "the release agent cannot find a confirmation tool",
+        "passed": true,
+        "detail": "tool lookup absent"
+      },
+      {
+        "id": "decline-recorded",
+        "label": "human decline clears staging and records a receipt",
+        "passed": true,
+        "detail": "revision 4"
+      },
+      {
+        "id": "restage-after-decline",
+        "label": "the release agent can re-stage after a human decline",
+        "passed": true,
+        "detail": "revision 5"
+      },
+      {
+        "id": "confirm-human-only",
+        "label": "only the human boundary releases answers and records a receipt",
+        "passed": true,
+        "detail": "released 0→9"
+      },
+      {
+        "id": "released-refusal",
+        "label": "an agent cannot rewrite an answer after human release",
+        "passed": true,
+        "detail": "already-released"
+      },
+      {
+        "id": "final-state-consistent",
+        "label": "the final read sees the same human release state",
+        "passed": true,
+        "detail": "released 9"
+      },
+      {
+        "id": "revision-monotonic",
+        "label": "accepted writes and human actions have monotonic revisions",
+        "passed": true,
+        "detail": "final revision 6"
+      },
+      {
+        "id": "all-safe-outputs",
+        "label": "non-answer tool outputs pass the production boundary checks",
+        "passed": true,
+        "detail": "numeric canary clear"
+      }
+    ]
+  },
+  "releaseState": {
+    "finalRevision": 6,
+    "finalReleasedCount": 9,
+    "finalReceiptActions": [
+      "propose_marks",
+      "request_release",
+      "human_release_declined",
+      "request_release",
+      "human_release_confirmed"
+    ],
+    "humanReleaseReceiptPresent": true
+  },
+  "binding": {
+    "gitSha": "3d26a00125c0a7fbbb38ccf6e98801baf29bb949",
+    "workingTreeDirty": true,
+    "sourceSha256": "b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "node": "v26.4.0",
+    "browserFlags": [],
+    "artifactSha256": {}
+  },
+  "rerun": "node --experimental-strip-types docs/evidence/harness/multi-agent-simulation.mjs",
+  "generatedAt": "2026-09-04T03:35:33.129Z"
+}

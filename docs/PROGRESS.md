@@ -11,9 +11,10 @@ the second list must not be described as working.
 ## Verified locally
 
 Each of these was checked by running it. The unit, typecheck and build rows were re-run on 2026-09-03;
-the browser and CDP rows are the 12:54–12:56 UTC run of that day, all against one production build.
-That build is what the live URL serves: `gh-pages` `15baf8f0` was pushed at 18:02:45 UTC and the three
-served files hashed byte-identical to `dist/` at 18:03 UTC.
+the browser and CDP rows are that day's 19:19 UTC re-take, except the dispatch pair, which is still the
+12:54:49 UTC run — all against one production build. That build is what the live URL serves: `gh-pages`
+`15baf8f0` was pushed at 18:02:45 UTC, the three served files hashed byte-identical to `dist/` again at
+19:25:19 UTC, and both hosted probes were re-run against it at 18:59:34 and 19:06:44 UTC.
 Every run was on Node 26.4.0; see `docs/TESTING.md`, and the Node floor under "Built, not verified".
 
 - `pnpm test` — 136 tests, 136 pass, 0 fail across 9 files. Re-read this figure from the runner rather
@@ -97,16 +98,18 @@ Every run was on Node 26.4.0; see `docs/TESTING.md`, and the Node floor under "B
   untrusted student content. A React error boundary provides a fixed reload fallback without
   copying session data into the error surface.
 - **The latest evidence is bound to its inputs.** `docs/evidence/*.json` records the base Git SHA,
-  dirty-tree state, source SHA-256, build SHA-256, browser flags, and screenshot hashes. The tree
-  was intentionally dirty during this run, so the hashes—not the base SHA alone—identify the
-  implementation under test. All five local run artifacts of 2026-09-03 12:54–12:56 UTC carry one pair:
-  source `10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012` and build
+  dirty-tree state, source SHA-256, build SHA-256, browser flags, and screenshot hashes. Eight run
+  reports carry one build,
   `84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02`, over base SHA
-  `df9608c46c09e979d1b1dd55039ec7fc52402f24`. The two hosted artifacts carry the pair that was published
-  that morning — source `09974722…`, build `3700f7c5…` — and were not re-run after the 18:02 republish,
-  which put build `84eee099…` on the live URL. The source hash has since moved to `b924a27a…`, because
-  `scripts/` gained the MCP bridge, the five host configs and the two harnesses while nothing under
-  `src/` changed. Recompute the current pair with
+  `bb4c82ad2a08948d5d3b5ba6b3802bc86a6c6457`, and seven of them also carry source
+  `b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6`. The two hosted artifacts were
+  re-run after the 18:02 republish, so they carry that same pair and read a clean tree. The three local
+  reports re-taken at 19:19 UTC read dirty, and what was modified is `docs/evidence/` — the report the
+  previous run in the sequence had just written; nothing under `src/`, `scripts/` or the configs moved,
+  which is why the build hash is identical everywhere. The one report on the older source
+  `10fb7f7c…` is the local dispatch pair, from before `scripts/` gained the MCP bridge, the five host
+  configs and the two harnesses; the re-take that would have moved it forward is recorded as blocked in
+  `docs/evidence/local-dispatch-retake-2026-09-03.json`. Recompute the current pair with
   `scripts/evidence-meta.mjs`; the per-artifact values are the authoritative ones.
 - **A continuous local failure/recovery journey is now stored.**
   `docs/evidence/failure-recovery.json` records 27/27 checks from clean load through malformed,
@@ -315,10 +318,13 @@ quote. See the next section for what that leaves open.
 
 ## Built, not verified
 
-- **No model has ever driven these tools.** The tools have now been invoked — by a DevTools Protocol
-  client, which is the same path an agent's host uses, and the page moved. What no run in this
-  workspace shows is a *model* finding the page, choosing among nine tools, or composing arguments for
-  one. Those are different claims, and the classes of evidence are kept apart on purpose:
+- **A model has driven these tools since 2026-09-04, through our own bridge and not through a native
+  host.** The tools were first invoked by a DevTools Protocol client, which is the same path an
+  agent's host uses, and the page moved. On 2026-09-04 a `claude-opus-5` client then chose among the
+  nine tools itself, from three prompts naming none, twice — once against `dist/` on localhost and
+  once against the live URL — and composed the arguments (`docs/MODEL-REPLAY.md`). What no run in this
+  workspace shows is a *native third-party WebMCP host* discovering the page without the bridge we
+  wrote for it. Those are different claims, and the classes of evidence are kept apart on purpose:
 
   | class | what it establishes | where | state |
   | --- | --- | --- | --- |
@@ -327,12 +333,16 @@ quote. See the next section for what that leaves open.
   | what the artefact withholds | no page-owned figure in the agent's view, in the live DOM | `pnpm agent-view` — 17 checks | green |
   | the browser's registry | the API exists, nine tools registered | both scripts | green |
   | dispatch through it | a call from outside reaches the handler, and the page moves | `pnpm webmcp` — 19 checks | green |
-  | a model | it finds the page, picks a tool, writes the input | nothing | **absent** |
-  | a hosted URL | a stranger can open it | `https://androlay.github.io/withheld/`, HTTP 200 on 2026-09-03 at 09:01 UTC; 43/43 and 19/19 against it at 07:44 UTC | green |
+  | a model | it picks a tool and writes the input from a prompt that names none | `pnpm nl-replay` — twice on 2026-09-04, local and hosted, 8 of the 9 tools each | green, through our bridge |
+  | a native host | a shipped agent client finds the page and its tools by itself | nothing | **absent** |
+  | a hosted URL | a stranger can open it | `https://androlay.github.io/withheld/`, HTTP 200 with bytes identical to `dist/` on 2026-09-03 at 19:25:19 UTC; 43/43 at 18:59:34 and 19/19 at 19:06:44 against it, on the build it serves | green |
 
-  Anything that reads a green run as evidence of the model row is wrong, and this file exists to
-  make that mistake hard. The hosted row went green on 2026-09-03 and closed nothing about the model
-  row: both hosted reports carry their own denial, "not model-selected" and "No model was involved."
+  Anything that reads one green run as evidence of another row is wrong, and this file exists to make
+  that mistake hard. The hosted row went green on 2026-09-03 and closed nothing about the model row:
+  both hosted reports carry their own denial, "not model-selected" and "No model was involved," which
+  is accurate for what they recorded and predates the replay. The model row went green on 2026-09-04
+  and closes nothing about the native-host row: the client reached the page through
+  `scripts/mcp-bridge.mjs`, which is ours.
 - **Nothing has been judged by eye or by ear.** Contrast is measured now, in the palette and on the
   composed page, and the accessibility tree is read on every browser run — but measuring a ratio is
   not reading a sentence, and dumping a tree is not listening to it. No screen reader has been run
@@ -340,9 +350,14 @@ quote. See the next section for what that leaves open.
   read it at all. Those are the gaps; the arithmetic does not close them.
 - CI is pinned to Node 22 and has never run. Every local run was on Node 26.4.0, so the `>=22.6.0`
   floor in `package.json` is inferred from when `--experimental-strip-types` shipped, not observed.
-- Hosted browser/dispatch, natural-language model replay, GATE-P2, manual screen-reader review and a
-  controlled performance baseline are blocked or not-run; their runbooks sit under `docs/evidence/`
-  rather than being represented as passes.
+- Manual screen-reader review and a controlled performance baseline are blocked or not-run; their
+  runbooks sit under `docs/evidence/` rather than being represented as passes. Hosted browser/dispatch
+  left that list on 2026-09-03, and natural-language model replay left it on 2026-09-04 when it ran
+  twice, local and hosted (`docs/MODEL-REPLAY.md`); what is still unshown there is a native
+  third-party host. `GATE-P2` sits apart from those: it was retired as an
+  active requirement on 2026-09-04. Its replacement workflow simulation is
+  `docs/evidence/multi-agent-simulation.json`, which reports 20/20 deterministic checks and is not
+  user or model evidence.
 
 
 ## What exists, file by file
@@ -400,17 +415,19 @@ Not started, and not mine to start:
 Settled since this file was first written:
 
 - **Publication of the source and the page.** The owner published: `AndroLay/withheld` is public and
-  readable without credentials — `main` `9cce7d0a`, `gh-pages` `15baf8f0`, both pushed on 2026-09-03 at
-  18:02 UTC — and `https://androlay.github.io/withheld/` answers HTTP 200 with the built `index.html`
-  from 18:02:45 UTC, byte-identical to `dist/` here. Two probes ran against that URL at 07:44 UTC rather
-  than against `127.0.0.1`, and their reports are `docs/evidence/hosted-browser-session.json` (43/43) and
-  `docs/evidence/hosted-webmcp-invocation.json` (19/19); both describe the build published that morning,
-  and neither was model-selected.
+  readable without credentials — `gh-pages` `15baf8f0` serves the site and `main` was `7e404d36` when the
+  refs were last read anonymously, at 19:25:19 UTC on 2026-09-03 — and
+  `https://androlay.github.io/withheld/` answers HTTP 200 with the built `index.html`
+  from 18:02:45 UTC, byte-identical to `dist/` here. Both probes were re-run against that URL rather
+  than against `127.0.0.1`, after the republish: `docs/evidence/hosted-browser-session.json` (43/43 at
+  18:59:34 UTC) and `docs/evidence/hosted-webmcp-invocation.json` (19/19 at 19:06:44 UTC). Both describe
+  the build the site serves now, and neither was model-selected.
 - **A local browser session.** The owner granted the permission on 2026-09-01 and it has been
   carried out; the last run reported 43 passed / 0 failed.
   See "Verified in a browser", and `docs/RUNBOOK.md` for what the earlier runs found.
-  What still needs a person rather than a launch is `GATE-P2`, which asks someone who did not build
-  the page to read it.
+  What still needed a person rather than a launch was the former `GATE-P2`, which asked someone who did
+  not build the page to read it. Nobody was found, and on 2026-09-04 the owner withdrew that active
+  requirement; the historical instrument remains unfilled.
 - **The name on the licence.** `LICENSE` now exists in this package, MIT, with the same
   `Copyright (c) 2026 AndroLay` line as the repository root. The owner chose the name the
   repository already publishes under rather than a separate legal name.
@@ -426,34 +443,37 @@ Settled since this file was first written:
   `docs/evidence/browser-fold-1487.png`, because a full-page capture paints the sticky foot across the
   middle of the document.
 - No demo video, and no review by anyone other than the author. The hosted URL exists and is
-  verified; the model replay is not.
+  verified; so, since 2026-09-04, is the model replay — twice, local and hosted, through our own
+  bridge rather than through a native host (`docs/MODEL-REPLAY.md`).
 - `GATE-P1` is closed the honest way rather than the strong way: no primary source on marking
   workload was read, so `README.md` now states in as many words that the size of the problem was
   not measured here. The gate allowed either; this is the weaker half of it.
-- `GATE-P2` (one non-builder, ten minutes, four written questions) has not been run. It is about
-  whether the problem is real to someone other than me, and it cannot be closed by writing code.
-  The instrument now exists — `docs/GATE-P2.md` has the four questions, the protocol, the rules the
-  observer has to follow, and an empty Result section — so what is left is twenty minutes and one
-  person. The page opens in a browser now, so nothing technical is in the way.
-- Twelve commits exist for this work: the first builds the package, the second records the browser
+- `GATE-P2` (one non-builder, ten minutes, four written questions) was never run, and on 2026-09-04
+  the owner withdrew it as a blocking gate: it was our own bar, above what the rules ask for, and no
+  participant who fits its screen was reachable inside the working session. The instrument stays as
+  historical documentation. Two documents took its place and they cover different halves:
+  `docs/GATE-P2-SIMULATION.md` answers the four human questions in the author's own voice, and
+  `docs/MULTI-AGENT-SIMULATION.md` covers the workflow half, with
+  `docs/evidence/multi-agent-simulation.json` at 20/20 checks. Neither is user validation; neither
+  ticks the non-builder box, and no impact or adoption claim follows from either.
+- Fifteen commits exist for this work: the first builds the package, the second records the browser
   session and the layout fix it found, the third rebuilds the page to the first target images, the
   fourth adds the invocation run and the submission paperwork, the fifth opens the page with a band that
   states the claim, the sixth measures contrast and the accessibility tree and folds the contract
   column on a phone, and the seventh redraws the page to the refined monochrome target. The eighth
   commits the reliability hardening — the revision guard, the operation receipts, the fail-closed
-  number check and the tests that hold them — and the four after it are paperwork on the staged
-  candidate: the evidence re-run, the documentation sync, a corrected checksum, and the provenance
-  wording in `docs/E4-REQUIREMENTS.md`. The disclosure redesign of the page, and the figures it
-  moved, remain in the working tree until they are reviewed and committed. This repository has no
-  remote and none of those twelve commits has been pushed. What is published is a *separate* standalone
-  repository, `AndroLay/withheld`, whose tree was generated from this package: `93eee30` is the source
-  the page served that morning was built from, `b050f991` is the commit that added the two hosted
-  reports, and `9cce7d0a` is this package mirrored into that root on 2026-09-03 at 18:02 UTC. None of
+  number check and the tests that hold them — and everything after it is paperwork on the staged
+  candidate: evidence re-runs, documentation syncs, corrected checksums, the provenance wording in
+  `docs/E4-REQUIREMENTS.md`, and the republish that put this build on the live URL. This repository has no
+  remote and none of those commits has been pushed. What is published is a *separate* standalone
+  repository, `AndroLay/withheld`, whose tree was generated from this package: `7e404d36` is the mirror
+  the refs last read at 19:25:19 UTC, `15baf8f0` on `gh-pages` is the build the site serves, and the
+  earlier `93eee30` / `b050f991` / `9cce7d0a` are its history. None of
   those shas exists in this repository's history, which is why they are named rather than linked.
 - The Devpost copy is a draft and nothing more. `docs/PREFLIGHT.md` is the hackathon's own requirement
   list with an owner against every gap, and `docs/SUBMISSION-TEXT.md` holds the four points and the
   judge's instructions. The live URL and the repository URL are no longer placeholders — both exist and
-  were read on 2026-09-03 at 09:01 UTC — and the demo video link is the one placeholder left.
+  were read on 2026-09-03 at 19:25:19 UTC — and the demo video link is the one placeholder left.
 
 ## Applied later the same day: the objection answered on the page
 
@@ -469,12 +489,13 @@ absence is already visible. `src/ui/AgentPanel.tsx`, `.proj__why--ask` in `src/s
 `docs/DECISIONS.md` D-39.
 
 **What it cost, since the earlier version of this section priced it honestly and the price was paid.**
-The edit moved `sourceSha256`, so all five local artefacts were re-run against the new tree and now bind
-to `10fb7f7c…` / `84eee099…`; `dist/` was rebuilt; `checksums.txt` was regenerated last. The expensive
-part is real and is not repaired: the two hosted reports from the published `93eee30` describe the build
-the URL still serves, not this one. That divergence is recorded in `docs/evidence/README.md`,
-`manifest.json` and `verification-log.md` rather than smoothed over, because closing it needs a
-republish and two fresh hosted runs, which are the owner's acts.
+The edit moved `sourceSha256`, so the local artefacts were re-run against the new tree; `dist/` was
+rebuilt; `checksums.txt` was regenerated last. The expensive part was the divergence between the two
+hosted reports and the served build, and it has since been paid off rather than smoothed over: the owner
+republished at 18:02:45 UTC and both hosted runs were repeated against the live URL at 18:59:34 and
+19:06:44 UTC, so every report in `docs/evidence/` now binds build `84eee099…` — the build the URL serves.
+`docs/evidence/README.md`, `manifest.json` and `verification-log.md` record the closure and the one
+report still on the older source hash.
 
 ## Applied later the same day: the height of the contract column
 

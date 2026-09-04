@@ -37,8 +37,8 @@ page.
 12:16 UTC: thirteen answers marked, five held for a person, nine staged and waiting on the human-only
 press, nine tools registered and no call arrived. At 1440px the page is one viewport tall and each
 column scrolls on its own, so the capture is a 1440×900 viewport rather than a full-page scroll. The
-live URL serves this build: at 18:03 UTC the three files it returns hashed byte-identical to `dist/` in
-this checkout.</sub>
+live URL serves this build: at 19:25:19 UTC the three files it returns hashed byte-identical to `dist/`
+in this checkout, and the hosted run re-rendered this screenshot from that URL byte-for-byte.</sub>
 
 > Agent brings language. The page keeps arithmetic and authority.
 
@@ -100,6 +100,7 @@ pnpm browser    # 43 checks in headless Chromium against dist/ — all passing
 pnpm agent-view # 17 checks: the agent's view, swept for the figures the page owns
 pnpm webmcp     # 19 checks through Chromium's own WebMCP DevTools domain
 node --experimental-strip-types scripts/failure-recovery.mjs   # 27 refusal/recovery checks
+node --experimental-strip-types docs/evidence/harness/multi-agent-simulation.mjs  # deterministic multi-role workflow simulation
 ```
 
 `pnpm dev` does not inject the production Content-Security-Policy, so run `pnpm build` before the
@@ -117,7 +118,9 @@ WebMCP needs a recent Chromium and the testing flag:
 
 The scripts in `scripts/` are deterministic transport checks. They choose the tool names and the
 arguments themselves, so they prove the surface works when called from outside the page — they are
-**not** a natural-language model replay, and this README does not claim one.
+**not** a natural-language model replay. That one is `scripts/nl-replay.mjs`, which was run twice on
+2026-09-04 — against the local build and against the live URL; see
+[`docs/MODEL-REPLAY.md`](docs/MODEL-REPLAY.md).
 
 ### Attaching an MCP client
 
@@ -187,25 +190,30 @@ and the loss is measurable rather than promised.
 
 ## The nine tools
 
-Six read, three write. Registered in `src/tools/webmcp.ts` through
+Six read, three write, ordered below by the phase of the job rather than by capability. Registered in
+`src/tools/webmcp.ts` through
 `document.modelContext.registerTool`, falling back to `navigator.modelContext` (deprecated in
 Chromium 150). The six reads are registered with `readOnlyHint`, and only `read_answer` also carries
 `untrustedContentHint`, so the hint means something where it appears; Chromium's registry reports the
 pair back under the shorter names `readOnly` and `untrustedContent`.
 
-| Tool | Access | Input | What comes back, and what never does |
-| --- | --- | --- | --- |
-| `describe_stack` | read | `{}` | The question, the revision, answer ids, aliases, character counts, current states. **Never** a mark, a point value, or the pass mark. |
-| `read_rubric` | read | `{}` | Canonical rubric line ids and their recognition labels. **Never** point values or the pass mark — they are removed before serialisation, not hidden in the UI. |
-| `read_answer` | read | `{ answerId }` | One answer and its alias, explicitly labelled untrusted content. It is student text, not an instruction. |
-| `list_held_answers` | read | `{}` | How many answers are held, and the reasons that are safe to name. **Never** the ids of near-boundary holds. |
-| `explain_mark` | read | `{ answerId }` | Which rubric ideas were credited and which were missed, by id and label. **Never** a total, a distance, or pass/fail. |
-| `preview_unattended_outcome` | read | `{}` | How much of the stack still needs a person. Counts only; **never** a per-answer outcome. |
-| `propose_marks` | write | `{ findings, expectedRevision, operationId }` | Bounded recognition findings; the page computes marks and holds atomically and returns a receipt. |
-| `set_marking_emphasis` | write | `{ emphasis, expectedRevision, operationId }` | Raises the page's caution level. It only ratchets — lowering, stale and duplicate writes are refused. |
-| `request_release` | write | `{ expectedRevision, operationId }` | Stages the releasable set and returns `awaitingHuman`. It cannot release, and there is no follow-up tool that can. |
+| Phase | Tool | Label | Input | What comes back, and what never does |
+| --- | --- | --- | --- | --- |
+| 1 · orient | `describe_stack` | read | `{}` | The question, the revision, answer ids, aliases, character counts, current states. **Never** a mark, a point value, or the pass mark. |
+| 1 · orient | `read_rubric` | read | `{}` | Canonical rubric line ids and their recognition labels. **Never** point values or the pass mark — they are removed before serialisation, not hidden in the UI. |
+| 2 · one answer | `read_answer` | read | `{ answerId }` | One answer and its alias, explicitly labelled untrusted content. It is student text, not an instruction. |
+| 2 · one answer | `explain_mark` | read | `{ answerId }` | Which rubric ideas were credited and which were missed, by id and label. **Never** a total, a distance, or pass/fail. |
+| 3 · find the person's share | `list_held_answers` | read | `{}` | How many answers are held, and the reasons that are safe to name. **Never** the ids of near-boundary holds. |
+| 3 · find the person's share | `preview_unattended_outcome` | read | `{}` | How much of the stack still needs a person. Counts only; **never** a per-answer outcome. |
+| 4 · propose | `propose_marks` | propose | `{ findings, expectedRevision, operationId }` | Bounded recognition findings; the page computes marks and holds atomically and returns a receipt. |
+| 4 · propose | `set_marking_emphasis` | propose, ratchet-only | `{ emphasis, expectedRevision, operationId }` | Raises the page's caution level. It only ratchets — lowering, stale and duplicate writes are refused. It is grouped here because the only direction it can move is *more* human attention. |
+| 5 · stage | `request_release` | stage | `{ expectedRevision, operationId }` | Stages the releasable set and returns `awaitingHuman`. It cannot release, and there is no follow-up tool that can. |
+| 6 · send | *no registration exists* | human only | — | The control that sends marks is a page action. Nothing an agent can name reaches it. |
 
-Nine registrations, eight distinct payloads. `list_held_answers` returns
+Nine registrations, eight distinct payloads. The phase column is a reading order, not a second
+taxonomy: the page's own contract panel labels the same nine `read` and `write`, which is what the
+registry reports, and the three writes are the same three rows numbered 4 and 5 above.
+`list_held_answers` returns
 `{ revision, heldCount, namedHolds }`, and all three keys — with identical values, checked against the
 built registry on 2026-09-03 — are already inside `preview_unattended_outcome`. It is a convenience
 name for the question an agent asks most, not a capability the other eight lack. What
@@ -214,10 +222,26 @@ hold state and no reason, so `namedHolds` and `needsHuman` exist nowhere else.
 
 ### Deliberately unavailable
 
-There is no `confirm_release` tool. Sending a mark is a human act by *absence* rather than by
-permission, and the browser confirms the absence: dispatching that name over the WebMCP DevTools
-domain comes back **Tool not found**. A tool may stage a release; nothing but a person can press the
-control that sends it.
+Four actions have no tool, and each absence is enforced by something a reader can check rather than by
+wording in a description.
+
+- **Sending a mark.** There is no `confirm_release`. Dispatching that name over the WebMCP DevTools
+  domain comes back **Tool not found** — locally and again on the live URL at 19:06:44 UTC. A tool may
+  stage a release; nothing but a person can press the control that sends it.
+- **Learning what an answer is worth.** No tool returns a point value, a total, a distance to the
+  boundary, or the pass mark. The agent gets its own projection in `src/domain/views.ts`, and every
+  tool result then passes `assertAgentSafe`, which throws on any number at a path not on the
+  allowlist in `src/tools/agent-boundary.ts` and runs a text canary for a figure that escaped as
+  prose or as a key. A new numeric field fails the suite rather than shipping; the two-view sweep
+  checks 17 assertions across both projections at once.
+- **Reducing the human share.** `set_marking_emphasis` ratchets caution upward only, and no tool
+  clears or downgrades a hold. A call that would lower one is refused, not applied.
+- **Writing without saying which session was read.** Every write needs the revision it was built from
+  and a single-use `operationId`; a stale read is refused `stale-revision` and a replayed operation
+  `duplicate-operation`. Both refusals are in the dispatch artifacts, local and hosted.
+
+Sending a mark is therefore a human act by *absence* rather than by permission. That is the thesis of
+the surface, not a limitation of it.
 
 ## How the guards hold
 
@@ -249,39 +273,44 @@ Measured on this machine against the current build, on Node `26.4.0` and Chromiu
 | The agent's view, swept in a browser | 17 / 17 — none of the thirteen figures the page owns appears in its `innerText` or anywhere in its DOM, at 1440px and 420px, against 143 elements carrying them in the teacher's view of the same session | `VERIFIED_ARTIFACT` |
 | Native WebMCP dispatch | 19 / 19 — nine tools enumerated through Chromium's own `WebMCP` domain and seven of them dispatched into the page in this run, plus the injection, the duplicate-operation retry, the stale-revision and unknown-rubric-line refusals, and `confirm_release` coming back *Tool not found* | `VERIFIED_ARTIFACT`, deterministic CDP |
 | Failure and recovery journey | 27 / 27 | `VERIFIED_ARTIFACT`, deterministic CDP |
-| Hosted browser harness, on the live URL | 43 / 43 at 07:44:04 UTC against the build the site served then — same enforced CSP, 593 contrast pairs, 1139-node tree, 4 requests and none off-site, over HTTPS from GitHub Pages. Not re-run since the 18:02 republish | `VERIFIED_ARTIFACT` |
-| Hosted WebMCP dispatch, on the live URL | 19 / 19 at 07:44:25 UTC against the build the site served then — nine tools present on `document.modelContext`, the same seven dispatched into the page's own handlers. Not re-run since the 18:02 republish | `VERIFIED_ARTIFACT`, deterministic CDP |
-| The published bytes | HTTP 200 and sha256-identical to `dist/` for all three files at 18:03 UTC, on `gh-pages` `15baf8f` | `VERIFIED_RUN` |
-| Natural-language model replay | not run — the harness exists (`scripts/nl-replay.mjs`, three prompts naming no tool, the choices read out of the bridge transcript rather than out of the model's prose) and has never been executed; `docs/evidence/natural-language-replay-blocked.json` stands | `UNKNOWN` |
+| Hosted browser harness, on the live URL | 43 / 43 at 18:59:34 UTC against the build the site serves now — same enforced CSP, 599 contrast pairs, a 1106-node accessibility tree with 57 named and none unnamed, 4 requests and none off-site, over HTTPS from GitHub Pages, and the four screenshots it re-rendered came back byte-identical to the ones committed here | `VERIFIED_ARTIFACT` |
+| Hosted WebMCP dispatch, on the live URL | 19 / 19 at 19:06:44 UTC against the build the site serves now — nine tools present on `document.modelContext`, the same seven dispatched into the page's own handlers, both refusals raised, `confirm_release` still *Tool not found* | `VERIFIED_ARTIFACT`, deterministic CDP |
+| The published bytes | HTTP 200 and sha256-identical to `dist/` for all three files, re-checked at 19:25:19 UTC, on `gh-pages` `15baf8f` | `VERIFIED_RUN` |
+| Local dispatch re-take on the frozen source | 18 / 19 — the one failure is a Chromium extension force-installed on this machine injecting into the harness's `http://` origin, not the page; disclosed in `docs/evidence/local-dispatch-retake-2026-09-03.json` | `FAILED_RUN`, `ENVIRONMENT_BLOCKED` |
+| Natural-language model replay | run twice, 2026-09-04 — once on the local build and once on the live URL. `claude-opus-5`, three prompts naming no tool, only this page's nine tools available, 28 calls across 8 of them in each run, read out of the bridge transcript. Both runs met the page's `stale-revision` refusal; the local one recovered from it and the hosted one did not. The marks the page accepted were not the fixture's demo findings, and the injection answer was credited nothing in all four batches. Tools reached the model through our own bridge, so a native third-party host is still unshown, and neither artifact carries a build binding of its own. [`docs/MODEL-REPLAY.md`](docs/MODEL-REPLAY.md) | `VERIFIED_RUN` |
 | MCP host attached to the bridge | not run — `scripts/mcp-bridge.mjs` and five client configs are on disk and parse; no host has been pointed at them | `UNKNOWN` |
-| Independent user validation | not run — the protocol is written and waiting in `docs/GATE-P2.md`. A five-reviewer simulated panel was run instead and is recorded as `INFERENCE` in `docs/evidence/simulated-panel-2026-09-03.json`; it is a critique instrument, not a user study | `UNKNOWN` |
+| Independent user validation | not run — the former `GATE-P2` was an internal bar above what the rules ask for and is retired. It remains as a historical instrument; `docs/GATE-P2-SIMULATION.md` covers the human half as `INFERENCE`, and `docs/evidence/multi-agent-simulation.json` covers the workflow half as a deterministic role simulation. Neither is a user study, and no person other than the author has read this page | `UNKNOWN` (gate retired) |
+| Multi-agent workflow simulation | 20 / 20 checks — recognition, safety, adversarial recovery, release staging, human decline/re-stage/confirm and final audit over the real tool surface | `SIMULATED_RUN` |
 | Screen reader and real-device review | not run | `ENVIRONMENT_BLOCKED` |
 | Controlled performance baseline | not run | `UNKNOWN` |
 
 Do not combine those classes. A local deterministic CDP run is engineering proof; a hosted run is
-delivery proof, and one exists — two probes drove `https://androlay.github.io/withheld/` on 2026-09-03
-at 07:44 UTC and are saved as `docs/evidence/hosted-browser-session.json` and
-`docs/evidence/hosted-webmcp-invocation.json`. A model choosing a tool by itself is a third thing that
-neither of them shows, and it has not happened: both hosted reports say so in their own words, one
-"not model-selected", the other "No model was involved." The five local artifacts in `docs/evidence/`
-were regenerated on 2026-09-03 at 12:54–12:56 UTC and all bind to build `84eee099…`.
+delivery proof, and both hosted probes now describe the bytes the URL returns today — they drove
+`https://androlay.github.io/withheld/` on 2026-09-03 at 18:59:34 and 19:06:44 UTC, after the 18:02
+republish, and are saved as `docs/evidence/hosted-browser-session.json` and
+`docs/evidence/hosted-webmcp-invocation.json`. Both report a clean working tree and both bind the same
+source `b924a27a…` and build `84eee099…` as the rest of this release. A model choosing a tool by itself
+is a third thing that neither of them shows, and it has not happened: both hosted reports say so in
+their own words, one "not model-selected", the other "No model was involved."
 
-**The live URL now serves that build.** At 18:02:45 UTC `gh-pages` `15baf8f` replaced what the site had
-served since 07:43, and at 18:03 UTC the three files it returns — a 988-byte `index.html`, a
-31,862-byte CSS bundle and a 269,076-byte JS bundle — were downloaded and hashed byte-identical to
-`dist/` in this checkout, HTTP 200 on each, over HTTPS from GitHub Pages. So the local figures in the
-table above were measured against the same bytes the URL returns today. What did move is the source
-hash: `scripts/` gained the bridge, the five host configs and the two harnesses, so source is
-`b924a27a…` where those artifacts record `10fb7f7c…`. Nothing under `src/`, `index.html`,
-`vite.config.ts` or the tsconfigs changed, which is why the build hash and the hashed `dist/` filenames
-did not, and why `docs/evidence/checksums.txt` still verifies clean from `submissions/withheld` without
-regenerating.
+**The live URL serves this tree's build.** At 18:02:45 UTC `gh-pages` `15baf8f` replaced what the site
+had served since 07:43, and at 19:25:19 UTC the three files it returns — a 988-byte `index.html`, a
+31,862-byte CSS bundle and a 269,076-byte JS bundle — were downloaded again and hashed byte-identical to
+`dist/` in this checkout, HTTP 200 on each, over HTTPS from GitHub Pages. The four screenshots in
+`docs/evidence/` were re-rendered from that URL during the 18:59 run and came back byte-identical to the
+committed files, so the pictures, the local table above and the live page are one build.
 
-The republish dates one thing: the two hosted probes. They ran against the earlier published build
-`3700f7c5…` — source `09974722…`, commit `93eee30`, published as `b050f991` — and have **not** been
-re-run against what is live now, so read those two reports as delivery proof for that build rather than
-for this one. The difference between the two is the scrolling columns and five sentences of copy; it
-touched no tool, no contract and no fixture.
+One row of that table is older than the rest. Three of the four local harnesses were re-taken on the
+frozen source at 19:19 UTC; the local dispatch record still carries its 12:54:49 UTC run, which binds
+source `10fb7f7c…` — the same tree before `scripts/` gained the bridge, the five host configs and the
+two harnesses, with `src/`, `dist/`, `index.html`, `vite.config.ts` and the tsconfigs untouched. The
+re-take is on disk as `docs/evidence/local-dispatch-retake-2026-09-03.json` and it fails one check of
+nineteen: a Chromium extension force-installed on this machine injects a page-script into the harness's
+`http://` origin, and the check that nothing left the expected origin counts it. The page's own requests
+are unchanged and the same nineteen checks passed 19/19 against the `https://` live URL at 19:06:44 UTC.
+Suppressing the extension would mean adding a flag under `scripts/` and moving the source hash off the
+published tree, so the source stays frozen and the failure is disclosed instead — recorded as
+`FAILED_RUN` with class `ENVIRONMENT_BLOCKED`, neither promoted nor hidden.
 
 ## On a phone
 
@@ -322,7 +351,7 @@ with none of its nine tool rows visible until a person opens it. The picture is 
 | `pnpm webmcp` | 19-check native WebMCP registry and dispatch run; writes `docs/evidence/webmcp-invocation.json` and `native-registry.json` |
 | `node --experimental-strip-types scripts/failure-recovery.mjs` | 27-check refusal and recovery journey |
 | `pnpm native-session` | MCP-over-stdio harness through `scripts/mcp-bridge.mjs`: handshake, `tools/list`, ~20 labelled checks over all nine tools including six distinct refusals. **Never executed.** |
-| `pnpm nl-replay` | three plain-language goals to a real client CLI, tools restricted to the nine, choices read from the bridge transcript. **Never executed.** |
+| `pnpm nl-replay` | three plain-language goals to a real client CLI, tools restricted to the nine, choices read from the bridge transcript. **Run twice on 2026-09-04, local and hosted; see `docs/MODEL-REPLAY.md`.** |
 
 `pnpm browser`, `pnpm agent-view` and `pnpm webmcp` accept `--url` to run against a server that is
 already up, `--browser` to name a binary, and `--port` to move the debugging port. The two MCP harnesses
@@ -362,7 +391,7 @@ submissions/withheld/
 │   ├── mcp-bridge.mjs                MCP stdio server in front of the page's own tools
 │   ├── mcp-configs/                  five host configs: generic, claude-code, codex, terra, sol
 │   ├── native-webmcp-session.mjs     MCP transport and guard harness — never executed
-│   └── nl-replay.mjs                 model-in-the-loop harness — never executed
+│   └── nl-replay.mjs                 model-in-the-loop harness — run twice, local and hosted, 2026-09-04
 ├── docs/                             see docs/README.md; agent-integration.md is the attach guide, evidence/ holds the artifacts
 ├── LICENSE                           MIT
 └── SECURITY.md                       threat model, and what a header-less static host cannot enforce
@@ -390,7 +419,12 @@ configs, the result shape, the refusal codes and the flags,
 - The rubric, the fourteen answers and the worked example are synthetic. They exist to exercise clean,
   ambiguous, long, boundary and marker-directed answers — they are not a dataset and not a measurement
   of anything.
-- Prompt-injection handling is a quarantine router, not a general solution to model behaviour.
+- Prompt-injection handling is a quarantine **router**, not a filter and not a general solution to
+  model behaviour. Ten patterns in `src/domain/session.ts`, English and Indonesian, catch the phrasing
+  the one shipped marker-directed fixture (`ans-11`) uses; wording that none of them match is marked as
+  an ordinary answer, and what stands in its way then is the surface carrying no number and the human
+  gate — not detection. A false positive costs one answer a human glance, which is the direction the
+  error is meant to fall.
 - The write surface has no escalation, and that is a **limit rather than a design** — unlike the missing
   `confirm_release`, which is the thesis. `read_answer` tells the agent to report an answer that
   instructs it, and no tool accepts that report. What the page does instead is catch it itself: naming
@@ -414,26 +448,26 @@ configs, the result shape, the refusal codes and the flags,
 
 ## Status
 
-Published and current. `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at 18:03
-UTC, serving a 988-byte `index.html` last modified at 18:02:45 UTC, and all three files it returns
-hashed byte-identical to `dist/` in this checkout. `gh-pages` — the ref the site serves — is `15baf8f0`;
-`main` was `9cce7d0a` when this line was written and moves with each doc commit after it. Two probes
-have run against that URL rather than
-against `127.0.0.1` — `docs/evidence/hosted-browser-session.json` (43 checks, 43 passed, 07:44:04 UTC)
-and `docs/evidence/hosted-webmcp-invocation.json` (19 checks, 19 passed, 07:44:25 UTC), both in
-Chrome/151.0.7922.137 — but against the build the site served that morning, not against this one. Still
-absent: a Devpost entry, a demo video, any MCP host attached to the bridge, and any run in which a model
-chose one of these tools from a sentence.
+Published and current. `https://androlay.github.io/withheld/` answered HTTP 200 on 2026-09-03 at
+19:25:19 UTC, serving a 988-byte `index.html` last modified at 18:02:45 UTC, and all three files it
+returns hashed byte-identical to `dist/` in this checkout. `gh-pages` — the ref the site serves — is
+`15baf8f0`; `main` was `7e404d36` when the refs were last read without credentials, and it advances with
+each doc commit after that while `gh-pages` stays put. Two probes have run against that URL rather than
+against `127.0.0.1`, both after the republish and both on the build the site serves now —
+`docs/evidence/hosted-browser-session.json` (43 checks, 43 passed, 18:59:34 UTC) and
+`docs/evidence/hosted-webmcp-invocation.json` (19 checks, 19 passed, 19:06:44 UTC), both in
+Chrome/151.0.7922.137, both reporting a clean tree. Still absent: a Devpost entry, a demo video, any MCP
+host attached to the bridge, and any run in which a model chose one of these tools from a sentence.
 
 | | |
 | --- | --- |
-| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `gh-pages` `15baf8f0` is what the site serves; `main` held `9cce7d0a` at 18:02 UTC on 2026-09-03 and advances with each doc commit |
-| Hosted URL | <https://androlay.github.io/withheld/> — HTTP 200, GitHub Pages, serving build `84eee099…`, verified 2026-09-03 18:03 UTC |
-| Hosted evidence | 43/43 browser checks and 19/19 tool dispatches on the live URL at 07:44 UTC, neither model-selected, neither re-run after the 18:02 republish |
-| Agent attachment | bridge, five host configs and two harnesses on disk; none executed, no host attached |
+| Public repository | [AndroLay/withheld](https://github.com/AndroLay/withheld) — `gh-pages` `15baf8f0` is what the site serves; `main` held `7e404d36` when it was last read anonymously and advances with each doc commit |
+| Hosted URL | <https://androlay.github.io/withheld/> — HTTP 200, GitHub Pages, serving build `84eee099…`, re-verified 2026-09-03 19:25:19 UTC |
+| Hosted evidence | 43/43 browser checks at 18:59:34 UTC and 19/19 tool dispatches at 19:06:44 UTC on the live URL, both on the build it serves now, neither model-selected |
+| Agent attachment | bridge, five host configs and two harnesses on disk; `nl-replay.mjs` was run twice on 2026-09-04, local and hosted, and `native-webmcp-session.mjs` never; no third-party host has attached |
 | Data | synthetic, alias-only fixtures; no real student data |
 | Runtime | no backend, database, login, persistence, analytics, or outbound request |
-| Internal evidence gate (E4) | **not achieved** — model replay, independent validation and the video are open; the hosted run is now closed |
+| Internal evidence gate (E4) | **not achieved** — the video remains open, and no native third-party host has discovered the page; model replay ran on 2026-09-04, local and hosted, and the former GATE-P2 is retired with its workflow replacement at 20/20 |
 | License | MIT |
 
 ## License

@@ -235,12 +235,17 @@ clear of the native session's 9565 and of the 9571/9572 the Terra and Sol profil
 Both write to `docs/evidence-staging/`, not `docs/evidence/` — the evidence directory is checksum-bound
 with a hand-written manifest, so a new artifact goes to staging and is promoted deliberately.
 
-**Neither has been executed.** They are written and the editor's TypeScript service parses both without a
-syntax diagnostic; that is not a run. The shell was unusable in the session that finished them, so they
-have not been `node --check`ed from a terminal either, and no artifact exists in
-`docs/evidence-staging/` for either one yet. Until one is run,
-`docs/evidence/natural-language-replay-blocked.json` stands: the model-in-the-loop claim for this package
-is `UNKNOWN`, not achieved.
+**`nl-replay.mjs` has been executed; `native-webmcp-session.mjs` has not.** The replay ran twice on
+2026-09-04 — once against the local build at `127.0.0.1:4197` and once against
+`https://androlay.github.io/withheld/` — producing `docs/evidence-staging/nl-replay.json` and
+`nl-replay-hosted.json`, both classified `VERIFIED_RUN`. The write-up is
+[`MODEL-REPLAY.md`](MODEL-REPLAY.md): 28 calls across 8 of the 9 tools in 3 of 3 turns in each run, a
+`stale-revision` refusal in both that the local run recovered from unaided, and accepted marks that were
+not the fixture's own demo findings. The tools reached the model through this bridge rather than through a
+host that found the page by itself, and neither artifact carries a build binding — so the
+model-in-the-loop claim is now `VERIFIED_RUN` and native third-party discovery is still `UNKNOWN`.
+`docs/evidence/natural-language-replay-blocked.json` is kept unchanged as the record of the state before
+those runs. The native session harness remains unexecuted, with no artifact in staging.
 
 
 

@@ -50,8 +50,8 @@ import { useOneColumn } from "./ui/useOneColumn.ts";
  * and that is the point of it — it was already the agent's view.
  *
  * The page is fully usable with no agent present, which is not a fallback so much as the base case:
- * no natural-language model has driven these tools here; the local CDP harness is a transport check,
- * not an agent replay. A teacher can tick rubric lines by hand and get exactly the same holds.
+ * a model has chosen among these tools, through a bridge written for it rather than through a host
+ * that found the page by itself. A teacher can tick rubric lines by hand and get exactly the same holds.
  */
 export function App() {
   const { session, apply, readLatest, installation, retryInstallation, activity, demoFindings } =
@@ -163,8 +163,9 @@ export function App() {
               build is served under a policy that forbids one.
             </p>
             <p>
-              No natural-language model has driven these tools here. The local CDP harness exercises
-              the transport, but it is not a model replay; the page remains usable by hand.
+              A model has chosen among these tools and written their inputs — through a bridge built
+              for it here, not through a host that found this page by itself. The page remains fully
+              usable by hand.
             </p>
           </footer>
         </main>

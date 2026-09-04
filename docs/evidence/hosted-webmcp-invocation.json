@@ -2,12 +2,12 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "hosted production build with Chromium native WebMCP dispatch; not model-selected",
-  "ranAt": "2026-09-03T07:44:25.439Z",
+  "ranAt": "2026-09-03T19:06:44.394Z",
   "evidence": {
-    "gitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
-    "workingTreeDirty": true,
-    "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-    "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
+    "gitSha": "bb4c82ad2a08948d5d3b5ba6b3802bc86a6c6457",
+    "workingTreeDirty": false,
+    "sourceSha256": "b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",

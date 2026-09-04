@@ -207,9 +207,11 @@ without changing the shared `proposeMarks` write path.
 **2026-09-01.** Every tool has a visible manual equivalent, and the status line says plainly when
 no model context was found.
 
-**Consequence.** This is not a graceful fallback. At the time of writing, **no natural-language
-model driving these tools has been observed here** — the local CDP harness is a transport check,
-not a model replay. The no-agent path is still the only ordinary page path that has run, and it had
+**Consequence.** This is not a graceful fallback. When this was written, **no natural-language
+model driving these tools had been observed here** — the local CDP harness is a transport check,
+not a model replay. That changed on 2026-09-04, when a model chose tools twice through our bridge
+(`docs/MODEL-REPLAY.md`), and the decision below is unaffected: the no-agent path is still the only
+path a judge without a WebMCP host can take, and it had
 better be the honest one. A teacher can tick rubric lines by hand and get exactly
 the same holds, the same counterfactual, and the same two release buttons.
 
@@ -563,7 +565,9 @@ reasons specific to this submission, not out of taste:
   policy moves the band, and `render.test.mts` reads all four.
 - **A tour that lies is worse than no tour.** The worked example the queue applies goes through the
   same write path a teacher's ticks take, and the sentence under the rows says it is a
-  fixture and that no model has ever driven these tools. Nothing on the band is a recording.
+  fixture and that no model has ever driven these tools. Nothing on the band is a recording. The
+  second half of that sentence has been stale since 2026-09-04 and is left stale deliberately; D-45
+  records the reason and the cost of changing it.
 
 **What it must not become.** It holds no control that acts on the marking: its two buttons switch which
 figures a reader is shown, its fourteen tiles are anchors into the queue, and the one control that sends
@@ -979,10 +983,11 @@ not code: wherever a number is given it is "nine registrations, eight distinct p
 the form used in `README.md`, `docs/DEEP-AUDIT.md` and the manifest.
 
 **Not counted as a reason, and now spent as a fact:** when this was written, deleting the tool would have
-edited `src/`, invalidated `sourceSha256 09974722…`, forced a rebuild with new hashed `dist/` filenames
+edited `src/`, invalidated the source hash of the day, forced a rebuild with new hashed `dist/` filenames
 and a new checksum sheet, and demoted the two hosted artefacts from evidence about this tree to evidence
-about an older one. That cost was paid anyway at 10:56 UTC for the layout change — the source hash is now
-`10fb7f7c…` and the hosted reports already describe the previous build — so it no longer argues for
+about an older one. That cost was paid anyway at 10:56 UTC for the layout change, and the hosted pair was
+re-run against the republished build that evening, so the source hash of the release is now `b924a27a…`
+and no artefact is stranded on an older build. It no longer argues for
 keeping the tool. What keeps it is the design argument above, which stood on its own; the question is
 still not reopened before submission, but for the ordinary reason that a tool surface should not churn on
 the day of a deadline.
@@ -1017,7 +1022,8 @@ would make the surface ten registrations over nine payloads.
 
 **Why not now.** No owner approval for a `src/` change exists, and the cost is the one stated in D-34:
 all five local artefacts lose their binding, `dist/` filenames move, `checksums.txt` is regenerated, and
-the hosted evidence taken from `93eee30` stops describing the page in this tree. Step 3 of
+the two hosted reports — re-taken that evening against the served build — stop describing the page in
+this tree. Step 3 of
 `docs/evidence/natural-language-replay-blocked.json` is written to expect the refusal, so a model replay
 run before this is fixed will record the limit rather than trip over it.
 
@@ -1096,3 +1102,188 @@ registered `propose_marks` tool would have filled the log and fixed the per-row 
 it was rejected: it changes what `scripts/webmcp-invoke.mjs` observes, and that file may not be edited
 by this session, so the only available validation would have been a file this session cannot repair.
 Saying so is the honest version.
+
+## D-40 — Nine tools stay nine, and the surface is presented by phase in the document a judge opens
+
+**2026-09-03, 20:10 UTC.** A review of the submission asked for one thing about the tool surface and
+explicitly did not ask for another: order the nine by the phase of the job, label them so the split
+between reading, proposing and staging is legible, name the actions that deliberately have no tool —
+and do not add a tenth. The count is settled; what was missing was the reading order.
+
+Where it landed is a choice about cost. The contract panel in `src/ui/AgentPanel.tsx` renders each
+registration with a `read`/`write` role taken from the registry, which is what the browser actually
+reports and is not wrong. Re-cutting that list into phase groups is a `src/` change, and `src/` is
+frozen at `b924a27a…`: editing it moves the source hash, moves the hashed `dist/` filenames, breaks
+`checksums.txt`, and strands the two hosted reports on a build the URL no longer serves — the exact
+mismatch this milestone was spent closing. So the phase ordering was delivered in `README.md`, which
+costs nothing in provenance because `docs/` is in neither tree hash, and the panel change is queued
+behind owner approval and a full republish-and-re-run cycle rather than taken quietly.
+
+That leaves a visible seam, and it is disclosed instead of smoothed: the README numbers six phases and
+labels the writes `propose` and `stage`; the page says `write`. Both describe the same nine
+registrations, and the README says so beside the table.
+
+**What the four named absences buy.** `confirm_release` is the thesis and was already argued. The other
+three were implicit and are now written down with their enforcement attached: no tool returns a point
+value, a total, a distance or the pass mark (`assertAgentSafe` throws on any number off the allowlist in
+`src/tools/agent-boundary.ts`, and a text canary catches a figure that escaped as prose or as a key); no
+tool lowers a hold or the care level; no write is accepted without the revision it read and a single-use
+`operationId`. Each of those is checkable from an artifact already in `docs/evidence/`, which is the
+point — an absence a reader can test is a design claim, and an absence stated only in prose is a hope.
+
+## D-41 — The video opens on one answer, not on an empty page or a list of tool names
+
+**2026-09-03, 20:24 UTC.** The script's old first forty-two seconds were the page on arrival with every
+figure at zero, the intro band, and then nine names printed in a console. Read cold, that is a marking
+dashboard with a developer tool open next to it — the same thing a judge has already seen several times
+that day, and the boundary that makes this submission different did not appear until 1:02.
+
+The shot list now runs the boundary first and proves the plumbing last: the answer that addresses the
+marker, the contract the page publishes beside it, one real state change, the same row with the
+arithmetic missing from the agent's side, the quarantine and the held reasons, the ratchet refusing to be
+turned down, and the release a person has to press. The registry query moved to shot 8, where it confirms
+what a viewer has already watched happen rather than asking them to care about nine names first.
+
+Timings were re-cut to hold the 2:44 target against the 3:00 ceiling, and the cross-references moved with
+them: the flags note now names shots 7 and 8, the no-model rule names shot 9, and the fixture caption is
+read aloud in shot 3. The release beat is still shot 7 and still silent.
+
+**What was checked before scripting it.** The cold open is only filmable if the page already shows an
+answer body on arrival: `src/ui/Stack.tsx` renders each row as a `details` whose tab strip defaults to
+**Answer**, and that panel prints the body in a `blockquote` under the page's own caption — *handed to an
+agent flagged as untrusted*. One click, no setup, and the untrusted label is the page's wording rather
+than the narrator's. Nothing in `src/` was touched to make the shot work.
+
+## D-42 — The model replay stays unrun, and the two claims stay apart in writing *(superseded in part 2026-09-04 — the replay ran; see the closing block)*
+
+**2026-09-03, 20:38 UTC.** The hosted runs closed delivery and nothing else, and the tempting sentence
+after a green 19/19 on the live origin is *an agent used the hosted page*. It did not. The dispatcher was
+`scripts/webmcp-invoke.mjs`, which knew all nine names, every argument and the revision to quote before it
+started.
+
+So the boundary is now written into the artifact rather than left to whoever edits the README next.
+`docs/evidence/natural-language-replay-blocked.json` carries two new fields: `safeClaim`, which is the
+most that may be said — hosted WebMCP registration and dispatch are verified, nine tools present, seven
+dispatched, 19/19 at 19:06:44 UTC — and `unsafeClaim`, which names the sentence that may not appear
+anywhere in this package. Registration and dispatch are facts about a surface; selection is a fact about a
+model, and no model has been attached to this page.
+
+**Why it is not run here rather than merely absent.** A replay needs a client with a model in it that can
+reach `document.modelContext`. There is no such client in this environment and no key to authorise one.
+The instrument is not what is missing: `scripts/mcp-bridge.mjs`, `scripts/nl-replay.mjs`,
+`scripts/native-webmcp-session.mjs` and five host configs under `scripts/mcp-configs/` are committed
+inside the published source tree, and no artifact in this package records a run of any of the three —
+writing them closed nothing, which is what `docs/evidence/manifest.json` records under `openGates`. That
+absence is checkable rather than asserted: `native-webmcp-session.mjs` is specified to write an artifact
+carrying `chosenBy: "script"` (`docs/agent-integration.md:209`), and no file under `docs/evidence/`
+contains that key. One nearby fact must not be collapsed into it. The wire readings quoted in
+`docs/agent-integration.md` — nine tools and every result shape, in a flagged `Chrome/151.0.7922.137`
+against the preview on `http://127.0.0.1:4197/` — are real captures, but they were taken over CDP by the
+harness that wrote `native-registry.json` and `webmcp-invocation.json`, whose scope lines read "Chromium
+native WebMCP dispatch". The tool surface the bridge fronts has therefore been read off the wire; the
+bridge's own stdio path has not. The one thing that would close this gate is a model attaching to it. Faking the replay with the deterministic client instead
+would be worse than not having it, and that route was rejected.
+
+**What the artifact now demands, so that a future run cannot be a demo.** The protocol grew a seventh
+step: after the model reports that it cannot send, the observer presses the human release control and
+records the receipt. That is the chain this submission argues for, end to end — the model proposes and
+stages, a person sends — and until one clean pass through all seven steps exists, W5 stays `UNKNOWN` and
+the ceiling stays out of reach. Written down, the gap is a limitation. Implied away, it would be a
+misrepresentation.
+
+**Superseded in part, 2026-09-04.** The replay ran. `scripts/nl-replay.mjs` drove a real
+`claude-opus-5` client twice — once against `dist/` on localhost, once against the live URL — and the
+model chose 8 of the 9 tools from three prompts that named none, composed valid `answerId`/`lineId`
+arguments, met the page's `stale-revision` refusal in both runs and recovered from it locally. The
+account and its limits are in `docs/MODEL-REPLAY.md`; the artifacts are
+`docs/evidence-staging/nl-replay.json` and `nl-replay-hosted.json`. Three parts of this decision
+survive intact and are the reason it is only *partly* superseded. First, the `unsafeClaim` field is
+still binding on the artifact it belongs to: nothing may say a model drove
+`hosted-webmcp-invocation.json`, because a script did. Second, the paragraph above concluded that the
+gap closes when "a model attaches to it" — a model attached to *our bridge*, not to a shipped WebMCP
+host, so the seventh step's meaning narrows rather than vanishes and the native-host gap is now
+what carries it. Third, the run was not faked with the deterministic client, which was the thing this
+decision most wanted to prevent: choices were read from the bridge's JSONL transcript rather than from
+the model's prose, so the record shows what was called, not what was claimed.
+
+## D-43 — The external UI V3 target is reconciled against the frozen build, not implemented into it
+
+**2026-09-04.** An external target document describes a V3 interface for this page: a popover per WebMCP
+event, a four-part refusal modal, a how-it-works stepper, a phase-aware contract, a sticky gate and a
+bottom sheet at one column. The same document also carries a source-freeze rule that allows source to
+reopen for exactly four reasons. All four were tested against this package and none holds: no open
+official gate needs a UI change, the live URL serves the build this tree produces, no security or
+authority defect is demonstrated, and no mechanic is false.
+
+So the target was answered the only way it can be answered without breaking the release: line by line,
+against the code that is already published. `docs/UI-V3-RECONCILIATION.md` records a verdict and a source
+pointer for every requirement and all ten of its acceptance checks. Most of the intent is already met by a
+different mechanism — progressive disclosure instead of popovers, the `Yours` / `Agent's view` lens instead
+of a prose explanation of the boundary, a receipt ledger instead of transient cards, and a counterfactual
+panel instead of the one sentence the target asks for. Five items are genuinely absent and are named as
+absent, smallest first, with recovery text on a refused write at the top because it is the only one a
+marker would use.
+
+**Why the price is the point.** The edit is never the cost. Touching one file under `src/` moves
+`sourceSha256`, renames the hashed assets in `dist/`, invalidates all 27 paths in
+`docs/evidence/checksums.txt`, and strands the 43/43 and 19/19 hosted reports on a build the URL no longer
+serves — then the republish, the re-probe, the four screenshots, the manifest and any recording have to
+follow. A page that is one popover better and can no longer prove what it is scores worse. The
+reconciliation is also explicit that it licenses nothing: no score moves because a document was added, and
+nothing in this package may say the V3 interface was built.
+
+## D-44 — Retire GATE-P2 and replace the active workflow check with multi-agent simulation
+
+**2026-09-04.** GATE-P2 was an internal non-builder validation gate, not an official submission
+requirement. No suitable participant was available, so the owner withdrew it as an active blocker.
+The original instrument and its `NOT_RUN` artifact remain for historical provenance and must not be
+rewritten as user evidence.
+
+The active replacement is `docs/evidence/multi-agent-simulation.json`, generated by
+`docs/evidence/harness/multi-agent-simulation.mjs`. It assigns bounded recognition, safety,
+adversarial, release-staging and audit roles over the production tool registrations and one shared
+session, with the release confirmation represented only by the page-owned human boundary. The run
+passed 20/20 checks, including redaction, injection quarantine, stale/duplicate/malformed refusal,
+decline, re-stage, confirm and receipt continuity.
+
+This decision changes the internal gate inventory, not the evidence classes: the run is
+`SIMULATED_RUN`, not natural-language model replay, native third-party discovery, user validation,
+learner validation or impact measurement. Therefore the package may remove GATE-P2 from the list of
+active blockers while retaining the narrow synthetic-data and no-impact-claim language.
+
+**One gate, two replacements, and neither is a person.** The simulation covers only the workflow half
+of what GATE-P2 was for. The other half — whether someone who did not build the page can say what
+problem it solves — is answered in `docs/GATE-P2-SIMULATION.md`, in the author's own voice, and is
+labelled there as exactly that. So the retirement leaves two documents where the gate stood:
+`GATE-P2-SIMULATION.md` for the four written questions and `MULTI-AGENT-SIMULATION.md` with its 20/20
+artifact for the hand-off. Each names the other. Neither ticks the non-builder checkbox, and no
+sentence anywhere in this package may sum them into one that does. The separate natural-language
+replay of the same day (D-42's closing block) is a third thing again: it is model evidence, not
+workflow evidence and not human evidence.
+
+## D-45 — The page's footnote is now narrower than the evidence, and it is left that way on purpose
+
+**2026-09-04.** `src/App.tsx:166` tells a reader "No natural-language model has driven these tools
+here." Since the replay ran, that sentence is false — a model drove them twice, and one of those runs
+was against the live URL the footnote is served from. It is left unchanged, and this is the record of
+why rather than an oversight to be found later.
+
+**What changing it would cost.** `src/` is inside the hashed source tree. One character there moves
+`sourceSha256` off `b924a27a…`, which is the value six of the seven passing reports carry; a rebuild
+moves `buildSha256` off `84eee099…`, which every report carries and which `checksums.txt` pins by
+`dist/` filename. Closing that loop honestly means: rebuild, regenerate the sheet, re-run the three
+local probes, republish so the live URL serves the new build, and re-run both hosted probes against
+it — the last two of which are the owner's to authorise. Done partly, the package would claim a
+release identity it no longer has, which is a worse failure than a stale sentence.
+
+**Why the stale sentence is the cheaper error.** It errs toward under-claiming. A judge who reads it
+concludes the page has *less* evidence behind it than it does, and the footnote's actual job — stopping
+a viewer from reading the fixture session on screen as a recording of an agent — is still done
+correctly, because nothing on that screen is a recording of anything. The direction matters: this
+package's rule is that a claim may not be wider than its evidence, and a claim narrower than its
+evidence does not break it.
+
+**Where the true statement lives instead.** `docs/MODEL-REPLAY.md` is the account, and README,
+`PROGRESS.md`, `E4-REQUIREMENTS.md`, `SUBMISSION-TEXT.md`, `PREFLIGHT.md`, `INVENTORY.md`,
+`SCORECARD.md` and `agent-integration.md` all now carry it. If the owner would rather the page itself
+say it, the sequence above is the price, and it has to run to the end.

@@ -2,29 +2,40 @@
   "schemaVersion": "1",
   "project": "withheld",
   "status": "VERIFIED_ARTIFACT",
-  "writtenAt": "2026-09-03T13:00:00Z",
-  "writtenBy": "hand, from the artifacts in this directory and from commands re-run on 2026-09-03; no figure is copied from prose",
-  "rerunNote": "This generation is not a re-run of the same build, and it is the second such generation of the day. Two changes to src/ landed after the 09:45–09:47 UTC generation: the wide layout became an app shell whose three columns scroll separately, with two reference blocks in the agent column turned into disclosures (10:42–12:16 UTC), and then four pieces of copy were added or rewritten for a reader who has not attached an agent — the question the class was set, now pinned above the queue; a key to the strip's four shades; the answered objection beside the printed payloads; and an empty-state line that names what would fill the call list (12:00–12:16 UTC). So src/ moved twice, sourceSha256 and buildSha256 are new, the built asset filenames are new, and all four screenshots are new — including the narrow one, which the first change had left untouched. Every local run below was taken against the one build that carries both changes. The 07:44 UTC hosted pair is a record of the build before either of them. Read liveUrlLag before treating any hosted figure here as a statement about the current source. A third, smaller change followed at about 12:50 UTC: two code comments were corrected to cite the right entries in docs/DECISIONS.md. That moved sourceSha256 to 10fb7f7c… and left buildSha256 at 84eee099…, because a comment does not survive the bundler — the rebuild reproduced index-DI6vQgfk.css and index-LG0K2zXZ.js byte for byte. The five runs recorded here were re-taken after it, between 12:54:15Z and 12:55:11Z, and reported the same figures as the 12:16 generation: 43/43, 17/17, 19/19, 27/27, 599 contrast pairs and an accessibility tree of 1106 nodes.",
-  "finalCommitSha": "b050f9911d84c5eebb71104a9f7b1ec6aca513c0",
-  "publishedSourceCommitSha": "93eee305573cf80c4e52db4bc45331777a71ae65",
-  "workingCommitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24",
-  "workingTreeDirty": true,
-  "commitNote": "93eee30 is the source the hosted page was built from and the gitSha inside both hosted reports. b050f991 is the commit that added those reports and is what AndroLay/withheld main and HEAD point at. df9608c4 is the base commit of this working package, which is dirty and now holds two layout and copy changes to src/ as well as documentation corrections; every local run here binds to it. The published tree and this tree are no longer the same page.",
-  "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
-  "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
-  "shaNote": "One source tree and one build tree cover the five local runs listed here. The pair moved apart today on purpose: buildSha256 84eee099… is the build of 12:16 UTC and has not changed since, while sourceSha256 10fb7f7c… is later, because two comment-only edits at about 12:50 UTC changed src/ without changing a byte of output. They do not cover the two hosted runs: those were taken against sourceSha256 09974722… and buildSha256 3700f7c5…, which is the build the live URL still serves.",
-  "hostedUrl": "https://androlay.github.io/withheld/",
-  "hostedVerifiedAt": "2026-09-03T09:01:24Z",
-  "hostedHttpStatus": 200,
-  "hostedIndexBytes": 988,
-  "hostedLastModified": "2026-09-03T07:43:21Z",
-  "provider": "GitHub Pages",
-  "repository": {
-    "url": "https://github.com/AndroLay/withheld",
-    "main": "b050f9911d84c5eebb71104a9f7b1ec6aca513c0",
-    "ghPages": "58a3ff42ca17d9fdef6bcad0800ea2244e0884f9",
-    "readAnonymouslyAt": "2026-09-03T09:01:24Z",
-    "readHow": "git ls-remote with no HOME, no credential helper and GIT_TERMINAL_PROMPT=0, plus an unauthenticated GET of the repository page and of /info/refs?service=git-upload-pack, both 200"
+  "writtenAt": "2026-09-03T19:30:00Z",
+  "writtenBy": "hand, from the artifacts in this directory and from commands re-run between 18:59 and 19:25 UTC on 2026-09-03; no figure is copied from prose",
+  "whyRegenerated": "The previous generation described a tree whose build the live URL did not serve. That gap closed at 18:02:45 UTC, when gh-pages 15baf8f0 began serving buildSha256 84eee099…, and this generation exists to make one release the subject of every field: the hosted pair was re-run against the served build, three of the four local runs were re-taken on the frozen source, the delivered bytes were compared again, and the published refs were read again without credentials. Nothing under src/ or scripts/ was touched to produce it, so neither hash moved.",
+  "release": {
+    "sourceSha256": "b924a27a0a295c01b9f9babb44f304aaccec85eb8f17a5a67f9292bc2c78a3f6",
+    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "monorepoCommit": "bb4c82ad2a08948d5d3b5ba6b3802bc86a6c6457",
+    "publicRepository": "https://github.com/AndroLay/withheld",
+    "publicMain": "7e404d36ee1a1ecaafeb2f53c288061f63e4a6c4",
+    "publicGhPages": "15baf8f0f6bce606603c51a3fa36445e31647ffa",
+    "hostedUrl": "https://androlay.github.io/withheld/",
+    "servedFiles": ["index.html", "assets/index-DI6vQgfk.css", "assets/index-LG0K2zXZ.js"],
+    "publishedAt": "2026-09-03T18:02:45Z",
+    "toolCount": 9,
+    "confirmReleaseTool": "absent by design — the browser has never registered one, and check 8 of the dispatch harness proves it cannot be invoked",
+    "refsReadAt": "2026-09-03T19:25:19Z",
+    "refsReadHow": "git ls-remote with HOME unset and GIT_TERMINAL_PROMPT=0, no credential helper",
+    "note": "sourceSha256 covers index.html, vite.config.ts, package.json, pnpm-lock.yaml, the three tsconfigs, src/ and scripts/. buildSha256 covers dist/. docs/ is in neither, which is why regenerating this directory does not move either hash.",
+    "commitsAreAsRead": "monorepoCommit and publicMain are the refs the runs above read. The commit that carries this file changes docs/ only, so it moves both refs forward one step without moving sourceSha256, buildSha256, gh-pages or the bytes the URL serves. Read the two hashes, not the commit ids, as the identity of this release."
+  },
+  "whatPointsAtThisRelease": {
+    "liveUrl": "yes — three files, HTTP 200, sha256-identical to dist/ at 19:25:19Z",
+    "commits": "yes — public main 7e404d3 holds this package's tree, and gh-pages 15baf8f0 is a build of it",
+    "buildHash": "yes — all eight runs below carry buildSha256 84eee099…, and so does every served file",
+    "sourceHash": "six of the seven passing runs carry sourceSha256 b924a27a…; the local dispatch record carries 10fb7f7c…, which is the same tree before scripts/ gained the MCP bridge, its five host configs and the two harnesses. See localDispatchNote",
+    "screenshots": "yes — the four PNGs in this directory were re-rendered from the live URL at 18:59:34Z and came out byte-identical to the committed files",
+    "toolCount": "yes — nine registrations, read from document.modelContext on the served page at 18:59:34Z and again at 19:06:44Z",
+    "manifest": "this file",
+    "video": "no. No recording exists. It is the one link in this chain that is missing, and it is listed in openGates"
+  },
+  "treeState": {
+    "atReleaseCommit": "clean — bb4c82ad was committed before this sequence began, and git reported nothing modified under submissions/withheld when it started",
+    "duringRuns": "each report samples the flag when its own run starts, so a run that follows another in the same sequence sees the evidence file the earlier one wrote. Every true below is docs/evidence/ only: nothing under src/, scripts/, index.html, the configs or the lockfile changed at any point, which is why every run reports the same buildSha256 and why six report the same sourceSha256",
+    "hostedPair": "both hosted reports read false — the tree was restored to its committed state before each of those two runs"
   },
   "browser": "Chrome/151.0.7922.137",
   "node": "v26.4.0",
@@ -33,13 +44,13 @@
     "--enable-experimental-web-platform-features",
     "--enable-features=WebMCPTesting"
   ],
-  "modelClient": "none — no model has selected a tool or composed an argument for this page",
+  "modelClient": "none — no model has selected a tool or composed an argument for this page. scripts/mcp-bridge.mjs and five host configs exist so that one could; no host has attached to them, and neither harness that would record it has a run recorded here",
   "runs": [
     {
       "file": "browser-session.json",
       "what": "browser session on the local production build",
       "url": "http://127.0.0.1:4173/",
-      "ranAt": "2026-09-03T12:54:15.778Z",
+      "ranAt": "2026-09-03T19:19:08.732Z",
       "checks": 43,
       "passed": 43,
       "failed": 0,
@@ -49,9 +60,19 @@
       "file": "agent-view-sweep.json",
       "what": "the agent's view of the same session, swept for page-owned figures",
       "url": "http://127.0.0.1:4193/",
-      "ranAt": "2026-09-03T12:54:42.562Z",
+      "ranAt": "2026-09-03T19:19:11.947Z",
       "checks": 17,
       "passed": 17,
+      "failed": 0,
+      "evidenceClass": "VERIFIED_ARTIFACT"
+    },
+    {
+      "file": "failure-recovery.json",
+      "what": "the failure and recovery journey, 25 trace steps",
+      "url": "http://127.0.0.1:4191/",
+      "ranAt": "2026-09-03T19:19:32.481Z",
+      "checks": 27,
+      "passed": 27,
       "failed": 0,
       "evidenceClass": "VERIFIED_ARTIFACT"
     },
@@ -63,74 +84,95 @@
       "checks": 19,
       "passed": 19,
       "failed": 0,
-      "evidenceClass": "VERIFIED_ARTIFACT"
+      "evidenceClass": "VERIFIED_ARTIFACT",
+      "bindsSourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+      "bindsBuildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+      "seeAlso": "local-dispatch-retake-2026-09-03.json and localDispatchNote"
     },
     {
       "file": "native-registry.json",
-      "what": "the nine registrations as document.modelContext presents them under the flags",
+      "what": "the nine registrations as document.modelContext presents them under the flags, locally",
       "url": "http://127.0.0.1:4183/",
       "ranAt": "2026-09-03T12:54:49.286Z",
-      "evidenceClass": "VERIFIED_ARTIFACT"
-    },
-    {
-      "file": "failure-recovery.json",
-      "what": "the failure and recovery journey, 25 trace steps",
-      "url": "http://127.0.0.1:4191/",
-      "ranAt": "2026-09-03T12:55:11.346Z",
-      "checks": 27,
-      "passed": 27,
-      "failed": 0,
-      "evidenceClass": "VERIFIED_ARTIFACT"
+      "evidenceClass": "VERIFIED_ARTIFACT",
+      "bindsSourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
+      "note": "written by the same run as webmcp-invocation.json, so it carries the same two hashes. The nine names were read again on the served page at 18:59:34Z and 19:06:44Z"
     },
     {
       "file": "hosted-browser-session.json",
-      "what": "the same browser session against the live URL, taken before the layout change — a record of the published build, not of this source tree",
+      "what": "the same 43 checks against the live URL, on the build the URL now serves",
       "url": "https://androlay.github.io/withheld/",
-      "ranAt": "2026-09-03T07:44:04.631Z",
+      "ranAt": "2026-09-03T18:59:34.561Z",
       "checks": 43,
       "passed": 43,
       "failed": 0,
       "evidenceClass": "VERIFIED_ARTIFACT",
-      "ranFrom": "the publication clone at 93eee30, not this working tree",
-      "describesSourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-      "describesBuildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
-      "workingTreeDirty": false
+      "workingTreeDirty": false,
+      "records": "4 requests, 0 off-site; nine directives in the served CSP; nine tools in the registry; and the four screenshot hashes, which are the four files in this directory"
     },
     {
       "file": "hosted-webmcp-invocation.json",
-      "what": "the same nine dispatches against the live URL, taken before the layout change — a record of the published build, not of this source tree",
+      "what": "the same 19 dispatch checks against the live URL, on the build the URL now serves",
       "url": "https://androlay.github.io/withheld/",
-      "ranAt": "2026-09-03T07:44:25.439Z",
+      "ranAt": "2026-09-03T19:06:44.394Z",
       "checks": 19,
       "passed": 19,
       "failed": 0,
       "evidenceClass": "VERIFIED_ARTIFACT",
-      "ranFrom": "the publication clone at 93eee30, not this working tree",
-      "describesSourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-      "describesBuildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
-      "workingTreeDirty": true
+      "workingTreeDirty": false,
+      "records": "nine registrations, seven dispatches, the stale-revision and duplicate-operation refusals, a staged release awaiting a person, and WebMCP.invokeTool failing to find a confirm tool"
+    },
+    {
+      "file": "local-dispatch-retake-2026-09-03.json",
+      "what": "the attempt to re-take the local dispatch run on the frozen source, which fails one check for a reason outside the page",
+      "url": "http://127.0.0.1:4183/",
+      "ranAt": "2026-09-03T19:21:26.550Z",
+      "checks": 19,
+      "passed": 18,
+      "failed": 1,
+      "evidenceClass": "ENVIRONMENT_BLOCKED"
     }
   ],
-  "liveUrlLag": {
-    "state": "the live URL is two builds behind this source tree: it serves 3700f7c5…, while this tree has built eff1c3bf… (app shell, 10:56Z) and then 84eee099… (copy, 12:16Z). Neither was published.",
-    "since": "2026-09-03T12:16 UTC, when the second local build of the day was taken; the gap opened at 10:56 UTC with the app-shell rebuild",
-    "liveServes": {
-      "sourceSha256": "09974722cf2555913b2eba48dd67550538e9a5259817004018dc223bc328e057",
-      "buildSha256": "3700f7c57edf3160a795fbddf6fbd8ae832007f238e5275662c5f99ad8c717d0",
-      "css": "assets/index-DXn1KLBA.css",
-      "js": "assets/index-JsqLqLgl.js"
-    },
-    "thisTreeBuilds": {
-      "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
-      "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
-      "css": "assets/index-DI6vQgfk.css",
-      "js": "assets/index-LG0K2zXZ.js"
-    },
-    "whatDiffers": "two changes, both to src/. At 1248px and wider the page is now an app shell one viewport tall whose three columns scroll independently, and two reference blocks in the agent column are disclosures. Four pieces of copy were then added or rewritten for a reader who has not attached an agent: the question the class was set is pinned above the queue, the strip's four shades have a key, the objection about a scoreless tool surface is answered beside the printed payloads, and the empty call list now names what would fill it and says the worked-example button deliberately does not. Tool surface, contracts, schemas and fixture are unchanged, which is why all 43 + 17 + 19 + 27 checks still pass.",
-    "whoClosesIt": "the owner. Republishing is not authorized for this agent and has not been attempted.",
-    "evidenceClass": "VERIFIED_ARTIFACT"
+  "localDispatchNote": "Three of the four local scripts re-took cleanly on sourceSha256 b924a27a…. The dispatch script does not, twice: a Chromium extension force-installed on this machine — /usr/share/chromium/extensions/cimiefiiaegbelhefglklhhakcgmhkai.json, whose whole content is an external_update_url — is installed into the harness's fresh profile and injects a page-script into the http:// origin, and the check that nothing left the expected origin counts it. The page's own requests and its connect-src 'none' are unchanged, and the same nineteen checks passed 19/19 against the https:// live URL at 19:06:44Z on this build. The 12:54:49Z run was therefore left in place as the local record rather than replaced by a run that fails for a reason this package does not control, and local-dispatch-retake-2026-09-03.json is the disclosure of that choice. Suppressing the extension would mean adding a browser flag in scripts/, which would move sourceSha256 away from the published tree; the source is frozen instead.",
+  "liveUrlParity": {
+    "state": "no lag. The live URL serves buildSha256 84eee099…, which is the build this tree produces.",
+    "closedAt": "2026-09-03T18:02:45Z, the last-modified header on all three served files, when gh-pages moved 58a3ff4 → 15baf8f0",
+    "history": "for about seven hours the URL served 3700f7c5… while this tree built 84eee099…; the previous generation of this manifest recorded that gap under liveUrlLag and it is closed",
+    "checkedAt": "2026-09-03T19:25:19Z",
+    "evidenceClass": "VERIFIED_RUN"
   },
-  "dirtyFlagNote": "The two hosted reports carry one gitSha and two workingTreeDirty values. They ran twenty-one seconds apart and the flag is sampled when a run starts: the browser session started on a clean tree, then wrote its own report and four screenshots into it, so the dispatch run that followed correctly saw a dirty tree. Nothing about the served build changed between them — both record the same sourceSha256 and buildSha256, and the hosted build is a commit that was already pushed.",
+  "hostedBuildIdentity": {
+    "checkedAt": "2026-09-03T19:25:19Z",
+    "how": "unauthenticated GET of each of the three built files from the live URL, then sha256 of the downloaded bytes against dist/",
+    "result": "all three identical",
+    "evidenceClass": "VERIFIED_RUN",
+    "files": [
+      {
+        "url": "https://androlay.github.io/withheld/",
+        "httpStatus": 200,
+        "bytes": 988,
+        "sha256": "a9effc1cf855202677e880118997bd541749826d1b042fafd2f075dd25435b13",
+        "matches": "dist/index.html"
+      },
+      {
+        "url": "https://androlay.github.io/withheld/assets/index-DI6vQgfk.css",
+        "httpStatus": 200,
+        "bytes": 31862,
+        "sha256": "9c2e5a99619102ae6c47562666039a5d8c9fd48db0c8d763ee7b184f03f4f458",
+        "matches": "dist/assets/index-DI6vQgfk.css"
+      },
+      {
+        "url": "https://androlay.github.io/withheld/assets/index-LG0K2zXZ.js",
+        "httpStatus": 200,
+        "bytes": 269076,
+        "sha256": "cf9369bbb914128a3023b1d269ecd1ffb797f28c2703bcac94637f26e350130b",
+        "matches": "dist/assets/index-LG0K2zXZ.js"
+      }
+    ],
+    "alsoCheckedAt": "2026-09-03T18:03Z, twenty seconds after the republish, with the same three results",
+    "whatThisProves": "buildSha256 84eee099… describes the live site and not only a local directory: every byte a judge downloads is a byte in dist/.",
+    "whatThisDoesNotProve": "nothing about a model, nothing about a user, and nothing about ChatGPT's in-app browser. It is a byte comparison of three files."
+  },
   "screenshots": [
     {
       "file": "browser-1440-marked.png",
@@ -161,7 +203,7 @@
       "state": "one column, release waiting"
     }
   ],
-  "screenshotNote": "All four hashes are new. The first change of the day re-took the two 1440 captures and the fold capture; this second one also moved the narrow capture, because the question line and the strip's key add height in one column — so browser-420-staged.png is 420x4883 where it was 420x4712, and it is no longer byte-identical to what the hosted run recorded. None of the four now matches anything the live URL serves; the hashes the hosted report carries are 3700f7c5…'s renders and are kept only inside hosted-browser-session.json, which is a run record and is not edited. The two wide captures are one viewport tall (1440x900) instead of 1440x2856 because the page is an app shell whose columns scroll on their own; docs/DECISIONS.md records that artefact cost as deliberate. Reproduction is still expected to be byte-for-byte for a given build and fixture, and is still not a claim that any render was taken twice on a different machine.",
+  "screenshotNote": "These four hashes did not move, and that is the point of this generation. All four were re-rendered twice on 2026-09-03 after the republish — once from the live URL at 18:59:34Z and once from the local build at 19:19:08Z — and both times the harness overwrote the files with identical bytes, so git reported no change. hosted-browser-session.json carries the same four hashes under the same repository-relative paths, which is the previous generation's one open provenance defect closed: the renders in this directory are now renders of the page the URL serves. This remains reproduction for a given build, fixture and viewport in headless Chromium on this machine; it is not a claim that any render was taken on different hardware.",
   "build": [
     {
       "file": "dist/index.html",
@@ -179,53 +221,12 @@
       "sha256": "cf9369bbb914128a3023b1d269ecd1ffb797f28c2703bcac94637f26e350130b"
     }
   ],
-  "buildNote": "index.html is still 988 bytes and a third set of 988 bytes: only the two hashed asset names inside it change, and they are always the same length. Against the published build the CSS has grown 1368 bytes and the JS 1702 bytes across both changes of the day — the app shell and the two disclosures, then the four pieces of copy. Vite reported 50 modules, 269.08 kB JS raw / 83.68 kB gzipped and 31.86 kB CSS raw / 6.34 kB gzipped; gzip -9 on the two files gives 82398 and 6294 bytes.",
-  "hostedBuildIdentity": {
-    "checkedAt": "2026-09-03T10:06:01Z",
-    "how": "unauthenticated GET of each of the three built files from the live URL, then sha256 of the downloaded bytes against dist/ as it stood at 10:06:01Z",
-    "result": "all three identical at the time of the check; superseded as a statement about this tree at 10:56Z, and superseded again at 12:16Z",
-    "evidenceClass": "VERIFIED_RUN",
-    "files": [
-      {
-        "url": "https://androlay.github.io/withheld/",
-        "httpStatus": 200,
-        "bytes": 988,
-        "sha256": "7e01550d0835b25c01c4588a1439faa6371419ed0e1ad32b95e2e7ce4e790cd5",
-        "matchedAtCheckTime": "dist/index.html, which now holds a9effc1c…",
-        "lastModified": "2026-09-03T07:43:21Z"
-      },
-      {
-        "url": "https://androlay.github.io/withheld/assets/index-DXn1KLBA.css",
-        "httpStatus": 200,
-        "bytes": 30494,
-        "sha256": "e5ef35244753ef9d31f94d91db89ab50a8be30fbcfcbbccb042f7efa6e16f994",
-        "matchedAtCheckTime": "dist/assets/index-DXn1KLBA.css, which this tree no longer builds"
-      },
-      {
-        "url": "https://androlay.github.io/withheld/assets/index-JsqLqLgl.js",
-        "httpStatus": 200,
-        "bytes": 267374,
-        "sha256": "37cfbde74e1619cada53ed231c60a6ccea471ce4718caf3a7ad784383fcec806",
-        "matchedAtCheckTime": "dist/assets/index-JsqLqLgl.js, which this tree no longer builds"
-      }
-    ],
-    "whatThisProves": "at 10:06:01Z, buildSha256 3700f7c5… described the live site and not only a local directory: every byte a judge downloaded was a byte in dist/ as it then stood. That build is what the live URL still serves, so the three hashes above remain a true statement about the published page.",
-    "whatThisDoesNotProve": "It is no longer a statement about this source tree. src/ was rebuilt at 10:56Z and again at 12:16Z, and dist/ now holds 84eee099… under different asset names, so this row proves delivery of the previous build only. See liveUrlLag. It also proves nothing about a model, nothing about a user, and nothing about ChatGPT's in-app browser — it is a byte comparison of three files."
-  },
-  "repositoryRefsRechecked": {
-    "checkedAt": "2026-09-03T10:06:01Z",
-    "how": "git ls-remote with HOME unset and GIT_TERMINAL_PROMPT=0, no credential helper",
-    "HEAD": "b050f9911d84c5eebb71104a9f7b1ec6aca513c0",
-    "main": "b050f9911d84c5eebb71104a9f7b1ec6aca513c0",
-    "ghPages": "58a3ff42ca17d9fdef6bcad0800ea2244e0884f9",
-    "result": "unchanged from the 09:01:24Z reading recorded above",
-    "evidenceClass": "VERIFIED_RUN"
-  },
+  "buildNote": "Vite reported 50 modules, 269.08 kB JS raw / 83.68 kB gzipped and 31.86 kB CSS raw / 6.34 kB gzipped; gzip -9 on the two files gives 82398 and 6294 bytes. index.html is 988 bytes and names the two hashed assets above. No rebuild was taken for this generation: the three hashes are the same bytes the live URL returned at 19:25:19Z.",
   "gateP2": {
     "participantCount": 0,
     "result": "not-run",
     "instrument": "docs/GATE-P2.md",
-    "why": "no non-builder participant was available before this manifest was written; see gate-p2-not-run.json",
+    "why": "no non-builder participant has been available; see gate-p2-not-run.json",
     "evidenceClass": "NOT_RUN",
     "insteadOfIt": "A five-reviewer simulated design review was run and is recorded as simulated-panel-2026-09-03.json with evidenceClass INFERENCE. It is a critique instrument: it found confusing copy and overstated claims, four of which were repaired in src/ the same session. It is not a user study, not learner validation and not adoption evidence, it involved no human, and it does not close this gate."
   },
@@ -234,6 +235,7 @@
       "gate": "natural-language model replay",
       "state": "UNKNOWN",
       "artifact": "natural-language-replay-blocked.json",
+      "instrument": "scripts/nl-replay.mjs and scripts/mcp-bridge.mjs exist and no run of either is recorded in this package; writing them closed nothing",
       "owner": "owner"
     },
     {
@@ -246,6 +248,7 @@
       "gate": "demo video under three minutes",
       "state": "NOT_RUN",
       "artifact": "docs/VIDEO-SCRIPT.md is the script; no recording exists",
+      "note": "the only element of the release chain in whatPointsAtThisRelease that points at nothing",
       "owner": "owner"
     },
     {
@@ -268,12 +271,13 @@
     }
   ],
   "limitations": [
-    "No model has chosen a tool here. Every dispatch in every run was written by a script that already knew the tool name, the arguments and the revision to quote. Both hosted reports say so in their own notClaimed text.",
+    "No model has chosen a tool here. Every dispatch in every run was written by a script that already knew the tool name, the arguments and the revision to quote. Both hosted reports say so in their own notClaimed text. A bridge and five host configs now exist for a model to attach through, and no model has attached.",
     "A hosted browser check is delivery proof, not user proof. Nobody outside the author has used this page. GATE-P2 is the instrument waiting for that, and it is a gate this package set itself rather than one the hackathon's rules ask for. simulated-panel-2026-09-03.json is a formative review by scripted reviewers, classified INFERENCE; it is not a user study, not learner validation, and not evidence of adoption.",
+    "The local dispatch record binds the source tree as it stood before scripts/ grew, and one re-take of it fails on this machine for a third-party reason. Both facts are in localDispatchNote and in local-dispatch-retake-2026-09-03.json rather than smoothed away.",
+    "The injection result is bounded. The page quarantines the one fixture answer that carries an instruction, and the quarantine is a rule about that fixture's shape, not a general defence against prompt injection.",
     "Contrast figures are arithmetic on composed colours and the accessibility tree is what a screen reader would be handed; neither is a report of the page being read or heard.",
     "No run has happened in ChatGPT's in-app browser, on macOS, iOS, Safari, or on a physical phone. The 420px column is measured headless.",
-    "E4 is not achieved and must not be claimed while model replay, GATE-P2 and the video are open.",
-    "The two hosted reports were written in a temporary publication clone, so their internal screenshots paths name that directory rather than a path inside this repository. None of the four hashes they record is a file in this directory any more: the three wide renders went with the app-shell rebuild at 10:56Z and the narrow one went with the copy build at 12:16Z.",
-    "The live URL is one build behind this source tree. Every hosted figure in this manifest describes the published build, not the page this checkout produces; see liveUrlLag. Closing that gap is a republish, which is the owner's decision and has not been done."
+    "No video exists, so nothing visual has been checked against this release by a person watching it.",
+    "E4 is not achieved and must not be claimed while model replay, GATE-P2 and the video are open."
   ]
 }

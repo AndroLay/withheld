@@ -1,31 +1,33 @@
 # Withheld verification log
 
-Written 2026-09-02T16:09:53Z and corrected on 2026-09-03, most recently after two source comments
-were repaired. The browser/CDP rows below record runs taken on 2026-09-03 between 12:54:15 and
-12:55:11
-UTC against one production build, authored and committed as `AndroLay <androlay30@gmail.com>`.
+Written 2026-09-02T16:09:53Z and corrected on 2026-09-03, most recently after the release was
+republished and its evidence re-taken. The browser/CDP rows below record runs taken on 2026-09-03: the
+browser session, agent-view sweep and failure/recovery journey between 19:19:08 and 19:19:32 UTC, the
+dispatch pair at 12:54:49 UTC, and the two hosted runs at 18:59:34 and 19:06:44 UTC — all against one
+production build, authored and committed as `AndroLay <androlay30@gmail.com>`.
 Environment: Node `v26.4.0`, pnpm `11.14.0`, Vite `7.3.6`, Chrome `151.0.7922.137`; browser flags
 were `--enable-experimental-web-platform-features` and `--enable-features=WebMCPTesting`.
 
-The source tree hash for that build is `10fb7f7cb083…` and the production `dist/` tree hash is
+The source tree hash for this release is `b924a27a0a29…` and the production `dist/` tree hash is
 `84eee0992732…`; both are restated inside each run artifact's own `evidence` block, and the
 per-artifact values are the authoritative ones. The two hashes moved independently today, which is
 worth stating plainly: the bundle bytes are the build of 12:16 UTC that added four pieces of copy, and
 they have not changed since — `dist/assets/index-DI6vQgfk.css` and `index-LG0K2zXZ.js` are the same
-files. The source hash moved again at about 12:50 UTC because two code comments were corrected to cite
-the right decision numbers, and a comment does not survive the bundler, so the rebuild reproduced
+files. The source hash moved twice after that build without moving the build hash: at about 12:50 UTC two
+code comments were corrected, and later `scripts/` gained the MCP bridge, its five host configs and the
+two harnesses. Neither touches `src/`, and neither survives the bundler, so the rebuild reproduced
 identical output. Recompute the current pair with `scripts/evidence-meta.mjs` whenever the tree moves.
 The source hash covers the standalone package inputs (`index.html`, Vite/package/TypeScript config,
 local lockfile, `src/`, and `scripts/`); it deliberately does not depend on the root workspace lockfile
 so the package can be published standalone. Browser/CDP calls below are deterministic local evidence,
 not model replay.
 
-The live URL is two builds behind this pair. It still serves `09974722cf25…` / `3700f7c57edf…`
-(`index-DXn1KLBA.css`, `index-JsqLqLgl.js`), which is the build the two hosted rows and the
-byte-identity row below describe; between it and this pair sits `eff1c3bf6eea…`, the app-shell build
-of 10:56 UTC, which was never published either. Republishing is the owner's decision and has not been
-done, so read every hosted figure in this log as a statement about the published page, not about this
-tree.
+The live URL serves this build. Since 18:02:45 UTC it has returned `84eee099…`
+(`index-DI6vQgfk.css`, `index-LG0K2zXZ.js`), the bundle this tree produces, and the byte-identity row
+below was re-run against it at 19:25:19 UTC. The two hosted rows were re-taken after the republish, so
+every hosted figure in this log is a statement about the page a judge opens today and about this tree at
+the same time. Two earlier builds are history: `3700f7c5…`, served until 18:02, and `eff1c3bf6eea…`, the
+app-shell build of 10:56 UTC that was never published.
 
 ## Commands and results
 
@@ -36,15 +38,18 @@ tree.
 | `./node_modules/.bin/tsc -b --pretty false` | 0 | Application TypeScript project check passed. |
 | `./node_modules/.bin/vite build` | 0 | Current `dist/`: JS 269.08 kB raw (`index-LG0K2zXZ.js`); CSS 31.86 kB raw (`index-DI6vQgfk.css`); `index.html` 988 B. Two gzip measurements, both real and both named: Vite's own report (`zlib.gzipSync` defaults) is 83.68 kB JS / 6.34 kB CSS, and `gzip -9` on the same files is 82398 B / 6294 B. Sizes measured from the built files on 2026-09-03 at 12:16 UTC, not copied from an earlier build log; the rebuild at 12:50 UTC, after two comments were corrected, reproduced the same two filenames and the same sizes. |
 | `node --check scripts/browser-session.mjs && node --check scripts/webmcp-invoke.mjs && node --check scripts/evidence-meta.mjs && node --check scripts/failure-recovery.mjs` | 0 | Node script syntax checks passed. |
-| `node --run browser` | 0 | 43/43; `browser-session.json` records `VERIFIED_RUN`, 599 contrast pairs with none failing, and an accessibility tree of 1106 nodes with 57 named and none unnamed; `ranAt` `2026-09-03T12:54:15.778Z`, served from `http://127.0.0.1:4173/`. |
-| `node --run agent-view` | 0 | 17/17; `agent-view-sweep.json`; `ranAt` `2026-09-03T12:54:42.562Z`, served from `http://127.0.0.1:4193/`. |
-| `node --run webmcp` | 0 | 19/19; `webmcp-invocation.json` and `native-registry.json`; `ranAt` `2026-09-03T12:54:49.286Z`, served from `http://127.0.0.1:4183/`. |
-| `node scripts/failure-recovery.mjs` | 0 | 27/27; `failure-recovery.json`; `ranAt` `2026-09-03T12:55:11.346Z`, served from `http://127.0.0.1:4191/`. |
+| `node --run browser` | 0 | 43/43; `browser-session.json` records `VERIFIED_RUN`, 599 contrast pairs with none failing, and an accessibility tree of 1106 nodes with 57 named and none unnamed; `ranAt` `2026-09-03T19:19:08.732Z`, served from `http://127.0.0.1:4173/`. Re-taken on the frozen source `b924a27a…`; the figures are unchanged from the 12:54 run. |
+| `node --run agent-view` | 0 | 17/17; `agent-view-sweep.json`; `ranAt` `2026-09-03T19:19:11.947Z`, served from `http://127.0.0.1:4193/`. |
+| `node --run webmcp` | 0 | 19/19; `webmcp-invocation.json` and `native-registry.json`; `ranAt` `2026-09-03T12:54:49.286Z`, served from `http://127.0.0.1:4183/`. This is the one local row not re-taken at 19:19, so it binds `sourceSha256 10fb7f7c…`; the row below says why. |
+| `node --run webmcp`, re-take on the frozen source | 1 | 18/19, twice — once inside the 19:19 sequence and once at `2026-09-03T19:21:26.550Z`. The failing check is "nothing left the expected origin": a Chromium extension force-installed on this machine (`/usr/share/chromium/extensions/cimiefiiaegbelhefglklhhakcgmhkai.json`) is loaded into the harness's fresh profile and injects `page-script.js` into the `http://` origin. The page's own requests and its `connect-src 'none'` are unchanged, and the same nineteen checks passed 19/19 over `https://` at 19:06:44Z. Recorded as `local-dispatch-retake-2026-09-03.json`, `FAILED_RUN` / `ENVIRONMENT_BLOCKED`; the 12:54 run was kept rather than replaced, and no flag was added to `scripts/` because that would move `sourceSha256` off the published tree. |
+| `node scripts/failure-recovery.mjs` | 0 | 27/27; `failure-recovery.json`; `ranAt` `2026-09-03T19:19:32.481Z`, served from `http://127.0.0.1:4191/`. |
 | `pnpm install --lockfile-only --ignore-workspace --offline --store-dir /tmp/withheld-pnpm-store` | 0 | Standalone target lockfile generated with pnpm 11.14.0. |
 | `pnpm install --frozen-lockfile --ignore-workspace --offline --ignore-scripts --store-dir /tmp/withheld-pnpm-store --fetch-retries=0 --fetch-timeout=1000 --network-concurrency=1` | 1 | Lockfile was up to date; package fetch stopped by blocked registry (`EAI_AGAIN`), so clean install remains environment-blocked. |
-| `curl` of the three built files from `https://androlay.github.io/withheld/` plus `sha256sum` against `dist/` | 0 | HTTP 200 on all three; `index.html` 988 B, `assets/index-DXn1KLBA.css` 30494 B, `assets/index-JsqLqLgl.js` 267374 B, each **byte-identical** to `dist/` as it stood when the check ran. Checked 2026-09-03T10:06:01Z, before the layout rebuild; recorded in `manifest.json` under `hostedBuildIdentity`. It proves the published build was delivered intact and is **not** a statement about the build this tree now produces — `dist/` was replaced at 10:56 UTC and again at 12:16 UTC, and the row has not been re-run because republishing is the owner's decision. |
-| `git ls-remote https://github.com/AndroLay/withheld.git` with `HOME` unset and `GIT_TERMINAL_PROMPT=0` | 0 | `HEAD` and `main` `b050f991`, `gh-pages` `58a3ff42`, re-read anonymously at 2026-09-03T10:06:01Z and unchanged from the 09:01:24Z reading. |
-| `sha256sum -c docs/evidence/checksums.txt` | 0 | 26 of 26 hashed paths OK, 0 failed, plus the 2 documented `source-tree`/`build-tree` pseudo-entries that `sha256sum` reports as "improperly formatted" by design. The sheet was regenerated after every other file in this directory, which is the only order that verifies; it grew from 25 paths to 26 when `simulated-panel-2026-09-03.json` was written. Run from `submissions/withheld`; the paths are package-relative and every line fails if it is run from inside `docs/evidence/`. |
+| `curl` of the three built files from `https://androlay.github.io/withheld/` plus `sha256sum` against `dist/` | 0 | HTTP 200 on all three; `index.html` 988 B, `assets/index-DI6vQgfk.css` 31862 B, `assets/index-LG0K2zXZ.js` 269076 B, each **byte-identical** to `dist/` in this checkout. Re-checked 2026-09-03T19:25:19Z, after the 18:02:45 UTC republish; recorded in `manifest.json` under `hostedBuildIdentity`. It proves the build this tree produces is the build the URL delivers, intact. An earlier reading of this row at 10:06:01Z described the previous published bundle (`index-DXn1KLBA.css`, `index-JsqLqLgl.js`) and is superseded. |
+| `node scripts/browser-session.mjs --url https://androlay.github.io/withheld/` | 0 | 43/43 against the live URL; `hosted-browser-session.json`, `ranAt` `2026-09-03T18:59:34.561Z`, `workingTreeDirty: false`, CSP enforced from that origin, 4 requests and none off-site, 599 contrast pairs, 1106 accessibility nodes with 57 named and none unnamed, nine tools on `document.modelContext`. Its `artifactSha256` block carries the four screenshots it re-rendered from the live page, each byte-identical to the committed file of the same name. |
+| `node scripts/webmcp-invoke.mjs --url https://androlay.github.io/withheld/` | 0 | 19/19 against the live URL; `hosted-webmcp-invocation.json`, `ranAt` `2026-09-03T19:06:44.394Z`, `workingTreeDirty: false`. Nine registrations, seven dispatches, the stale-revision and duplicate-operation refusals, a staged release left for a person, and `confirm_release` still *Tool not found*. Deterministic CDP, not a model. |
+| `git ls-remote https://github.com/AndroLay/withheld.git` with `HOME` unset and `GIT_TERMINAL_PROMPT=0` | 0 | `HEAD` and `main` `7e404d36`, `gh-pages` `15baf8f0`, read anonymously at 2026-09-03T19:25:19Z. `gh-pages` is the ref the site serves; doc commits after that minute move `main` only. |
+| `sha256sum -c docs/evidence/checksums.txt` | 0 | 27 of 27 hashed paths OK, 0 failed. Until 2026-09-04 the run also printed "WARNING: 2 lines are improperly formatted" for the bare `source-tree`/`build-tree` pseudo-entries; those two lines are now comments, so the command prints 27 OK and nothing else while the tree hashes stay in the file. The sheet was regenerated after every other file in this directory, which is the only order that verifies; it grew from 26 paths to 27 when `local-dispatch-retake-2026-09-03.json` was written. Run from `submissions/withheld`; the paths are package-relative and every line fails if it is run from inside `docs/evidence/`. |
 | `git diff --check -- submissions/withheld` | 0 | No whitespace errors. An earlier state of this documentation pass left a blank line at end of file in `docs/DECISIONS.md`; it was removed and the check re-run clean. |
 
 The first non-escalated recovery-harness attempt was exit 1 because the sandbox could not complete
@@ -77,26 +82,25 @@ the source/build hashes and tested source commit remain explicit.
   It found confusing copy and overstated claims, several of which were repaired the same session. It
   is not a user study, not learner validation, and not adoption evidence, and GATE-P2 stays open.
 
-## Run elsewhere, and copied in
+## Hosted runs, and how they bind
 
-- Hosted browser session and hosted native WebMCP dispatch: run on 2026-09-03 at 07:44:04Z and
-  07:44:25Z against `https://androlay.github.io/withheld/` from the publication clone at commit
-  `93eee30`, not from this working tree. `hosted-browser-session.json` (43 checks, 43 passed) and
+- Hosted browser session and hosted native WebMCP dispatch: run on 2026-09-03 at 18:59:34Z and
+  19:06:44Z against `https://androlay.github.io/withheld/` from this working tree at commit
+  `bb4c82ad`, after the 18:02:45 UTC republish. `hosted-browser-session.json` (43 checks, 43 passed) and
   `hosted-webmcp-invocation.json` (19 checks, 19 passed) are those two reports, byte-for-byte as they
-  were written; their `screenshots` paths therefore name the temporary clone directory they ran in
-  rather than a path in this repository. Both bind to `sourceSha256 09974722…` and `buildSha256
-  3700f7c5…`, which is the build the live URL still serves and **not** the build the five local rows
-  above were taken against. None of the four screenshot hashes they record is still a file in this
-  directory: the three wide renders went with the app-shell rebuild at 10:56 UTC and
-  `browser-420-staged.png` went with the copy build at 12:16 UTC, which added height to the one-column
-  layout. `checksums.txt` lists the current four.
-- The two reports disagree about `workingTreeDirty` — `false` for the browser session, `true` for the
-  dispatch, at one `gitSha`. That is the order they ran in, not a contradiction: the flag is sampled
-  when a run starts, the browser session then wrote its own report and four screenshots into that
-  clone's tree, and the dispatch run twenty-one seconds later saw them. `manifest.json` records the
-  same explanation.
-- Final manifest: `manifest.json` is now written from the runs in this directory;
-  `manifest.template.json` stays as the empty form it was.
+  were written; their `screenshots` paths name this repository, and both report
+  `workingTreeDirty: false` because the tree was restored to its committed state before each ran. Both
+  bind `sourceSha256 b924a27a…` and `buildSha256 84eee099…` — the same build the local rows above were
+  taken against, and the build the URL serves. The four screenshot hashes in the session's
+  `artifactSha256` are the four files in this directory: it re-rendered them from the live page and they
+  came out identical. `checksums.txt` lists the same four.
+- An earlier hosted pair, at 07:44:04Z and 07:44:25Z, ran from a temporary publication clone at commit
+  `93eee30` and described the previous published bundle (`sourceSha256 09974722…`, `buildSha256
+  3700f7c5…`). It was replaced by the two runs above rather than retained, so that no two reports in this
+  directory describe two different builds. That history is summarised in `manifest.json` under
+  `liveUrlParity.history`.
+- Final manifest: `manifest.json` is written from the runs in this directory, regenerated at 19:30Z as a
+  single-release record; `manifest.template.json` stays as the empty form it was.
 
 These omissions are represented by separate blocked/not-run JSON artifacts. They are not passes and
 do not support an E4 claim.

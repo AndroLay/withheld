@@ -2,12 +2,12 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "local production build in flagged Chromium; not hosted and not model-selected",
-  "ranAt": "2026-09-03T12:54:15.778Z",
+  "ranAt": "2026-09-04T05:39:31.098Z",
   "evidence": {
-    "gitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24",
+    "gitSha": "7e84c4f9e961dca9fbac2bb309f9014ee77ddb5f",
     "workingTreeDirty": true,
-    "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
-    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "sourceSha256": "a682d3d7e03b3e9552209d4c94d2c6e2b2038a0889c4d35ab5a344e1c4f3e84d",
+    "buildSha256": "2a6264beb0991a87d630b63c7f592ac888e719aced9cc67262fe65b275f8a8d2",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",
@@ -17,7 +17,7 @@
       "docs/evidence/browser-1440-marked.png": "5a73a65ea36a9edcda8c10e10e470509ca7777103db79060f5563ff7293cf584",
       "docs/evidence/browser-fold-1487.png": "61655a251087de1cab7a8d940cf354256fd965a5be34565ac7fcceec6c5323e2",
       "docs/evidence/browser-1440-staged.png": "d0a4f62d90f7c6e41ae9ea0768fca19cb91757f3635d1ccfaf7e804e0d2cedce",
-      "docs/evidence/browser-420-staged.png": "57f420dbb531eac10bffd14184613051ca0c6f114da0e713fb099d97e620132e"
+      "docs/evidence/browser-420-staged.png": "0b9f7a7a1275611e52664745cb71bba223c321bbf172dd8a27abe7c73f9b6ced"
     }
   },
   "browser": "Chrome/151.0.7922.137",

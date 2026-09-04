@@ -3,3 +3,9 @@ dist/
 .vite/
 *.local
 .DS_Store
+
+# Model-replay output. Real client sessions land here, so the files carry a
+# `sessionId` and a `costUsd` from the run. They are kept out of the repository by
+# default; promoting one into docs/evidence/ is a deliberate act (`git add -f`),
+# not something a `git add .` should do on its way to a publish.
+docs/evidence-staging/

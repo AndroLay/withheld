@@ -12,7 +12,8 @@ Their SHA256 values are recorded in `../checksums.txt`, in `../browser-session.j
 `../hosted-browser-session.json` and in `../manifest.json`, and all four sources agree.
 
 These four files are, byte for byte, both the local production-build captures and what the hosted run
-recorded on `https://androlay.github.io/withheld/` at 07:44 UTC on 2026-09-03 — the expected consequence
-of one `buildSha256` and a fixed fixture, not a claim that either render was taken twice. Note that
-`hosted-browser-session.json` names them under the temporary publication clone's paths because that is
-where it ran; `../manifest.json` states that in `screenshotNote`. None of them is model-replay evidence.
+re-rendered from `https://androlay.github.io/withheld/` at 18:59:34 UTC on 2026-09-03 — one
+`buildSha256` and a fixed fixture producing the same pixels from the served page as from the local
+preview. `hosted-browser-session.json` names them under this repository's own
+`docs/evidence/` paths, because that is where it ran, and its `artifactSha256` block holds the same four
+hashes `../checksums.txt` does. None of them is model-replay evidence.

@@ -10,9 +10,10 @@ Dokumen ini adalah backlog terpusat untuk memperkuat Withheld setelah:
 3. pemeriksaan source, test, browser artifact, dan dokumen package Withheld.
 
 Dokumen ini tidak menggantikan status ledger. Angka hanya dianggap benar jika ada
-artefak atau perintah yang dapat diulang. Rujukan komparatif tetap
-[audit tier A/B](../../../docs/research/46-tier-ab-audit-and-two-submission-upgrade-plan.md)
-dan [audit 13 video](../../../docs/research/47-devpost-video-audit-2026-09-02.md).
+artefak atau perintah yang dapat diulang. Rujukan komparatif tetap audit tier A/B di
+`../../../docs/research/46-tier-ab-audit-and-two-submission-upgrade-plan.md` dan audit 13 video di
+`../../../docs/research/47-devpost-video-audit-2026-09-02.md`; keduanya path monorepo, jadi tidak
+terbuka bila `submissions/withheld` diterbitkan sendiri.
 Temuan source-level yang mendasari backlog ini dirinci di
 [DEEP-AUDIT.md](DEEP-AUDIT.md), termasuk final human receipt, schema strictness,
 idempotency, form revision, property test, performance, dan accessibility.
@@ -31,10 +32,12 @@ including the refused ones, a gate that says when a tool staged the request, and
 and the two slabs under it as disclosures.
 
 Fresh local evidence: 136 tests in 9 files, typecheck, build, 43 browser checks, 17 agent-view
-checks, 19 WebMCP CDP checks, and 27 failure/recovery checks pass on Node 26.4.0. This does not
-close the external gates: hosted HTTPS, public repository and About licence visibility,
-natural-language model replay, GATE-P2, Node 22/CI, manual screen-reader review, and the public
-video remain open.
+checks, 19 WebMCP CDP checks, 27 failure/recovery checks, and the replacement multi-agent simulation
+20/20 pass on Node 26.4.0. This does not close the remaining evidence gaps: a native third-party
+WebMCP host, Node 22/CI, manual screen-reader review, and the public video remain open.
+Natural-language model replay left that list on 2026-09-04, when it ran twice — lokal dan hosted,
+`docs/MODEL-REPLAY.md` — through our own bridge. GATE-P2 was
+retired as an active internal gate on 2026-09-04; its historical instrument remains unrun.
 
 The backlog below remains useful as the acceptance map. Its earlier descriptions of missing
 receipts, loose schemas, uncontrolled forms, and absent runtime canary are pre-hardening
@@ -83,14 +86,14 @@ findings; do not treat them as current source status.
 
 | Gap | Status evidence sekarang | Mengapa menurunkan skor |
 | --- | --- | --- |
-| Model memilih tool | UNKNOWN; registry/DevTools script memilih semua call | WebMCP Leverage dan Execution belum terbukti pada perilaku agent |
-| Hosted URL | **closed** — `https://androlay.github.io/withheld/` HTTP 200 (2026-09-03 09:01 UTC); `hosted-browser-session.json` 43/43 dan `hosted-webmcp-invocation.json` 19/19 pada 07:44 UTC | tidak lagi menurunkan skor; juri dapat membuka artefaknya sendiri |
-| GATE-P2 | belum dijalankan | Potential Impact masih hipotesis dari author |
+| Model memilih tool | **closed 2026-09-04 lewat bridge sendiri** — `claude-opus-5` memilih 8 dari 9 tool dari tiga prompt yang tidak menyebut nama tool, dua kali (lokal dan hosted), `docs/MODEL-REPLAY.md`; yang belum ada adalah native third-party host | perilaku agent kini terbukti; penemuan page oleh host pihak ketiga belum |
+| Hosted URL | **closed** — `https://androlay.github.io/withheld/` HTTP 200 dengan byte identik `dist/` (2026-09-03 19:25:19 UTC); `hosted-browser-session.json` 43/43 pada 18:59:34 UTC dan `hosted-webmcp-invocation.json` 19/19 pada 19:06:44 UTC, keduanya terhadap build yang dilayani sekarang | tidak lagi menurunkan skor; juri dapat membuka artefaknya sendiri |
+| GATE-P2 | retired 2026-09-04, tidak pernah dijalankan | historical only; replaced as the active workflow gate by `multi-agent-simulation.json` (20/20 `SIMULATED_RUN`). This does not validate users or impact |
 | Video | belum ada | alur, failure, authority, dan WebMCP thesis belum terlihat dalam batas <180 detik |
 | Re-run penuh hari ini | **closed for Node 26 writable environment** | 136 tests, typecheck, build, 43 browser checks, 17 agent-view checks, 19 WebMCP checks, and 27 local recovery checks pass; Node 22/CI remains open |
 | Node 22/CI | belum dijalankan | package/CI compatibility masih inferred dari konfigurasi |
 | Screen-reader listening | belum dilakukan | AX tree dan named controls bukan bukti bahwa urutan/wording terdengar masuk akal |
-| Public repo/license detection | **closed untuk repo** — `AndroLay/withheld` publik, `main` `9cce7d0a`, `gh-pages` `15baf8f0`, dipush 2026-09-03 18:02 UTC; About/license badge belum dikonfirmasi pemilik | requirement repository sudah tertutup; tampilan About tinggal dilihat pemilik di halaman repo |
+| Public repo/license detection | **closed untuk repo** — `AndroLay/withheld` publik, `gh-pages` `15baf8f0` melayani situs, `main` `7e404d36` dibaca anonim 2026-09-03 19:25:19 UTC; About/license badge belum dikonfirmasi pemilik | requirement repository sudah tertutup; tampilan About tinggal dilihat pemilik di halaman repo |
 | Confirmed-release receipt | **closed in source and fresh browser artifact** | confirm/decline add human receipt events with exact revisions; repeat on hosted build |
 | Persistence/undo setelah confirm | tidak ada dan sengaja demikian | bukan defect otomatis; jangan ditambah tanpa alasan produk dan waktu |
 
@@ -117,6 +120,23 @@ yang dipinjam adalah cara membuktikan nilai.
 | 2D WebMCP | semantic focus, navigable result, live notification | satu answer dan audit reason harus dapat dicapai dari keyboard/deep link; WebGL tidak relevan bagi Withheld |
 | Happy Coffee | persona profesional, end-to-end workflow, prepare ≠ publish | jelaskan marking recognition → human review → release; jangan klaim agent mengirim nilai |
 
+### Dari pola pinjaman ke artefak yang sudah ada
+
+Lima pola yang secara eksplisit dipinjam untuk Withheld — desain dan cara membuktikan, bukan aset,
+source, visual, atau copy — kini masing-masing punya artefak yang bisa dibuka juri. Kalau satu baris di
+tabel ini kehilangan artefaknya, pola itu kembali menjadi klaim.
+
+| Pola | Yang dipinjam | Artefak yang mewujudkannya sekarang |
+| --- | --- | --- |
+| Airlock | ukur secara eksplisit apa yang tidak boleh keluar dari halaman | `src/tools/agent-boundary.ts`: `assertAgentSafe` melempar untuk setiap angka di path yang tidak ada pada allowlist, plus canary teks untuk angka yang lolos sebagai prosa atau sebagai key. Diukur oleh `docs/evidence/agent-view-sweep.json` (17/17) dan dinyatakan di layar sebagai daftar "what never crosses" |
+| Ceiling | least authority, one-use approval, refusal matrix | sembilan registrasi tanpa `confirm_release`; setiap write membawa `expectedRevision` dan `operationId` sekali pakai; refusal `stale-revision` dan `duplicate-operation` ada di `docs/evidence/webmcp-invocation.json` (19/19) dan diulang pada URL live di `docs/evidence/hosted-webmcp-invocation.json` (19/19) |
+| HowToPC | permintaan invalid → refusal → alternatif yang sah | `docs/evidence/failure-recovery.json` (27/27) menempuh jalur itu utuh; ratchet care level menolak diturunkan (shot 6 pada `docs/VIDEO-SCRIPT.md`); langkah 7 protokol replay meminta "mark as a pass" justru untuk merekam refusal-nya |
+| Catchfly | trace → diagnosis → artifact → approval | tab **Decision** per answer adalah trace dan alasan hold; receipt mencatat siapa yang memutuskan; approval tetap tombol manusia. Jejak mesinnya di `docs/evidence/failure-recovery.json` dan `docs/evidence/manifest.json` |
+| Happy Coffee | workflow profesional end-to-end, hasil mudah diverifikasi, prepare ≠ publish | urutan video yang baru: satu answer → kontrak → aritmetika yang tidak ada di payload → alasan hold → refusal → kirim oleh manusia; paired task GATE-P2 akan mengukurnya pada satu tumpukan nyata tetapi tidak pernah dijalankan dan ditarik 2026-09-04; `request_release` menyiapkan, hanya orang yang menerbitkan |
+
+Yang tidak dipinjam dari mana pun: nilai, rubrik, dan alias tetap sintetis, dan tidak ada aset atau
+kalimat dari benchmark mana pun yang masuk ke paket ini.
+
 ### Pelajaran dari seluruh tier A/B
 
 Tiga puluh benchmark A pada ledger memiliki sinyal source/live yang baik, tetapi
@@ -132,7 +152,8 @@ tidak akan datang dari menambah jumlah tool, melainkan dari:
 6. hosted serta model-selected evidence yang tidak dimiliki banyak benchmark.
 
 Rincian basis angka dan keterbatasannya ada di
-[deep review 30 records](../../../docs/research/30-deep-review-30-records.md).
+`../../../docs/research/30-deep-review-30-records.md`, juga path monorepo dan bukan bagian
+dari tree yang diterbitkan.
 
 ## 3. Prioritas perbaikan
 
@@ -217,16 +238,24 @@ Bukti minimum: transcript atau recording dengan timestamp, client/model,
 URL, prompt, tool calls yang dipilih model, dan limitation. DevTools script
 yang menulis semua argumen tidak boleh diberi label model replay.
 
-#### P0-05 — Tutup GATE-P2 dengan non-builder
+#### P0-05 — ~~Tutup GATE-P2 dengan non-builder~~ — DITARIK 2026-09-04; replaced by multi-agent simulation
 
-Jalankan protokol pada [GATE-P2](GATE-P2.md): satu orang yang tidak membangun
-page, dua pertanyaan sebelum demo, 90 detik tanpa tour, lalu dua pertanyaan
-comprehension. Simpan jawaban verbatim, tindakan yang dilakukan, dan pass/fail
-tiap pertanyaan.
+Gate ini adalah gate internal kami sendiri, di atas bar resmi hackathon, dan tidak
+ada peserta yang lolos screen-nya dalam sesi kerja ini. Owner menariknya sebagai
+blocker pada 2026-09-04. Instrumennya tetap ada di [GATE-P2](GATE-P2.md) sebagai
+historical record; penggantinya dibagi dua. Paruh workflow adalah
+[MULTI-AGENT-SIMULATION](MULTI-AGENT-SIMULATION.md), dengan artefak `20/20`
+`SIMULATED_RUN`, yang menguji hand-off, refusal recovery dan human-only release.
+Paruh manusianya adalah [GATE-P2-SIMULATION](GATE-P2-SIMULATION.md), yang justru
+mencatat bahwa dua dari empat pertanyaan gate ini tidak dapat disimulasikan sama
+sekali. Keduanya bukan user validation, model replay atau impact measurement.
 
-Acceptance evidence:
+Protokol aslinya tetap tersedia bagi penelitian lanjutan, tetapi tidak menjadi
+acceptance item untuk snapshot submission ini.
 
-- result section pada GATE-P2 terisi;
+Acceptance evidence (tetap belum terpenuhi, bukan terpenuhi):
+
+- result section pada GATE-P2 terisi — **masih kosong**;
 - README dan submission copy tidak mengubah satu sesi menjadi statistik umum;
 - jika orang tersebut salah memahami boundary, wording/UI diperbaiki lalu gate
   diulang.
@@ -374,7 +403,7 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 | --- | --- | --- | --- |
 | WebMCP Leverage | agent membaca language/evidence pada page state yang sama; page menghitung dan memegang authority | model-selected tool call, redacted payload, shared DOM update, no confirm_release | tool call hanya script/handwritten atau point/pass value bocor |
 | Execution | satu loop utuh, refusal, human stage/confirm, receipt, fallback | hosted replay, clean run, video <180s, README judge path | juri harus menebak urutan atau page tidak dapat dibuka |
-| Potential Impact | marker/reviewer tertentu mendapat triage recognition → human judgement | GATE-P2 verbatim, concrete before/after, synthetic limitation | klaim “menghemat X% marker” tanpa measurement |
+| Potential Impact | marker/reviewer tertentu mendapat triage recognition → human judgement | multi-agent workflow trace, concrete before/after, synthetic limitation; no user-impact claim | klaim “menghemat X% marker” tanpa measurement |
 | Creativity & Ambition | information-boundary mechanic: recognizer ≠ grader | satu adegan arithmetic terlihat di page tetapi tidak di contract payload | menjadi generic AI grading dashboard atau tool list |
 
 ### Internal subcriteria yang harus ditutup
@@ -390,8 +419,8 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 - X3 UX/demo: hook dan evidence terbaca cepat;
 - X4 responsiveness: no overflow, focus, no console error, bounded latency;
 - X5 reproducibility: clean clone, hosted URL, license, commands;
-- I1–I3: problem, persona, before/after harus berasal dari GATE-P2 atau disebut
-  hypothesis;
+- I1–I3: problem, persona, before/after tetap harus dibatasi sebagai source/design evidence atau
+  hypothesis. Multi-agent simulation memperlihatkan system workflow, bukan pengalaman pengguna;
 - I4 human-agent split: recognition didelegasikan, judgement/release tetap manusia;
 - I5 credibility: synthetic, scope, dan limitation terlihat;
 - C1–C3: boundary mechanic dan refusal memorable;
@@ -408,7 +437,7 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 | outside caller dispatches | current local 19-check artifact | hosted dispatch run | environment/owner |
 | a model selects tools | belum ada | authorized natural-language replay | owner/client |
 | page-owned boundary | source/tests + artifact payload checks + agent-view sweep (132 redactions) | hosted payload capture + GATE-W1 rerun | implementer |
-| workflow matters | author description only | GATE-P2 non-builder record | owner/participant |
+| workflow matters | author description plus 20/20 multi-agent simulation | no user validation claim; optional future research only | implementer/owner |
 | browser usability | current local layout/AX/contrast checks inside the 43-check browser run | manual keyboard/screen-reader listen | owner/reviewer |
 | public reproducibility | local package only | public repo/About/license + clean clone | owner |
 | judge can understand quickly | storyboard only | final hosted video and independent comprehension | owner |
@@ -420,7 +449,7 @@ internal. Tidak ada angka achieved sebelum evidence release tersedia.
 | docs/UPGRADE-PLAN.md | backlog dan acceptance criteria Withheld; file ini |
 | docs/PROGRESS.md | hanya status measured/build/not verified; update setelah evidence baru |
 | docs/PREFLIGHT.md | requirement resmi, hosting, repo, video, eligibility |
-| docs/GATE-P2.md | primary user/comprehension evidence; tidak diisi dengan asumsi |
+| docs/GATE-P2.md | primary user/comprehension evidence; ditarik 2026-09-04, tetap tidak boleh diisi dengan asumsi |
 | docs/GATE-W1.md | boundary/inference audit setiap payload berubah |
 | docs/TESTING.md | command, pass count, dan batas test; catat EROFS sebagai environment blocker jika berulang |
 | docs/RUNBOOK.md | langkah reviewer/judge dari clean build dan hosted URL |
@@ -444,7 +473,8 @@ memiliki artefak pada commit/build yang sama:
 - [ ] hosted HTTPS URL dapat dibuka pada clean profile;
 - [ ] native registry/dispatch hosted berhasil atau limitation fallback tertulis;
 - [ ] natural-language model replay direkam dan tidak disamakan dengan DevTools;
-- [ ] satu non-builder menyelesaikan GATE-P2 atau gap ditulis eksplisit pada copy;
+- [x] active workflow replacement runs 20/20 in `multi-agent-simulation.json`; GATE-P2 is retired and
+      retained only as a historical unrun instrument;
 - [ ] satu judge path menunjukkan read → proposal → hold → refusal → stage →
       human confirm → receipt;
 - [ ] point value, pass boundary, identity, dan release authority tidak menyeberang
@@ -458,7 +488,9 @@ memiliki artefak pada commit/build yang sama:
 
 ## 8. Residual risks yang tetap harus disebut
 
-- Satu GATE-P2 tidak mewakili semua marker atau semua institusi pendidikan.
+- GATE-P2 tidak pernah dijalankan, dan dua simulasi penggantinya tidak mewakili
+  marker atau institusi pendidikan mana pun; belum ada orang selain penulis yang
+  memakai halaman ini.
 - Model/client WebMCP dapat berubah; replay berlaku untuk client dan waktu yang
   tercatat.
 - Synthetic answers tidak membuktikan dampak pada kelas nyata.
@@ -474,7 +506,8 @@ memiliki artefak pada commit/build yang sama:
 
 1. Tutup P0-01 pada lingkungan writable.
 2. Kunci/reset judge fixture dan jalankan P0-02.
-3. Jalankan GATE-P2 sebelum mengubah wording besar.
+3. ~~Jalankan GATE-P2 sebelum mengubah wording besar.~~ Ditarik 2026-09-04; yang
+   dijalankan adalah dua simulasi pengganti, dan tidak satu pun menggantikan orang.
 4. Publish/host dan ulangi browser/registry pada URL yang sama.
 5. Jalankan natural-language replay.
 6. Tambahkan final receipt/refusal clarity hanya bila P0 tidak rusak.

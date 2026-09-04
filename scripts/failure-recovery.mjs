@@ -114,6 +114,28 @@ function findBrowser() {
   throw new Error("no Chromium-family browser found on PATH — pass --browser");
 }
 
+/**
+ * Refuse to start when something already answers on the debugging port.
+ *
+ * A second Chromium cannot take a port that is held: ours exits, the port keeps answering, and the
+ * attach below lands in a browser nobody here launched — with its own profile and its own extensions.
+ * That happened on 2026-09-04 to the dispatch probe next door: a neighbouring submission's bridge
+ * browser held its port, and the run reported that browser's injected page-script as a request this
+ * page had made. A journey through refusals is worth even less when it is someone else's page.
+ */
+async function refuseBusyPort(port) {
+  const answering = await fetch(`http://127.0.0.1:${port}/json/version`, {
+    signal: AbortSignal.timeout(500),
+  })
+    .then(() => true)
+    .catch((error) => error.name === "TimeoutError");
+  if (!answering) return;
+
+  throw new Error(
+    `something already answers on ${port}, and it is not the browser this run would launch — pass --port`,
+  );
+}
+
 function launchBrowser(binary) {
   const profile = mkdtempSync(join(tmpdir(), "withheld-recovery-"));
   const browser = spawn(
@@ -271,6 +293,7 @@ function safeState(state) {
 
 async function main() {
   const url = await startPreview();
+  await refuseBusyPort(PORT);
   launchBrowser(findBrowser());
   const cdp = await connect();
   const version = await cdp.command("Browser.getVersion");

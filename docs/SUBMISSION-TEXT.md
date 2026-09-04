@@ -5,16 +5,16 @@
 [`SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md`](./SUBMISSION-TEXT-WINNER-STYLE-DRAFT.md), kept for provenance.
 
 **One blank only the owner can fill:** the demo video. Script in [`VIDEO-SCRIPT.md`](./VIDEO-SCRIPT.md).
-The live URL and the repository are filled in below and were re-read without credentials on 2026-09-03:
-HTTP 200 serving the app, `main` at `9cce7d0a`, `gh-pages` at `15baf8f0`.
+The live URL and the repository are filled in below and were re-read without credentials on 2026-09-03 at
+19:25:19 UTC: HTTP 200 serving the app, `gh-pages` at `15baf8f0`, `main` at `7e404d36`.
 
-**That gate is closed.** The live URL now serves `assets/index-LG0K2zXZ.js`, the same bundle as `dist/`
+**That gate is closed.** The live URL serves `assets/index-LG0K2zXZ.js`, the same bundle as `dist/`
 here: republished at 18:02:45 UTC on `gh-pages` `15baf8f0`, and all three served files hashed
-byte-identical to `dist/` at 18:03 UTC. Every judge-facing control named below, and the newer on-screen
-wording, is live. What has not been repeated against this build is the pair of hosted probes from
-07:44 UTC — they describe the bundle the site served that morning. §7.2 treats a mismatch between
-description, source, video and deployment as an eligibility risk; description, source and deployment now
-agree, and the video is the remaining blank.
+byte-identical to `dist/` again at 19:25:19 UTC. Every judge-facing control named below, and the newer
+on-screen wording, is live. Both hosted probes were repeated against that build — 43/43 at 18:59:34 UTC
+and 19/19 at 19:06:44 UTC — so description, source, deployment and evidence point at one release. §7.2
+treats a mismatch between description, source, video and deployment as an eligibility risk; the video is
+the remaining blank.
 
 **§8.2 coverage, so eligibility is checkable:** (1) why WebMCP fits → *Inspiration*, final two paragraphs;
 (2) better UX → *What it does*, "What that changes"; (3) what a person and an agent can do together →
@@ -150,9 +150,11 @@ teacher's view of the same session; **19 checks** in which Chromium's own `WebMC
 all nine tools and dispatches seven — the injection, the duplicate retry, the stale revision, the unknown
 rubric line, and `confirm_release` coming back *Tool not found*; and **27 checks** over refusal and recovery.
 
-**Verified against the live URL too**, not just localhost: the browser session (43/43, 593 contrast pairs at
-that origin) and the native dispatch (19/19) were re-run against `https://androlay.github.io/withheld/` on
-2026-09-03 at 07:44 UTC in Chrome `151.0.7922.137` with both WebMCP flags — recorded in the artifacts
+**Verified against the live URL too**, not just localhost: the browser session (43/43, 599 contrast pairs and
+a 1106-node accessibility tree at that origin) and the native dispatch (19/19) were re-run against
+`https://androlay.github.io/withheld/` on
+2026-09-03 at 18:59:34 and 19:06:44 UTC in Chrome `151.0.7922.137` with both WebMCP flags, against the build
+the site serves — recorded in the artifacts
 themselves. Everything in `docs/evidence/` is bound to source, build, browser flags and screenshot hashes.
 
 **No model has chosen any of these tools.** Every dispatch was composed by a script that already knew the
@@ -205,9 +207,10 @@ that does not exist — and it is the part of writing this I found hardest to do
 
 ## What's next for Withheld
 
-Put a model in front of this registry with the prompt recorded alongside the calls, so the natural-language
-half becomes evidence rather than an intention. Then a marker who did not build this, reading the page cold,
-because everything I know about whether the boundary is *legible* I learned from my own screen. After that:
+Put this in front of a WebMCP host that finds the page by itself, rather than through the bridge I wrote, so
+the last mechanical half of the agent story stops depending on my own transport. Then a marker who did not
+build this, reading the page cold, because everything I know about whether the boundary is *legible* I learned
+from my own screen. After that:
 durable receipts, a real rubric from a real course, and a screen-reader pass to go with the contrast numbers.
 
 ---
@@ -231,20 +234,65 @@ Live (WebMCP): https://androlay.github.io/withheld/
 GitHub repo:   https://github.com/AndroLay/withheld
 ```
 
-Both were re-read without credentials on 2026-09-03: the live URL answers HTTP 200 serving the app, and the
-repository is public with `main` at `9cce7d0a` and `gh-pages` at `15baf8f0`.
+Both were re-read without credentials on 2026-09-03 at 19:25:19 UTC: the live URL answers HTTP 200 serving the app, and the
+repository is public with `gh-pages` at `15baf8f0` and `main` at `7e404d36`.
 
 ## Image gallery
 
-JPG/PNG/GIF, 5 MB each, **3:2 ratio**, up to 15. The captures in `docs/evidence/screenshots/` are
-viewport-shaped and will letterbox if uploaded as they are — crop them. Four worth preparing, in this order,
-because Devpost uses the first as the card image:
+JPG/PNG/GIF, 5 MB each, **3:2 ratio**, up to 15.
 
-1. The marked table beside the contract column, so the two sources of truth appear in one frame.
-2. One of the four payload boxes open, with the recognised ids visible and no point value anywhere in the JSON.
-3. Umar (`ans-11`) in the audit rail: the injected instruction, the agent claiming all four lines, nothing
-   marked.
-4. Care level at *Cautious* with the lower settings locked and the held figure at six.
+**Corrected 2026-09-04 08:18 WITA — this section used to send you to `docs/evidence/screenshots/`. That
+directory holds a README and no images.** The package's PNGs are in three places, and only one of them may
+be uploaded:
+
+| Where | What it is | Gallery? |
+| --- | --- | --- |
+| `docs/gallery/*.png` | eleven 2× captures of the built page in the states it reaches, taken through its own controls and its own tool surface (`docs/gallery/README.md`) | **yes** |
+| `docs/evidence/browser-*.png` | harness captures of the shipped page, cited by the browser artifacts | **yes** |
+| `docs/design/v3-*.png` | renders of `docs/design/proposal-v3.html`, the mockup the page was built against | **no** |
+| `docs/target-images/*.png` | earlier mockups, kept as provenance (`docs/README.md:27`) | **no** |
+| `docs/images/hero-1440.png` | the shot the top-level README embeds; no artifact records how it was made | only if you re-capture it |
+
+The design renders are the most striking frames in the package — `v3-1440-refused.png` puts both refusal
+codes, the quarantined answer and the whole call rail in one image — and that is exactly why they must not
+go in the gallery. Uploading a mockup as a product screenshot is the description-versus-live mismatch that
+Rules §7.2 treats as an eligibility risk. That frame has now been reproduced from the running app
+instead: `docs/gallery/07-calls-and-refusals.png` holds both refusal codes and the whole call list, and
+`docs/gallery/03-quarantine-1440.png` holds the quarantined answer.
+
+Upload in this order, because Devpost uses the first as the card image. **Reordered 2026-09-04 11:40
+WITA: item 4 below used to read "a fresh capture of the refusal state and of the care level with the
+lower settings locked … neither exists yet". Both now exist, and so do nine more —
+`docs/gallery/`, eleven frames of the built page at 2× density.** The four 1440 frames there are
+2880×1800, which is exactly 3:2, so none of them needs a crop.
+
+1. `docs/gallery/08-gate-awaiting-human.png` — a release staged by a tool and stopped there. Revision
+   05, seven staged, the care setting locked at its highest, and the only button that can send them
+   marked HUMAN ONLY. One frame with the whole argument in it.
+2. `docs/gallery/03-quarantine-1440.png` — the injection. A write claiming every rubric line for the
+   answer that tells the marker to ignore the rubric, the row open on the page's own sentence, and the
+   header reading three calls arrived and none could send a mark.
+3. `docs/gallery/04-marked-1440.png` — 14 answers, 13 marked, 5 held, 0 staged, with the table beside
+   the contract column: both sources of truth in one frame.
+4. `docs/gallery/07-calls-and-refusals.png` — every call in order, the revision each write produced,
+   and the two refusals the interface never offers: `duplicate-operation`, `stale-revision`. Not 3:2;
+   Devpost will letterbox it, which is the right trade for a frame that is a list.
+5. `docs/gallery/05-queue-holds.png` — the queue filtered to *Held for you*, 5 of 14, each row open on
+   the rule that held it.
+6. `docs/gallery/06-care-ratchet.png` — the ratchet after a tool raised it: *Most cautious* selected,
+   both lower settings locked against being chosen again.
+7. Then, if more frames are wanted: `09-authority-grid.png`, `10-audit-ledger.png`,
+   `02-agent-contract.png`, `11-whole-audit-1180.png`, `01-entry-1440.png`.
+
+`docs/evidence/browser-1440-marked.png` and `browser-1440-staged.png` remain valid alternates — both
+are 1440×900 and already 3:2 — but they are 1× and were taken before these states existed. Every frame
+above is a capture of the same build, `84eee099…`, that the live URL serves.
+
+
+One warning about this project's look. The palette is black, white and grey by decision, and it holds up at
+full size — the agent-contract column, the read/write badges and the list of what no result can carry are
+the clearest authority UI in either submission. At Devpost card size it reads as grey texture. Nothing
+above fixes that; the video is what fixes it.
 
 ## Video demo link
 
@@ -337,7 +385,7 @@ https://github.com/AndroLay/withheld
 Public, and the license requirement is met: `LICENSE` is a complete **MIT License** at the repository root, and
 GitHub detects it — "MIT license" is shown in the About sidebar at the top of the repository page, which is
 exactly what the field asks for. There is also a `SECURITY.md` with a linked security policy. Read without
-credentials on 2026-09-03; `main` at `9cce7d0a`, `gh-pages` at `15baf8f0`.
+credentials on 2026-09-03 at 19:25:19 UTC; `gh-pages` at `15baf8f0`, `main` at `7e404d36`.
 
 **No caveat left here:** the published bundle and this source are the same build as of 18:02:45 UTC, and
 the three served files hashed byte-identical to `dist/` a minute later.
@@ -349,10 +397,20 @@ against the local build and against the live URL at `https://androlay.github.io/
 nine registrations and dispatches seven, including the injection, the duplicate retry, the stale revision, the
 unknown rubric line, and `confirm_release` coming back *Tool not found*.
 
-**No model has chosen a tool on this page.** Every dispatch was composed by a script that already knew the
-tool name, the arguments and the revision to quote. That is the surface working from outside the page, not an
-agent replay, and `docs/evidence/natural-language-replay-blocked.json` records it as still open. Not tested:
-**ChatGPT's in-app browser**, and any browser without the two Chromium flags.
+**A model has now chosen tools on this page, twice.** On 2026-09-04 a `claude-opus-5` client was given three
+plain-language goals that name no tool, no parameter and no id, was allowed no tools but these nine, and was
+run once against the local build and once against the live URL. In each run it made 28 calls across 8 of the
+9 tools: it read the stack and the rubric, read all fourteen answers one at a time, sent its own recognition,
+checked what would go out unattended, pulled the held subset and asked why. Both runs asked for a release
+before marking and were refused `stale-revision`; the local one re-marked and asked again. The marks the page
+accepted were not the fixture's demo findings, and the injection answer was credited nothing in every batch.
+What it chose was read out of the bridge's transcript, not out of its prose — `docs/MODEL-REPLAY.md`.
+
+Before that, every dispatch was composed by a script that already knew the tool name, the arguments and the
+revision to quote. That is the surface working from outside the page, not an agent replay, and
+`docs/evidence/natural-language-replay-blocked.json` is kept as the record of that earlier state. Still not
+shown: a **native third-party WebMCP host** discovering the page by itself — the nine tools reached the model
+through our own bridge — and **ChatGPT's in-app browser**, or any browser without the two Chromium flags.
 
 ## Which AI tools have you leveraged while working on this project?
 
@@ -404,13 +462,15 @@ bounded quarantine route on one fixture, not a universal model-safety claim. A c
 design (`docs/DECISIONS.md` D-23) — "recoverable" applies to a proposal before release, a decline before
 confirmation, the receipt history, and re-marking by hand, and to nothing after the send.
 
-- **The published build is behind this source.** See the gate at the top.
 - **No model has chosen a tool.** The nine were dispatched by a DevTools client through Chromium's `WebMCP`
   domain — the surface working from outside the page, not an agent replay.
-- **No person other than the author has read this page.** `docs/evidence/gate-p2-not-run.json` is `NOT_RUN`.
-  There is a labelled multi-reader copy review in `docs/evidence/simulated-panel-2026-09-03.json`, and its own
+- **No person other than the author has read this page.** `docs/evidence/gate-p2-not-run.json` is a
+  historical `NOT_RUN` record. The former GATE-P2 was withdrawn on 2026-09-04 as an active internal
+  requirement. Its workflow replacement — `docs/evidence/multi-agent-simulation.json` — is a deterministic
+  multi-agent role simulation, not user validation.
+  There is also a labelled multi-reader copy review in `docs/evidence/simulated-panel-2026-09-03.json`, and its own
   header says what it is not: *"Not a user study. Not learner validation. Not adoption or impact evidence. No
-  human participated."* It found real wording problems; it does not substitute for one marker in one sitting.
+  human participated."* It found real wording problems; neither file substitutes for one marker in one sitting.
 - **Contrast is computed and the accessibility tree is read, but no screen reader has been run.**
 - **The phone layout is measured at 420 px in a headless browser**, not on a phone.
 - **Nothing has been run in ChatGPT's in-app browser.**
@@ -418,13 +478,14 @@ confirmation, the receipt history, and re-marking by hand, and to nothing after 
 
 ## Before pasting
 
-1. Publish the current build, or delete the sentences describing wording the live URL does not serve.
+1. Confirm the live URL still serves this build before pasting. At 19:25:19 UTC it served bytes identical to
+   `dist/`; if `dist/` is rebuilt after that, the sentences here describe wording the URL no longer serves.
 2. Re-run `node --run test` where `/tmp` has room. Tonight 136 assertions passed and `tests/render.test.mts`
    failed with `disk quota exceeded` — the tmpfs was at 80 %, so Vite could not write its optimized deps.
    Environment, not code, but do not paste a test claim you have not just seen pass.
 3. Re-read every figure in Bagian 2 off its artifact. `docs/PREFLIGHT.md` is the checklist; these figures moved
-   twice today. Nine tools, six read, three write; 599 contrast pairs locally and 593 at the live origin — those
-   two are not interchangeable.
+   twice today. Nine tools, six read, three write; 599 contrast pairs, a 1106-node tree with 57 named and none
+   unnamed — the local and hosted sessions agree on all four, which is the reading to quote.
 4. Record the video from the same build the live URL serves, and check every spoken sentence appears above.
 5. Fill the four `[PENDING_OWNER]` fields in Bagian 3. Country and App Status affect eligibility — do not guess
    them, and do not let me guess them either.
@@ -432,7 +493,6 @@ confirmation, the receipt history, and re-marking by hand, and to nothing after 
 **Do not paste this as evidence of a model run.** The two URLs are verified; the video link is not, and no model
 has chosen a tool on this page. Copy for the form, unsent until the owner records the video and decides to
 submit.
-
 
 
 

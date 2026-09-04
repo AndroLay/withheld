@@ -306,13 +306,17 @@ The deploy workflow starts at `permissions: contents: read` and grants `pages: w
   `engines.node` as `>=22.6.0`, and every run recorded here used `v26.4.0`, so the floor is asserted
   rather than tested — no Node 22 is installed and no version manager is present.
 - A hosted URL now exists and both harnesses have run against it — `https://androlay.github.io/withheld/`,
-  43/43 and 19/19 on 2026-09-03 at 07:44 UTC, recorded in `docs/evidence/hosted-browser-session.json`
+  43/43 at 18:59:34 UTC and 19/19 at 19:06:44 UTC on 2026-09-03, both against the build the site serves,
+  recorded in `docs/evidence/hosted-browser-session.json`
   and `docs/evidence/hosted-webmcp-invocation.json`. That closes delivery and closes nothing else: the
   hosted dispatch was composed by the same deterministic client as the local one, so it is not
   model-selected behaviour, and no security property here has been reviewed on the live origin by anyone
   but the author.
-- No independent screen-reader session, representative-device performance baseline, or GATE-P2
-  non-builder session has been run; each remains explicitly marked in the evidence directory.
+- No independent screen-reader session or representative-device performance baseline has been run;
+  each remains explicitly marked in the evidence directory. The GATE-P2 requirement was withdrawn
+  on 2026-09-04 without ever being run. `multi-agent-simulation.json` is the workflow replacement,
+  but it is not user validation, so no security statement here has been read by anyone outside this
+  project.
 - The page has been rendered in a browser and measured, but only for layout, policy, focus and
   console output. Statements here about how the interface reads — that the release buttons are the
   only path out, that points appear only in the teacher's column — remain statements about the

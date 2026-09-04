@@ -2,12 +2,12 @@
   "status": "VERIFIED_RUN",
   "evidenceClass": "VERIFIED_ARTIFACT",
   "scope": "local production build with deterministic CDP client; not hosted and not model-selected",
-  "ranAt": "2026-09-03T12:55:11.346Z",
+  "ranAt": "2026-09-04T05:39:49.033Z",
   "evidence": {
-    "gitSha": "df9608c46c09e979d1b1dd55039ec7fc52402f24",
+    "gitSha": "7e84c4f9e961dca9fbac2bb309f9014ee77ddb5f",
     "workingTreeDirty": true,
-    "sourceSha256": "10fb7f7cb08384fca77f800922398054c778523ccf7b830ebc665a5b34725012",
-    "buildSha256": "84eee0992732e7190659f7a1de5970fe784adabcb098858ef04ead0a9d120d02",
+    "sourceSha256": "a682d3d7e03b3e9552209d4c94d2c6e2b2038a0889c4d35ab5a344e1c4f3e84d",
+    "buildSha256": "2a6264beb0991a87d630b63c7f592ac888e719aced9cc67262fe65b275f8a8d2",
     "node": "v26.4.0",
     "browserFlags": [
       "--enable-experimental-web-platform-features",

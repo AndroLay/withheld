@@ -171,6 +171,29 @@ function findBrowser() {
 }
 
 /**
+ * Refuse to start when something already answers on the debugging port.
+ *
+ * A second Chromium cannot take a port that is held: ours exits, the port keeps answering, and the
+ * attach below lands in a browser nobody here launched — with its own profile, its own extensions and
+ * its own idea of what a page may load. That happened on 2026-09-04: a neighbouring submission's
+ * bridge browser held this port, and the run credited that browser's injected
+ * `chrome-extension://…/page-script.js` to this page as a request that left the origin. Same
+ * discipline as the preview port above, for the same reason.
+ */
+async function refuseBusyPort(port) {
+  const answering = await fetch(`http://127.0.0.1:${port}/json/version`, {
+    signal: AbortSignal.timeout(500),
+  })
+    .then(() => true)
+    .catch((error) => error.name === "TimeoutError");
+  if (!answering) return;
+
+  throw new Error(
+    `something already answers on ${port}, and it is not the browser this run would launch — pass --port`,
+  );
+}
+
+/**
  * A throwaway profile, headless, and the two switches that expose WebMCP at all. Without
  * `--enable-features=WebMCPTesting` the domain below reports an empty registry, which is a different
  * result from a page that failed to register and must not be mistaken for one.
@@ -371,6 +394,7 @@ function consoleErrors(events) {
 
 async function main() {
   const url = await startPreview();
+  await refuseBusyPort(PORT);
   launchBrowser(findBrowser());
   const cdp = await connect();
   const version = await cdp.command("Browser.getVersion");

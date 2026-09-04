@@ -28,11 +28,14 @@ implemented and covered by tests or the fresh browser artifact:
   tests.
 
 The implementation was rebuilt and checked on Node 26.4.0: 136 tests, typecheck, build, 43 browser
-checks, 17 agent-view checks, 19 WebMCP CDP checks, and 27 local failure/recovery checks pass. The evidence JSON is bound to the base Git SHA, dirty-tree
-state, source/build SHA-256 values, browser flags, and screenshot hashes. The remaining submission
-blockers are external or human evidence: a hosted HTTPS URL, public repository/About visibility,
-natural-language model replay, GATE-P2, Node 22/CI execution, screen-reader listening, and the
-public video.
+checks, 17 agent-view checks, 19 WebMCP CDP checks, 27 local failure/recovery checks, and the
+replacement multi-agent simulation (20/20) pass. The evidence JSON is bound to the base Git SHA,
+dirty-tree state, source/build SHA-256 values, browser flags, and screenshot hashes. The remaining
+submission blockers are external evidence: a native third-party WebMCP host, Node 22/CI execution,
+screen-reader listening, and the public video. Natural-language model replay left this list on
+2026-09-04, when it ran twice — local and hosted, `docs/MODEL-REPLAY.md` — through our own bridge.
+GATE-P2 was retired as an active internal gate on
+2026-09-04 and remains only as a historical unrun instrument.
 
 The sections below preserve the original audit reasoning and acceptance criteria. References to
 the old **HISTORICAL_LOCAL** 37/37, 110-test, missing-receipt, loose-schema, or EROFS snapshot are historical findings,
@@ -56,7 +59,11 @@ Namun paket belum dapat disebut release candidate. Empat status pentingnya adala
    are rejected when extra, duplicated, malformed, or oversized, at both schema and runtime;
    `node --run test` covers it in `tests/webmcp.test.mts` and `node scripts/failure-recovery.mjs`
    replays the same refusals over CDP (27/27).
-3. **Semua bukti model-selected replay, hosted URL, dan user/problem validation masih UNKNOWN atau belum ada.** DevTools dispatch bukan bukti model memilih tool.
+3. **Hosted URL sudah ada sejak 2026-09-03 dan model-selected replay sudah berjalan dua kali pada
+   2026-09-04 — lokal dan hosted, `docs/MODEL-REPLAY.md` — lewat bridge kami sendiri. Yang masih
+   UNKNOWN adalah native third-party WebMCP host dan user/problem validation.** DevTools dispatch
+   tetap bukan bukti model memilih tool; bukti itu sekarang dipegang oleh artefak replay, bukan oleh
+   dispatch pair.
 4. **Fresh local verification is now green on a writable Node 26 environment** (136 tests, typecheck,
    build, 43 browser checks, 17 agent-view checks, 19 WebMCP checks, and 27 local failure/recovery checks). Node 22/CI and the hosted artifact still need
    their own run.
@@ -129,7 +136,7 @@ Artefak package menyimpan:
   checks, including human decline, reload, re-stage, and confirm;
 - package docs menyebut 136 tests, typecheck, dan build; older 110/125/129 test figures dan 37/37, 37-of-44, 44/44 browser figures remain historical only.
 
-Evidence package sekarang mencerminkan run writable terbaru pada 2026-09-03 12:54–12:56 UTC, semuanya terikat pada satu production build (source `10fb7f7c…`, build `84eee099…`): suite Node yang sama dengan script package lulus 136/136, typecheck lulus, build lulus, browser checks lulus 43/43, agent-view sweep lulus 17/17, WebMCP dispatch checks lulus 19/19, dan failure/recovery journey lulus 27/27. Wrapper pnpm pada rerun kandidat terhenti sebelum test karena SQLite store workspace tidak writable; hasil direct Node yang setara tetap lulus. Catatan EROFS dari audit environment sebelumnya tetap historis dan tidak boleh menggantikan hasil writable tersebut. Run ini menggunakan Node 26 lokal; Node 22/CI, natural-language model replay, dan validasi manusia masih terbuka. Hosted HTTPS dan public repository sudah ada, dan sejak 18:02:45 UTC URL live menyajikan build ini (`84eee099…`): ketiga file yang dilayani identik byte dengan `dist/` pada 18:03 UTC. Dua hosted probe 07:44 UTC belum diulang terhadap build itu.
+Evidence package sekarang mencerminkan satu release: build `84eee099…`, dengan source `b924a27a…` pada enam dari tujuh laporan yang lulus. Browser session, agent-view sweep, dan failure/recovery journey diambil ulang pada 2026-09-03 19:19 UTC di source yang sudah dibekukan; dispatch pair lokal tetap pada run 12:54:49 UTC (source `10fb7f7c…`), dan percobaan mengambilnya ulang gagal 18/19 karena ekstensi Chromium yang dipasang paksa di mesin ini menyuntik page-script ke origin `http://` — dicatat sebagai `FAILED_RUN` / `ENVIRONMENT_BLOCKED` di `docs/evidence/local-dispatch-retake-2026-09-03.json`. Hasil: suite Node yang sama dengan script package lulus 136/136, typecheck lulus, build lulus, browser checks lulus 43/43, agent-view sweep lulus 17/17, WebMCP dispatch checks lulus 19/19, dan failure/recovery journey lulus 27/27. Wrapper pnpm pada rerun kandidat terhenti sebelum test karena SQLite store workspace tidak writable; hasil direct Node yang setara tetap lulus. Catatan EROFS dari audit environment sebelumnya tetap historis dan tidak boleh menggantikan hasil writable tersebut. Run ini menggunakan Node 26 lokal; Node 22/CI, native third-party WebMCP host, dan validasi manusia masih terbuka. Natural-language model replay tidak lagi termasuk: ia berjalan dua kali pada 2026-09-04, lokal dan hosted, dan dicatat di `docs/MODEL-REPLAY.md` dengan artefaknya di `docs/evidence-staging/`. Hosted HTTPS dan public repository sudah ada, dan sejak 18:02:45 UTC URL live menyajikan build ini (`84eee099…`): ketiga file yang dilayani identik byte dengan `dist/` pada 19:25:19 UTC. Kedua hosted probe sudah diulang terhadap build itu — 43/43 pada 18:59:34 UTC dan 19/19 pada 19:06:44 UTC, keduanya dengan tree bersih.
 
 ## 4. Temuan prioritas tinggi
 
@@ -199,11 +206,15 @@ ukuran session. `node --run test` menegakkannya di tests/webmcp.test.mts, dan
 
 **Acceptance tests:** extra key, empty ID, oversize batch, duplicate answer, duplicate line, unknown line, dan numeric/string revision semuanya mempunyai hasil refusal yang terstruktur dan tidak membocorkan angka page-owned.
 
-### H-03 / P0 — Model-selected replay belum ada
+### H-03 / P0 — Model-selected replay: **closed on 2026-09-04 lewat bridge sendiri**
 
-**Evidence:** docs/evidence/webmcp-invocation.json dan SECURITY.md:266-274 menyatakan CDP script memilih tool dan menulis argumen; tidak ada model yang mencari page, memilih tool, atau menyusun input. scripts/webmcp-invoke.mjs adalah registry dispatch harness, bukan agent transcript.
+**Evidence (historical):** docs/evidence/webmcp-invocation.json dan SECURITY.md:266-274 menyatakan CDP script memilih tool dan menulis argumen; pada saat audit itu tidak ada model yang mencari page, memilih tool, atau menyusun input. scripts/webmcp-invoke.mjs adalah registry dispatch harness, bukan agent transcript, dan itu masih benar tentang script tersebut.
 
-**Perbaikan wajib:** lakukan satu replay natural-language dengan client/model yang benar-benar memiliki WebMCP access. Simpan prompt, transcript/tool calls, client, model, URL, commit SHA, timestamp, dan limitation. Model harus:
+**Evidence (sekarang):** `scripts/nl-replay.mjs` menjalankan client `claude-opus-5` sungguhan per turn dan membaca pilihan tool dari transcript bridge, bukan dari prosa model. Dua run pada 2026-09-04 — lokal terhadap `dist/` dan hosted terhadap URL live — masing-masing memakai 8 dari 9 tool dari tiga prompt yang tidak menyebut satu nama tool pun, bertemu refusal `stale-revision` milik page, dan mengirim finding recognition-only yang diterima page. `ans-11`, jawaban dengan injection, tidak mendapat kredit pada keempat batch di kedua origin. Prompt, model, tool trace, argumen, URL, dan timestamp tersimpan di `docs/evidence-staging/nl-replay.json` dan `nl-replay-hosted.json`; catatan lengkap beserta batasnya ada di `docs/MODEL-REPLAY.md`.
+
+**Sisa:** model itu mencapai page melalui `scripts/mcp-bridge.mjs` — bridge kami. Native third-party WebMCP host yang menemukan page tanpa bridge itu belum pernah ditunjukkan, dan itu yang menggantikan H-03 sebagai gap. Artefak replay juga belum dipromosikan ke `docs/evidence/`; itu keputusan owner.
+
+**Perbaikan wajib (kriteria asli audit ini):** satu replay natural-language dengan client/model yang benar-benar memiliki WebMCP access. Simpan prompt, transcript/tool calls, client, model, URL, commit SHA, timestamp, dan limitation. Model harus:
 
 1. menemukan/membaca page;
 2. memilih describe_stack/read_rubric/read_answer sendiri;
@@ -212,13 +223,15 @@ ukuran session. `node --run test` menegakkannya di tests/webmcp.test.mts, dan
 5. meminta stage tanpa dapat confirm release;
 6. menghasilkan perubahan DOM/revision/receipt yang cocok.
 
+Diukur terhadap run 2026-09-04: (2), (3) dan (4) terpenuhi — model memilih tool sendiri, menyusun `answerId`/`lineId` yang valid, dan bertemu refusal `stale-revision` yang lokal berhasil dipulihkan. (1) terpenuhi hanya dalam arti membaca, bukan menemukan: page diberikan kepadanya oleh bridge kami. (5) terpenuhi lokal; pada run hosted tidak ada release yang diterima. (6) tidak terekam: harness tidak mengambil DOM antar turn, jadi perubahan revision/receipt dibaca dari envelope tool, bukan dari page. Batas-batas ini ditulis lengkap di `docs/MODEL-REPLAY.md` dan tidak boleh dihaluskan.
+
 **Kill condition:** DevTools atau script yang menentukan semua tool/argumen tidak boleh diberi label “model replay”.
 
 ### H-04 / P0 — Hosted URL: **closed on 2026-09-03**
 
 **Evidence (historical):** PREFLIGHT.md, PROGRESS.md dan UPGRADE-PLAN.md pernah menyatakan hosted URL absent/UNKNOWN, dan artefak saat itu memakai 127.0.0.1.
 
-**Evidence (sekarang):** `https://androlay.github.io/withheld/` menjawab HTTP 200 pada 2026-09-03 18:03 UTC (988 byte `index.html`, last-modified 18:02:45 UTC, ketiga file identik byte dengan `dist/`); repo publik `AndroLay/withheld` berada pada `main` `9cce7d0a` dan `gh-pages` `15baf8f0`. Dua probe dijalankan terhadap URL itu, bukan localhost: `docs/evidence/hosted-browser-session.json` — 43 checks, 43 passed, 07:44:04Z — dan `docs/evidence/hosted-webmcp-invocation.json` — 19 checks, 19 passed, 07:44:25Z. Keduanya Chrome/151.0.7922.137, terikat `sourceSha256 09974722…`/`buildSha256 3700f7c5…` pada commit `93eee30`, dan keduanya menyatakan sendiri bahwa tidak ada model yang terlibat. Pasangan hash itu adalah build yang disajikan URL live sampai republish 18:02:45 UTC; sejak itu URL menyajikan build checkout ini (`84eee099…`), dan kedua probe belum diulang terhadapnya.
+**Evidence (sekarang):** `https://androlay.github.io/withheld/` menjawab HTTP 200 pada 2026-09-03 19:25:19 UTC (988 byte `index.html`, last-modified 18:02:45 UTC, ketiga file identik byte dengan `dist/`); repo publik `AndroLay/withheld` berada pada `gh-pages` `15baf8f0` — ref yang dilayani situs — dan `main` `7e404d36` saat terakhir dibaca tanpa kredensial. Dua probe dijalankan terhadap URL itu, bukan localhost, dan keduanya sesudah republish: `docs/evidence/hosted-browser-session.json` — 43 checks, 43 passed, 18:59:34Z — dan `docs/evidence/hosted-webmcp-invocation.json` — 19 checks, 19 passed, 19:06:44Z. Keduanya Chrome/151.0.7922.137, `workingTreeDirty: false`, terikat `sourceSha256 b924a27a…`/`buildSha256 84eee099…` pada commit `bb4c82ad`, dan keduanya menyatakan sendiri bahwa tidak ada model yang terlibat. Pasangan hash itu adalah build yang disajikan URL live sekarang, jadi hosted evidence dan checkout ini menunjuk ke satu release. Empat screenshot di `docs/evidence/` juga di-render ulang dari URL live pada run 18:59 dan hasilnya identik byte dengan file yang di-commit.
 
 **Sisa:** ChatGPT in-app browser belum pernah dipakai; provider/URL harus tetap hidup sampai 2026-09-21; `manifest.json` mengikat URL, commit, dan hash.
 
@@ -240,11 +253,14 @@ test/typecheck/build/browser/webmcp counts
 artifact SHA-256
 ~~~
 
-### H-06 / P0 — Problem/persona masih hypothesis karena GATE-P2 belum dijalankan
+### H-06 / historical — Problem/persona masih hypothesis; GATE-P2 ditarik 2026-09-04 tanpa dijalankan
 
-**Evidence:** docs/GATE-P2.md:3,111-117 secara eksplisit masih Not run. Synthetic answer fixture membuktikan mekanik, bukan demand atau penghematan waktu marker.
+**Evidence:** docs/GATE-P2.md:3 sekarang berstatus WITHDRAWN, never run. Synthetic answer fixture membuktikan mekanik, bukan demand atau penghematan waktu marker. Temuan ini **tidak tertutup**: menarik gate internal menghapus kewajibannya, bukan kekosongan buktinya, dan docs/GATE-P2-SIMULATION.md berkelas `INFERENCE`.
 
-**Perbaikan wajib:** satu non-builder menjalankan protokol tanpa tour: dua pertanyaan sebelum app, 90 detik melihat app, dua pertanyaan comprehension, jawaban verbatim, tindakan, dan pass/fail. Satu participant bukan statistik populasi; copy harus tetap menyebut potential dan limitation.
+**Status sekarang:** this is not an active acceptance gate. The replacement multi-agent simulation is
+recorded in `docs/evidence/multi-agent-simulation.json` and checks the system workflow, not a person's
+experience. The package must therefore retain the narrow persona and must not claim user comprehension,
+adoption or time savings.
 
 ### H-07 / P0 — Video dan submission evidence belum ada
 
@@ -318,9 +334,13 @@ Pilihan harus dicatat sebagai decision; jangan menghapus recheck safety.
 
 **Evidence:** tool refusal dikembalikan melalui `replyRefused` dan UI manual memakai live region.
 The local browser/WebMCP artifacts now exercise and record stale, invalid, injection, and missing-tool
-refusals; a future hosted/model run must preserve the same visible recovery path.
+refusals. The hosted probes preserve the same path, and both model replays of 2026-09-04 met the
+`stale-revision` refusal for real — the local one recovered from it and retried with the current
+revision.
 
-**Status:** closed for the local transport/browser evidence; hosted/model replay remains open. The
+**Status:** closed for the local transport/browser evidence and for the refusal a model actually met;
+what the replay did not capture is the DOM beside it, because the harness reads refusals from the tool
+envelope rather than from the page. The
 page still does not invent a refusal in the UI without a dispatch that produced it.
 
 ### M-05 / P1 — Partial registration failure now has a bounded retry path
@@ -652,10 +672,10 @@ Path ini adalah rancangan verifikasi, bukan klaim bahwa sudah dijalankan.
 | Agent's view | node --run agent-view | 17/17; no page-owned figure in text or markup of either view | Repeat on final committed source | agent-view-sweep.json |
 | Local registry | node --run webmcp | 19/19 latest, script-composed; unknown rubric-line, duplicate, and stale retries refused | Keep as transport proof | webmcp-invocation.json + native-registry.json |
 | Local recovery | failure-recovery.mjs | 27/27 continuous local journey; decline, reload, re-stage, and confirm are receipt-backed | Repeat on final hosted build where applicable | failure-recovery.json |
-| Hosted browser | clean profile + HTTPS | Absent | URL open, assets/CSP/focus/no console | hosted-browser-session.json |
-| Native hosted WebMCP | client/flag | Absent | registry + dispatch on hosted URL | hosted-webmcp-invocation.json |
-| Model replay | authorized Sol/Terra/Chrome path | Absent | model chooses tools/args | transcript/video |
-| Human problem | GATE-P2 | Not run | non-builder verbatim session | gate result |
+| Hosted browser | clean profile + HTTPS | 43/43 against the live URL, 2026-09-03 18:59:34Z | Keep the URL reachable through judging | hosted-browser-session.json |
+| Native hosted WebMCP | client/flag | 19/19 registry + dispatch on the live URL under Chrome 151 flags; the caller was our CDP harness, not a shipped host | Get a shipped host to dispatch | hosted-webmcp-invocation.json |
+| Model replay | authorized Sol/Terra/Chrome path | Ran twice 2026-09-04 — local and hosted, `claude-opus-5`, 8 of 9 tools from prompts naming none — through `scripts/mcp-bridge.mjs` | Have a host that is not ours do the same; record it on video | evidence-staging/nl-replay*.json + MODEL-REPLAY.md |
+| Human problem | GATE-P2 | Withdrawn 2026-09-04, never run | non-builder verbatim session | gate result |
 | Accessibility | keyboard + listener | AX tree only | manual listening/focus notes | accessibility log |
 | Performance | hosted measurements | Absent | cold/warm/dispatch/input baseline | perf JSON |
 | Rights/release | owner attestation | MIT file only | repo/About/assets/video rights | preflight record |
@@ -668,9 +688,9 @@ Path ini adalah rancangan verifikasi, bukan klaim bahwa sudah dijalankan.
 | --- | --- | --- | --- |
 | P0-01 | Re-run test/typecheck/build/browser/webmcp pada writable env **(closed 2026-09-03: 136/43/17/19/27 pada satu build, tree masih dirty)** | Environment/implementer | Same commit has fresh logs and hashes |
 | P0-02 | Freeze one resettable judge fixture | Implementer | One path starts revision 1 and ends with known receipt |
-| P0-03 | Add/verify hosted static URL | Owner + provider | Clean profile opens HTTPS and assets/CSP/native probe pass |
-| P0-04 | Execute natural-language model replay | Owner/client | Transcript proves model selection and limitation |
-| P0-05 | Run GATE-P2 | Owner + non-builder | Verbatim answers and pass/fail recorded |
+| P0-03 | Add/verify hosted static URL **(closed 2026-09-03)** | Owner + provider | Clean profile opens HTTPS and assets/CSP/native probe pass |
+| P0-04 | Execute natural-language model replay **(closed 2026-09-04: two runs, local and hosted, `docs/MODEL-REPLAY.md`; through our own bridge, artifacts still in `evidence-staging/`)** | Owner/client | Transcript proves model selection and limitation |
+| P0-05 | ~~Run GATE-P2~~ retired 2026-09-04 | Implementer | Replaced by two documents covering different halves: `GATE-P2-SIMULATION.md` for the four human questions and `multi-agent-simulation.json`, 20/20 `SIMULATED_RUN`, for the workflow; GATE-P2 remains historical only |
 | P0-06 | Record 150–170s video | Owner | Hosted build, audio/caption, failure/recovery, no false claims |
 | P0-07 | Public repo/About/MIT/rights/preflight | Owner | Form URLs and repository are mutually consistent |
 
@@ -725,8 +745,11 @@ Withheld boleh disebut **release candidate** hanya jika semua item berikut memil
 - [ ] Hosted HTTPS URL terbuka di clean profile tanpa setup author;
 - [ ] Relative assets, CSP, secure context, console, focus, dan fallback diverifikasi;
 - [ ] Native hosted registration/dispatch terbukti, atau limitation ditulis;
-- [ ] Model benar-benar memilih tool dan menyusun argumen dalam replay terekam;
-- [ ] Satu non-builder menyelesaikan GATE-P2 dan jawaban disimpan verbatim;
+- [x] Model benar-benar memilih tool dan menyusun argumen dalam replay terekam — dua kali pada
+      2026-09-04, lokal dan hosted, `docs/MODEL-REPLAY.md`; lewat bridge kami sendiri, jadi item
+      "native hosted registration/dispatch" di atas tetap terbuka;
+- [x] Multi-agent workflow simulation passes 20/20 and is bound to the current source/build; it is
+      not model replay or user validation;
 - [ ] Judge path memperlihatkan read → proposal → hold → refusal → stage → human confirm/decline → final audit event;
 - [ ] Final human event masuk receipt/timeline tanpa memberi agent authority;
 - [ ] Strict schema/parser parity dan negative/property tests pass;
@@ -757,7 +780,7 @@ Bahkan setelah semua item di atas selesai, klaim berikut tetap harus dibatasi:
 | docs/PROGRESS.md | Status measured/current; jangan menyalin klaim historical sebagai fresh |
 | docs/TESTING.md | Command, test scope, dan batas bukti |
 | docs/GATE-W1.md | Audit numeric/name/inference boundary |
-| docs/GATE-P2.md | Primary user/comprehension evidence |
+| docs/GATE-P2.md | Primary user/comprehension evidence; withdrawn 2026-09-04, never run |
 | docs/PREFLIGHT.md | Requirement resmi, hosting, public repo, rights, video |
 | docs/RUNBOOK.md | Clean build/judge walkthrough |
 | docs/INVENTORY.md + docs/evidence/verification-log.md | Kelas evidence per klaim, dan command/exit code per run |
